@@ -1,11 +1,11 @@
 import React, { Suspense } from "react";
-import SignInForm from "@/components/auth/signin-form";
+import SignUpForm from "@/components/auth/signup-form";
 import { LoadingPage } from "@/components/shared/loading-page";
 
 export default function Page() {
   return (
     <Suspense fallback={<LoadingPage />}>
-      <SignInForm />
+      <SignUpForm />
     </Suspense>
   );
 }
