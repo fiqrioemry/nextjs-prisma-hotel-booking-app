@@ -1,51 +1,97 @@
 // lib/auth.ts
-import { sendEmail } from "./email";
+import { db } from "./prisma";
+import bcrypt from "bcryptjs";
 import { betterAuth } from "better-auth";
-import { PrismaClient } from "@prisma/client";
+import { nextCookies } from "better-auth/next-js";
 import { prismaAdapter } from "better-auth/adapters/prisma";
-
-const prisma = new PrismaClient();
+import { sendResetLink, sendVerificationLink } from "./mailer";
 
 export const auth = betterAuth({
-  database: prismaAdapter(prisma, {
-    provider: "sqlite",
+  database: prismaAdapter(db, {
+    provider: "postgresql",
   }),
   emailAndPassword: {
     enabled: true,
-    requireEmailVerification: false,
-  },
-  emailVerification: {
-    sendVerificationEmail: async ({ user, url, token }, request) => {
-      await sendEmail({
+    password: {
+      hash: async (password: string) => {
+        return await bcrypt.hash(password, 10);
+      },
+      verify: async ({ password, hash }) => {
+        return await bcrypt.compare(password, hash);
+      },
+    },
+    requireEmailVerification: true,
+    sendResetPassword: async ({ user, url }) => {
+      await sendResetLink({
         to: user.email,
-        subject: "Verify your email address",
-        text: `Click the link to verify your email: ${url}`,
+        subject: "Reset your password",
+        url: url,
       });
     },
   },
   socialProviders: {
     google: {
-      clientId: process.env.NEXT_GOOGLE_CLIENT_ID=481078923243-p2t33mrcpq5986d2p2mijnomtu385a35.apps.googleusercontent.com
-as string,
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET as string,
+      clientId: process.env.NEXT_GOOGLE_CLIENT_ID as string,
+      clientSecret: process.env.NEXT_GOOGLE_CLIENT_SECRET as string,
     },
     github: {
-      clientId: process.env.GITHUB_CLIENT_ID as string,
-      clientSecret: process.env.GITHUB_CLIENT_SECRET as string,
+      clientId: process.env.NEXT_GITHUB_CLIENT_ID as string,
+      clientSecret: process.env.NEXT_GITHUB_CLIENT_SECRET as string,
     },
   },
-  secret: process.env.BETTER_AUTH_SECRET!,
-  baseURL: process.env.NEXT_PUBLIC_APP_URL!,
-  trustedOrigins: [process.env.NEXT_PUBLIC_APP_URL!],
   session: {
     expiresIn: 60 * 60 * 24 * 7,
     updateAge: 60 * 60 * 24,
+    cookieCache: { enabled: true, maxAge: 5 * 60 },
   },
+  baseURL: process.env.NEXT_PUBLIC_APP_URL!,
+  secret: process.env.NEXT_BETTER_AUTH_SECRET!,
+  trustedOrigins: [process.env.NEXT_PUBLIC_APP_URL!],
+  emailVerification: {
+    sendOnSignUp: true,
+    autoSignInAfterVerification: true,
+    sendVerificationEmail: async ({ user, token }) => {
+      const verificationUrl = `${
+        process.env.NEXT_PUBLIC_APP_URL
+      }/api/auth/verify-email?token=${token}&callbackURL=${process.env
+        .NEXT_VERIFICATION_URL!}`;
+      await sendVerificationLink({
+        to: user.email,
+        subject: "Verify your email address",
+        url: verificationUrl,
+      });
+    },
+  },
+  plugins: [nextCookies()],
   cookies: {
     secure: process.env.NODE_ENV === "production",
     sameSite: "lax",
     domain:
       process.env.NODE_ENV === "production" ? ".yourdomain.com" : undefined,
+  },
+  user: {
+    additionalFields: {
+      role: {
+        type: "string",
+        required: false,
+        defaultValue: "USER",
+        input: false,
+      },
+    },
+  },
+  databaseHooks: {
+    user: {
+      create: {
+        after: async (user, _) => {
+          try {
+            // add function to create new record on specific table when new user is created
+            console.log(`Profile created for user: ${user.id}`);
+          } catch (error) {
+            console.error("Error creating profile:", error);
+          }
+        },
+      },
+    },
   },
 });
 

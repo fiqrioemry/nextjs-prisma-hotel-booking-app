@@ -11,9 +11,15 @@ export function SignOutButton() {
   async function handleSignOut() {
     await authClient.signOut();
     router.push("/");
+    router.refresh();
   }
+
   return (
-    <Button variant="ghost" onClick={handleSignOut}>
+    <Button
+      className="flex justify-start w-full"
+      variant="ghost"
+      onClick={handleSignOut}
+    >
       <LogOut className="mr-2 h-4 w-4" />
       Log out
     </Button>
