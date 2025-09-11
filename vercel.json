@@ -1,0 +1,16 @@
+{
+  "crons": [
+    {
+      "path": "/api/cron/backup-database",
+      "schedule": "0 2 * * 0"
+    },
+    {
+      "path": "/api/cron/cleanup-unverified-users",
+      "schedule": "0 3 */2 * *"
+    },
+    {
+      "path": "/api/cron/update-payment-status",
+      "schedule": "0 0 * * *"
+    }
+  ]
+}
