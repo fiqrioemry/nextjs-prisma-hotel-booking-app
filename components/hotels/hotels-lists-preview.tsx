@@ -1,6 +1,7 @@
 import React from "react";
 import { Button } from "../ui/button";
 import Link from "next/link";
+import { Card, CardContent } from "../ui/card";
 
 export const HotelsListPreview = ({ hotels }: { hotels: any }) => {
   return (
@@ -13,24 +14,23 @@ export const HotelsListPreview = ({ hotels }: { hotels: any }) => {
       </div>
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
         {hotels.map((hotel: any) => (
-          <div
-            key={hotel.id}
-            className="border rounded-lg overflow-hidden shadow-lg"
-          >
-            <img
-              src={hotel.thumbnail}
-              alt={hotel.name}
-              className="w-full h-48 object-cover"
-            />
-            <div className="p-4">
-              <h2 className="text-xl font-bold mb-2">{hotel.name}</h2>
-              <p className="text-gray-600 mb-2">{hotel.address}</p>
-              <p className="text-gray-800">{hotel.description}</p>
-            </div>
-            <Button className="w-full rounded-none" asChild>
-              <Link href={`/hotels/${hotel.id}`}>See Available Rooms</Link>
-            </Button>
-          </div>
+          <Card key={hotel.id} className="bg-card p-0">
+            <CardContent className="p-4">
+              <img
+                src={hotel.thumbnail}
+                alt={hotel.name}
+                className="w-full h-48 object-cover"
+              />
+              <div className="p-4">
+                <h2 className="text-xl font-bold mb-2">{hotel.name}</h2>
+                <p className="text-gray-600 mb-2">{hotel.address}</p>
+                <p className="text-gray-800">{hotel.description}</p>
+              </div>
+              <Button className="w-full rounded-none" asChild>
+                <Link href={`/hotels/${hotel.id}`}>See Available Rooms</Link>
+              </Button>
+            </CardContent>
+          </Card>
         ))}
       </div>
     </div>
