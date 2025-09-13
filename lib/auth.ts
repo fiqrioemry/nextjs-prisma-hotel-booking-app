@@ -84,6 +84,12 @@ export const auth = betterAuth({
       create: {
         after: async (user, _) => {
           try {
+            await db.profile.create({
+              data: {
+                userId: user.id,
+              },
+            });
+
             // add function to create new record on specific table when new user is created
             console.log(`Profile created for user: ${user.id}`);
           } catch (error) {

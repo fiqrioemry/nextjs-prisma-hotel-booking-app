@@ -1,9 +1,9 @@
-import { FormProvider } from 'react-hook-form';
-import { useFormSchema } from '@/hooks/use-form-schema';
-import { SubmitButton } from '@/components/form-control/submit-button';
+import { FormProvider } from "react-hook-form";
+import { useFormSchema } from "@/hooks/use-form-schema";
+import { SubmitButton } from "@/components/form-control/submit-button";
 
 interface FormInputProps {
-  mode: 'onChange' | 'onBlur' | 'onSubmit';
+  mode: "onChange" | "onBlur" | "onSubmit";
   action: (data: any) => Promise<void>;
   state: any;
   schema: any;

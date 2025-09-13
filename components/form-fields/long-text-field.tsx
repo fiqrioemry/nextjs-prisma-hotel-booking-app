@@ -1,9 +1,9 @@
-'use client';
-import { X } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Textarea } from '@/components/ui/textarea';
-import { Controller, useFormContext } from 'react-hook-form';
-import { FieldWrapper } from '@/components/form-fields/field-wrapper';
+"use client";
+import { X } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Textarea } from "@/components/ui/textarea";
+import { Controller, useFormContext } from "react-hook-form";
+import { FieldWrapper } from "@/components/form-fields/field-wrapper";
 
 export function LongTextField({
   name,
@@ -27,11 +27,10 @@ export function LongTextField({
           label={label}
           helperText={helperText}
           error={formState.errors?.[name]?.message as string}
-          className={className}
         >
           <div className="relative">
             <Textarea
-              className="resize-none min-h-60"
+              className={className}
               id={name}
               rows={rows}
               {...field}
@@ -44,7 +43,7 @@ export function LongTextField({
                 type="button"
                 variant="ghost"
                 size="icon"
-                onClick={() => field.onChange('')}
+                onClick={() => field.onChange("")}
                 className="absolute right-2 top-5 -translate-y-1/2 h-8 w-8"
                 tabIndex={-1}
               >

@@ -16,19 +16,19 @@ export async function POST(req: Request) {
       signature_key,
     } = body;
 
-    // -------------------- 1. Validasi signature --------------------
+    // validate midtrans signature
     const raw = order_id + status_code + gross_amount + MIDTRANS_SERVER_KEY;
     const expectedSig = crypto.createHash("sha512").update(raw).digest("hex");
     if (expectedSig !== signature_key) {
       return NextResponse.json({ error: "Invalid signature" }, { status: 403 });
     }
 
-    // -------------------- 2. Update Payment & Booking --------------------
+    // handle notification
     if (
       transaction_status === "settlement" ||
       transaction_status === "capture"
     ) {
-      // Payment sukses
+      // start transaction to update payment and booking status
       await db.$transaction(async (tx) => {
         const payment = await tx.payment.update({
           where: { id: order_id },
@@ -40,6 +40,7 @@ export async function POST(req: Request) {
           include: { booking: true },
         });
 
+        // update booking status to CONFIRMED
         if (payment.bookingId) {
           await tx.booking.update({
             where: { id: payment.bookingId },
@@ -51,7 +52,7 @@ export async function POST(req: Request) {
       transaction_status === "expire" ||
       transaction_status === "cancel"
     ) {
-      // Payment gagal
+      // if payment expired or cancelled, update payment status to FAILED
       await db.payment.update({
         where: { id: order_id },
         data: {

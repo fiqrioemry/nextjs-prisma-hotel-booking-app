@@ -1,9 +1,9 @@
-import { NextResponse } from "next/server";
 import {
   getBookingById,
-  updateBookingStatus,
   deleteBooking,
+  updateBookingStatus,
 } from "@/lib/actions/bookings";
+import { NextResponse } from "next/server";
 
 export async function GET(
   req: Request,

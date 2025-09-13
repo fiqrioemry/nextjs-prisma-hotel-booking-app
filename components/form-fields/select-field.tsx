@@ -1,6 +1,6 @@
 // fields/SelectField.tsx
 "use client";
-import type { Option } from "@/lib/types/form";
+
 import { Controller, useFormContext } from "react-hook-form";
 import { FieldWrapper } from "@/components/form-fields/field-wrapper";
 import {
@@ -24,7 +24,7 @@ export function SelectField({
   label?: string;
   placeholder?: string;
   helperText?: string;
-  options?: Option[];
+  options?: any;
   disabled?: boolean;
   className?: string;
 }) {
@@ -46,11 +46,11 @@ export function SelectField({
             onValueChange={field.onChange}
             disabled={disabled}
           >
-            <SelectTrigger size="sm" className="min-w-40" id={name}>
+            <SelectTrigger size="sm" className="w-full" id={name}>
               <SelectValue placeholder={placeholder} />
             </SelectTrigger>
             <SelectContent>
-              {options.map((o) => (
+              {options.map((o: any) => (
                 <SelectItem key={o.value} value={o.value}>
                   {o.label}
                 </SelectItem>

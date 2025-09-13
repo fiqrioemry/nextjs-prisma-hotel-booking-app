@@ -1,59 +1,36 @@
-import React from "react";
 import { Metadata } from "next";
+import { getHotelById, HotelDetailParams } from "@/lib/actions/hotels";
 import { HotelDetailPreview } from "@/components/hotel-detail/hotel-detail-preview";
 
 export const metadata: Metadata = {
-  title: "Hotels - Hotel Booking",
+  title: "Hotel Detail - Hotel Booking",
   description: "Explore our range of hotels and find the perfect stay.",
 };
 
-export async function getHotelDetails(hotelId: string) {
-  await new Promise<void>((resolve) => setTimeout(resolve, 1000));
-  return {
-    id: "h_001",
-    name: "Hotel Mawar",
-    description: "Hotel nyaman di pusat kota",
-    thumbnail: "https://via.placeholder.com/300",
-    address: "Jl. Sudirman No.1",
-    rooms: [
-      {
-        id: "r_001",
-        name: "Single Room type",
-        type: "Single Bed",
-        price: 500000,
-        capacity: 2,
-        totalUnits: 10,
-        images: [
-          "https://via.placeholder.com/400",
-          "https://via.placeholder.com/400",
-          "https://via.placeholder.com/400",
-        ],
-      },
-      {
-        id: "r_001",
-        name: "Deluxe Room type",
-        type: "Double Bed",
-        price: 400000,
-        capacity: 2,
-        totalUnits: 10,
-        images: [
-          "https://via.placeholder.com/400",
-          "https://via.placeholder.com/400",
-          "https://via.placeholder.com/400",
-        ],
-      },
-    ],
-  };
-}
-
 export default async function Page({
   params,
+  searchParams,
 }: {
   params: { hotelId: string };
+  searchParams: Omit<HotelDetailParams, "hotelId">;
 }) {
-  const hotel = await getHotelDetails(params.hotelId);
+  const hotel = await getHotelById({
+    hotelId: params.hotelId,
+    startDate: searchParams.startDate,
+    endDate: searchParams.endDate,
+    location: searchParams.location,
+  });
+
+  if (!hotel) {
+    return (
+      <section className="h-screen flex items-center justify-center">
+        <p className="text-lg text-muted-foreground">Hotel not found.</p>
+      </section>
+    );
+  }
+
   return (
-    <section className="h-screen flex items-center justify-center">
+    <section className="py-12 flex items-center justify-center">
       <HotelDetailPreview hotel={hotel} />
     </section>
   );

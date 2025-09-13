@@ -4,29 +4,28 @@ import React from "react";
 import { formatRupiah } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import { BookRoomForm } from "./book-room-form";
-import type { bookForm } from "./book-room-form";
+import type { BookForm } from "./book-room-form";
 import type { Room } from "@/lib/actions/hotels";
 import { ImageCarousel } from "./image-carousel";
 import { Card, CardContent } from "@/components/ui/card";
 import { Users, Hotel, XCircle, CheckCircle } from "lucide-react";
 
 export const RoomCard = ({
-  room,
   hotelId,
+  room,
   startDate,
   endDate,
 }: {
-  room: Room;
   hotelId: string;
+  room: Room;
   endDate: string;
   startDate: string;
 }) => {
-  const [bookForm, setBookForm] = React.useState<bookForm>({
-    hotelId: hotelId,
+  const [bookForm, setBookForm] = React.useState<BookForm>({
     roomId: room.roomId,
     startDate: startDate,
     endDate: endDate,
-    numberOfRooms: 1,
+    quantity: 1,
   });
 
   return (
@@ -133,7 +132,13 @@ export const RoomCard = ({
                     Only {room.availableUnits} rooms left!
                   </div>
                 )}
-                <BookRoomForm room={room} bookForm={bookForm} />
+                <BookRoomForm
+                  hotelId={hotelId}
+                  room={room}
+                  bookForm={bookForm}
+                  endDate={endDate!}
+                  startDate={startDate!}
+                />
               </div>
             ) : (
               <div className="text-center py-4">

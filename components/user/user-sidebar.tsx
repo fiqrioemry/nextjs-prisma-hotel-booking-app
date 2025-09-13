@@ -1,26 +1,48 @@
-import React from "react";
-import { Card, CardContent } from "../ui/card";
+"use client";
 
-export const UserSidebar = () => {
-  const navItems = [
-    { name: "Payments", href: "/payments" },
-    { name: "Bookings", href: "/bookings" },
-    { name: "Profile", href: "/profile" },
-  ];
+import React from "react";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { cn } from "@/lib/utils";
+import { Card } from "@/components/ui/card";
+import { User, Package, Heart, Settings } from "lucide-react";
+import { Separator } from "../ui/separator";
+import { Button } from "../ui/button";
+import { SignOutButton } from "../auth/signout-button";
+
+const navItems = [
+  { href: "/user/profile", label: "Profile", icon: User },
+  { href: "/user/payments", label: "Payments", icon: Package },
+  { href: "/user/bookings", label: "Bookings", icon: Heart },
+  { href: "/user/settings", label: "Settings", icon: Settings },
+];
+
+export function UserSidebar() {
+  const pathname = usePathname();
+
   return (
-    <Card className="w-64 p-0">
-      <CardContent className="p-4">
-        <h1 className="text-2xl font-bold mb-4">User Menu</h1>
-        <ul className="space-y-1">
-          {navItems.map((item) => (
-            <li key={item.name}>
-              <a href={item.href} className="text-blue-600 hover:underline">
-                {item.name}
-              </a>
-            </li>
-          ))}
-        </ul>
-      </CardContent>
+    <Card className="p-4 sticky top-24 h-fit w-64 shadow-lg">
+      <nav className="space-y-2">
+        {navItems.map(({ href, label, icon: Icon }) => (
+          <Link
+            key={href}
+            href={href}
+            className={cn(
+              "flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground",
+              pathname === href
+                ? "bg-accent text-accent-foreground"
+                : "text-muted-foreground"
+            )}
+          >
+            <Icon className="h-4 w-4" />
+            {label}
+          </Link>
+        ))}
+        <Separator className="my-4" />
+        <div className="text-xs text-muted-foreground">
+          <SignOutButton />
+        </div>
+      </nav>
     </Card>
   );
-};
+}

@@ -9,7 +9,6 @@ export function UserNavItems() {
 
   const navItems = [
     { title: "Home", url: "/", isActive: pathname === "/" },
-    { title: "Hotels", url: "/hotels", isActive: pathname === "/hotels" },
     { title: "About", url: "/about", isActive: pathname === "/about" },
     { title: "Contact", url: "/contact", isActive: pathname === "/contact" },
   ];

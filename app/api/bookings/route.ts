@@ -29,11 +29,13 @@ export async function POST(req: Request) {
     const body = await req.json();
     const result = await createBookingWithPayment({
       roomId: body.roomId,
-      checkIn: new Date(body.checkIn),
-      checkOut: new Date(body.checkOut),
+      startDate: body.startDate,
+      endDate: body.endDate,
+      quantity: body.quantity,
     });
     return NextResponse.json(result);
   } catch (err: any) {
+    console.log(err);
     return NextResponse.json({ error: err.message }, { status: 400 });
   }
 }

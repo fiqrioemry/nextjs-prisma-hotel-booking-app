@@ -1,5 +1,6 @@
 import qs from "qs";
 import { BookingQuery } from "@/lib/actions/bookings";
+import { BookForm } from "@/components/hotel-detail/book-room-form";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 
 // -------------------- GET BOOKINGS --------------------
@@ -17,24 +18,6 @@ export function useBooking(id: string) {
     queryKey: ["booking", id],
     queryFn: () => fetch(`/api/bookings/${id}`).then((r) => r.json()),
     enabled: !!id,
-  });
-}
-
-// -------------------- CREATE BOOKING --------------------
-export function useCreateBooking() {
-  const queryClient = useQueryClient();
-  return useMutation({
-    mutationFn: async (data: any) => {
-      const res = await fetch(`/api/bookings`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data),
-      });
-      return res.json();
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["bookings"] });
-    },
   });
 }
 
@@ -71,42 +54,22 @@ export function useDeleteBooking() {
   });
 }
 
-type BookingPayload = {
-  roomId: string;
-  checkIn: string; // format ISO (e.g. "2025-09-20")
-  checkOut: string; // format ISO
-};
-
-type BookingWithPaymentResponse = {
-  success: boolean;
-  message: string;
-  booking?: {
-    id: string;
-    roomId: string;
-    userId: string;
-    checkIn: string;
-    checkOut: string;
-    status: string;
-  };
-  payment?: {
-    id: string;
-    invoiceNo: string;
-    redirectUrl: string;
-    token: string;
-  };
-};
-
+// -------------------- CREATE BOOKING --------------------
 export function useBookingWithPayment() {
-  return useMutation<BookingWithPaymentResponse, Error, BookingPayload>({
-    mutationFn: async (payload: BookingPayload) => {
+  return useMutation({
+    mutationFn: async (payload: BookForm) => {
       const res = await fetch("/api/bookings", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${process.env.NEXT_BETTER_AUTH_SECRET}`,
+        },
         body: JSON.stringify(payload),
       });
 
       if (!res.ok) {
         const errorData = await res.json();
+        console.log(errorData);
         throw new Error(errorData.error || "Booking failed");
       }
 

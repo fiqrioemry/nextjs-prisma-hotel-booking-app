@@ -1,18 +1,13 @@
-import {
-  DropdownMenu,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuTrigger,
-  DropdownMenuContent,
-  DropdownMenuSeparator,
-} from "@/components/ui/dropdown-menu";
 import React from "react";
+
 import Link from "next/link";
 import { auth } from "@/lib/auth";
-import { LogIn } from "lucide-react";
 import { headers } from "next/headers";
 import { Button } from "@/components/ui/button";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { AppLogo } from "@/components/shared/app-logo";
+import { ThemeToggle } from "@/components/shared/theme-toggle";
+import { NavbarDropdown } from "@/components/home/navbar-dropdown";
+import { UserNavItems } from "./user-nav-items";
 
 export default async function Navbar() {
   const session = await auth.api.getSession({
@@ -20,44 +15,22 @@ export default async function Navbar() {
   });
 
   return (
-    <header className="py-4 bg-card">
-      <div className="container mx-auto flex items-center justify-between">
-        <h1 className="text-lg font-bold">FinanceTracker</h1>
-
-        {session ? (
-          <DropdownMenu>
-            <DropdownMenuTrigger>
-              <Avatar>
-                <AvatarImage
-                  src={session?.user.image!}
-                  alt={session?.user.name!}
-                />
-                <AvatarFallback>{session?.user.name?.charAt(0)}</AvatarFallback>
-              </Avatar>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent>
-              <DropdownMenuLabel>
-                <Link href="/summary">Dashboard</Link>
-              </DropdownMenuLabel>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem>
-                <Link href="/profile">Profile</Link>
-              </DropdownMenuItem>
-              <DropdownMenuItem>
-                <Link href="/profile">Profile</Link>
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        ) : (
-          <div>
-            <Button asChild variant="outline" className="mr-2">
-              <Link href="/signin" className="space-x-2">
-                <LogIn />
-                <span>Signin</span>
-              </Link>
+    <header className="py-4 bg-card border-b">
+      <div className="flex items-center justify-between gap-4 mx-auto container max-w-7xl px-4 ">
+        <AppLogo />
+        <div>
+          <UserNavItems />
+        </div>
+        <div className="flex items-center gap-2">
+          <ThemeToggle />
+          {session ? (
+            <NavbarDropdown user={session?.user!} />
+          ) : (
+            <Button variant="outline" className="rounded-full " asChild>
+              <Link href="/signin">Sign In</Link>
             </Button>
-          </div>
-        )}
+          )}
+        </div>
       </div>
     </header>
   );

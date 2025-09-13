@@ -4,16 +4,16 @@ import {
   DialogTrigger,
   DialogContent,
   DialogDescription,
-} from '@/components/ui/dialog';
-import type { ReactNode } from 'react';
-import { Loader2, Pencil } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { FormProvider } from 'react-hook-form';
-import { useFormSchema } from '@/hooks/use-form-schema';
-import { ScrollArea } from '@/components/ui/scroll-area';
-import { useState, useCallback, useEffect } from 'react';
-import { ErrorMessage } from '@/components/shared/error-message';
-import { SubmitButton } from '@/components/form-control/submit-button';
+} from "@/components/ui/dialog";
+import type { ReactNode } from "react";
+import { Loader2, Pencil } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { FormProvider } from "react-hook-form";
+import { useFormSchema } from "@/hooks/use-form-schema";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { useState, useCallback, useEffect } from "react";
+import { ErrorMessageBox } from "@/components/shared/response-message";
+import { SubmitButton } from "@/components/form-control/submit-button";
 
 interface FormDialogProps {
   title: string;
@@ -29,12 +29,12 @@ interface FormDialogProps {
 
 export function FormDialog({
   title,
-  submitText = 'top up',
+  submitText = "top up",
   state,
   schema,
   action,
   children,
-  description = 'Submit button will activate when you make changes.',
+  description = "Submit button will activate when you make changes.",
 
   loading = false,
   buttonElement = (
@@ -50,10 +50,14 @@ export function FormDialog({
   const handleSave = useCallback(
     async (data: any) => {
       const result = await action(data);
-      if (result.success) {
+      if (result?.success) {
+        closeDialog();
+        setError(null);
+      } else if (result?.error) {
+        setError(result.error);
+      } else {
         closeDialog();
       }
-      setError(result.error);
     },
     [action]
   );
@@ -62,7 +66,7 @@ export function FormDialog({
     state: state ? state : {},
     schema: schema,
     action: handleSave,
-    mode: 'onChange',
+    mode: "onChange",
   });
 
   const { isDirty, methods, reset, handleSubmit } = form;
@@ -98,7 +102,7 @@ export function FormDialog({
       {/* Main Dialog */}
       <Dialog
         open={isOpen}
-        onOpenChange={open => (!open ? handleCancel() : setIsOpen(open))}
+        onOpenChange={(open) => (!open ? handleCancel() : setIsOpen(open))}
       >
         <DialogTrigger asChild>{buttonElement}</DialogTrigger>
 
@@ -119,12 +123,7 @@ export function FormDialog({
                 <DialogDescription className="text-sm text-muted-foreground text-center">
                   {description}
                 </DialogDescription>
-                {error && (
-                  <ErrorMessage
-                    title={error}
-                    onclearError={() => setError(null)}
-                  />
-                )}
+                {error && <ErrorMessageBox message={error} />}
               </div>
               <FormProvider {...methods}>
                 <form onSubmit={handleSubmit}>

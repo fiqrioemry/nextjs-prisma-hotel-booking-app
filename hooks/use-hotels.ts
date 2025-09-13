@@ -1,9 +1,9 @@
 import qs from "qs";
-import { hotelsParams } from "@/lib/actions/hotels";
+import { HotelsParams } from "@/lib/actions/hotels";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 
 // -------------------- GET HOTELS --------------------
-export function useHotels({ filters }: { filters: hotelsParams }) {
+export function useHotels({ filters }: { filters: HotelsParams }) {
   const params = qs.stringify(filters, { skipNulls: true });
 
   const query = useQuery({

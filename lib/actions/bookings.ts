@@ -1,7 +1,8 @@
 import { auth } from "@/lib/auth";
 import { db } from "@/lib/prisma";
 import { headers } from "next/headers";
-import { createPayment } from "./payments";
+import { createPaymentWithMidtrans, createPaymentWithStripe } from "./payments";
+import type { BookForm } from "@/components/hotel-detail/book-room-form";
 
 export type BookingQuery = {
   page: number;
@@ -12,26 +13,28 @@ export type BookingQuery = {
 };
 
 // -------------------- CHECK AVAILABILITY --------------------
-async function checkAvailability(
-  roomId: string,
-  checkIn: Date,
-  checkOut: Date
-) {
-  const room = await db.room.findUnique({ where: { id: roomId } });
+async function checkAvailability(bookForm: BookForm) {
+  const room = await db.room.findUnique({ where: { id: bookForm.roomId } });
   if (!room) throw new Error("Room not found");
 
   const overlapping = await db.booking.count({
     where: {
-      roomId,
+      roomId: bookForm.roomId,
       status: { in: ["PENDING", "CONFIRMED"] },
       NOT: {
-        OR: [{ checkOut: { lte: checkIn } }, { checkIn: { gte: checkOut } }],
+        OR: [
+          { checkOut: { lte: new Date(bookForm.startDate) } },
+          { checkIn: { gte: new Date(bookForm.endDate) } },
+        ],
       },
     },
   });
 
   const availableUnits = room.totalUnits - overlapping;
-  return { availableUnits, isAvailable: availableUnits > 0 };
+  return {
+    availableUnits,
+    isAvailable: availableUnits > 0 && availableUnits > bookForm.quantity,
+  };
 }
 
 // -------------------- GET BOOKINGS --------------------
@@ -81,56 +84,13 @@ export async function getBookingById(id: string) {
   });
 }
 
-// -------------------- CREATE BOOKING --------------------
-type CreateBookingData = {
-  roomId: string;
-  checkIn: Date;
-  checkOut: Date;
-};
-
-export async function createBooking(data: CreateBookingData) {
-  const session = await auth.api.getSession({ headers: await headers() });
-  if (!session) {
-    return { success: false, message: "Unauthorized" };
-  }
-
-  // 1. cek ketersediaan
-  const { isAvailable, availableUnits } = await checkAvailability(
-    data.roomId,
-    data.checkIn,
-    data.checkOut
-  );
-
-  if (!isAvailable) {
-    return {
-      success: false,
-      message: `Room not available for the selected dates. Available units: ${availableUnits}`,
-    };
-  }
-
-  // 2. buat booking
-  const booking = await db.booking.create({
-    data: {
-      userId: session.user.id,
-      roomId: data.roomId,
-      checkIn: data.checkIn,
-      checkOut: data.checkOut,
-      status: "PENDING",
-    },
-    include: {
-      room: { include: { hotel: true } },
-    },
-  });
-
-  return { success: true, booking, message: "Booking created successfully" };
-}
-
 // -------------------- UPDATE BOOKING STATUS --------------------
 export async function updateBookingStatus(
   id: string,
   status: "CONFIRMED" | "CANCELLED" | "COMPLETED"
 ) {
   const session = await auth.api.getSession({ headers: await headers() });
+
   if (!session || session.user.role !== "ADMIN") {
     return { success: false, message: "Unauthorized" };
   }
@@ -146,29 +106,79 @@ export async function updateBookingStatus(
 // -------------------- DELETE BOOKING (admin only) --------------------
 export async function deleteBooking(id: string) {
   const session = await auth.api.getSession({ headers: await headers() });
+
   if (!session || session.user.role !== "ADMIN") {
     return { success: false, message: "Unauthorized" };
   }
 
   await db.booking.delete({ where: { id } });
+
   return { success: true, message: "Booking deleted successfully" };
 }
 
-export async function createBookingWithPayment(data: CreateBookingData) {
+// export async function createBookingWithPayment(data: BookForm) {
+//   const session = await auth.api.getSession({ headers: await headers() });
+
+//   if (!session)
+//     return { success: false, redirectUrl: "/", message: "Unauthorized" };
+
+//   // 1. cek room availability
+//   const { isAvailable, availableUnits } = await checkAvailability(data);
+
+//   if (!isAvailable) {
+//     return {
+//       success: false,
+//       message: `Room not available for the selected dates. Available units: ${availableUnits}`,
+//     };
+//   }
+
+//   // 2. create booking
+//   const booking = await db.booking.create({
+//     data: {
+//       userId: session.user.id,
+//       roomId: data.roomId,
+//       quantity: data.quantity,
+//       checkIn: new Date(data.startDate),
+//       checkOut: new Date(data.endDate),
+//       status: "PENDING",
+//     },
+//     include: { room: { include: { hotel: true } } },
+//   });
+
+//   // 3. generate payment directly
+//   const paymentResult = await createPayment({
+//     bookingId: booking.id,
+//     paymentMethod: "BANK_TRANSFER",
+//   });
+
+//   if (!paymentResult.success) {
+//     return { success: false, message: "Failed to create payment" };
+//   }
+
+//   return {
+//     success: true,
+//     data: {
+//       id: paymentResult.paymentId,
+//       invoiceNo: paymentResult.invoiceNo,
+//       redirectUrl: paymentResult.redirectUrl,
+//       token: paymentResult.token,
+//     },
+//     message: "Booking created. Proceed to payment.",
+//   };
+// }
+
+export async function createBookingWithPayment(data: BookForm) {
   const session = await auth.api.getSession({ headers: await headers() });
-  if (!session) return { success: false, message: "Unauthorized" };
 
-  // 1. cek room availability
-  const { isAvailable, availableUnits } = await checkAvailability(
-    data.roomId,
-    data.checkIn,
-    data.checkOut
-  );
+  if (!session)
+    return { success: false, redirectUrl: "/", message: "Unauthorized" };
 
+  // 1. cek ketersediaan kamar
+  const { isAvailable, availableUnits } = await checkAvailability(data);
   if (!isAvailable) {
     return {
       success: false,
-      message: `Room not available. Available units: ${availableUnits}`,
+      message: `Room not available for the selected dates. Available units: ${availableUnits}`,
     };
   }
 
@@ -177,15 +187,16 @@ export async function createBookingWithPayment(data: CreateBookingData) {
     data: {
       userId: session.user.id,
       roomId: data.roomId,
-      checkIn: data.checkIn,
-      checkOut: data.checkOut,
+      quantity: data.quantity,
+      checkIn: new Date(data.startDate),
+      checkOut: new Date(data.endDate),
       status: "PENDING",
     },
     include: { room: { include: { hotel: true } } },
   });
 
-  // 3. generate payment directly
-  const paymentResult = await createPayment({
+  // 3. generate Midtrans payment
+  const paymentResult = await createPaymentWithStripe({
     bookingId: booking.id,
     paymentMethod: "BANK_TRANSFER",
   });
@@ -194,14 +205,14 @@ export async function createBookingWithPayment(data: CreateBookingData) {
     return { success: false, message: "Failed to create payment" };
   }
 
+  console.log(paymentResult);
   return {
     success: true,
-    booking,
-    payment: {
+    data: {
       id: paymentResult.paymentId,
       invoiceNo: paymentResult.invoiceNo,
-      redirectUrl: paymentResult.redirectUrl,
-      token: paymentResult.token,
+      redirectUrl: paymentResult.redirectUrl, // Stripe Checkout URL
+      sessionId: paymentResult.sessionId,
     },
     message: "Booking created. Proceed to payment.",
   };

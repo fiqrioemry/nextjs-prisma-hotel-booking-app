@@ -1,25 +1,47 @@
 "use client";
 
-import React from "react";
-import { ThemeProvider } from "next-themes";
+import {
+  dehydrate,
+  QueryClient,
+  HydrationBoundary,
+  QueryClientProvider,
+} from "@tanstack/react-query";
+import React, { useState } from "react";
 import { Toaster } from "@/components/ui/sonner";
+import { ThemeProvider, useTheme } from "next-themes";
 
-export default function AppProvider({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export function AppProvider({ children }: { children: React.ReactNode }) {
+  const [queryClient] = useState(
+    () =>
+      new QueryClient({
+        defaultOptions: {
+          queries: {
+            staleTime: 5 * 60 * 1000,
+            gcTime: 5 * 60 * 1000,
+            refetchOnMount: true,
+            refetchOnWindowFocus: true,
+            refetchOnReconnect: "always",
+          },
+        },
+      })
+  );
+
+  const { theme } = useTheme();
+  const dehydratedState = dehydrate(queryClient);
+
   return (
-    <div>
-      <ThemeProvider
-        enableSystem
-        attribute="class"
-        defaultTheme="system"
-        disableTransitionOnChange
-      >
-        <Toaster theme="dark" richColors />
-        {children}
-      </ThemeProvider>
-    </div>
+    <ThemeProvider
+      enableSystem
+      attribute="class"
+      defaultTheme="system"
+      disableTransitionOnChange
+    >
+      <QueryClientProvider client={queryClient}>
+        <HydrationBoundary state={dehydratedState}>
+          <Toaster theme={theme as "light" | "dark" | "system"} richColors />
+          {children}
+        </HydrationBoundary>
+      </QueryClientProvider>
+    </ThemeProvider>
   );
 }

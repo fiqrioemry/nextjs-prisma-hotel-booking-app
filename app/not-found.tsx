@@ -43,7 +43,7 @@ export default function NotFound() {
             <Button asChild className="h-12 rounded-full w-40">
               <Link href="/">
                 <ArrowLeft className="size-4 md:size-5" />
-                <span className="font-medium">Return Home  s</span>
+                <span className="font-medium">Return Home</span>
               </Link>
             </Button>
           </div>

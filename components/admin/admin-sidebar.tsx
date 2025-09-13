@@ -9,21 +9,30 @@ import {
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
 
+import {
+  ZapIcon,
+  Book,
+  Home,
+  User2,
+  ChartArea,
+  CreditCard,
+  LayoutDashboard,
+} from "lucide-react";
 import Link from "next/link";
 import * as React from "react";
 import { NavMain } from "./admin-nav-menu";
 import { usePathname } from "next/navigation";
 import { authClient } from "@/lib/auth-client";
-import { UserDropdown } from "@/components/shared/user-drop-down";
 import {
-  ZapIcon,
-  CreditCard,
-  SquareTerminal,
-  Book,
-  Home,
-  User2,
-  ChartArea,
-} from "lucide-react";
+  DropdownMenu,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuContent,
+  DropdownMenuTrigger,
+  DropdownMenuSeparator,
+} from "@/components/ui/dropdown-menu";
+import { SignOutButton } from "@/components/auth/signout-button";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 export function AdminSidebar({
   ...props
@@ -71,7 +80,7 @@ export function AdminSidebar({
     <Sidebar collapsible="icon" {...props}>
       <SidebarHeader>
         <div className="flex gap-2 data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground">
-          <Link href="/" className="flex items-center gap-2">
+          <div className="flex items-center gap-2">
             <div className="p-1 bg-primary/10 rounded">
               <ZapIcon className="w-4 h-4 text-primary" />
             </div>
@@ -80,7 +89,7 @@ export function AdminSidebar({
                 Easy<span className="text-primary">Task</span>.io
               </span>
             </div>
-          </Link>
+          </div>
         </div>
       </SidebarHeader>
       <SidebarContent>
@@ -88,7 +97,60 @@ export function AdminSidebar({
       </SidebarContent>
       <SidebarFooter>
         <SidebarMenuItem>
-          <UserDropdown user={user!} />
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <button className="flex items-center gap-2 focus:outline-none">
+                <Avatar className="h-8 w-8 rounded-lg">
+                  <AvatarImage
+                    src={user?.image || undefined}
+                    alt={user?.name}
+                  />
+                  <AvatarFallback className="rounded-lg">
+                    {user?.name.charAt(0)}
+                  </AvatarFallback>
+                </Avatar>
+                {pathname.startsWith("/") && (
+                  <div className="grid flex-1 text-left text-sm leading-tight">
+                    <span className="truncate font-medium">{user?.name}</span>
+                    <span className="truncate text-xs">{user?.email}</span>
+                  </div>
+                )}
+              </button>
+            </DropdownMenuTrigger>
+
+            <DropdownMenuContent
+              className="w-(--radix-dropdown-menu-trigger-width) min-w-56 rounded-lg"
+              align="end"
+              sideOffset={4}
+            >
+              <DropdownMenuLabel className="p-0 font-normal">
+                <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
+                  <Avatar className="h-8 w-8 rounded-lg">
+                    <AvatarImage
+                      src={user?.image || undefined}
+                      alt={user?.name}
+                    />
+                    <AvatarFallback className="rounded-lg">
+                      {user?.name?.charAt(0)}
+                    </AvatarFallback>
+                  </Avatar>
+                  <div className="grid flex-1 text-left text-sm leading-tight">
+                    <span className="truncate font-medium">{user?.name}</span>
+                    <span className="truncate text-xs">{user?.email}</span>
+                  </div>
+                </div>
+              </DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem asChild>
+                <Link href="/admin/dashboard">
+                  <LayoutDashboard />
+                  <span>Dashboard</span>
+                </Link>
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <SignOutButton />
+            </DropdownMenuContent>
+          </DropdownMenu>
         </SidebarMenuItem>
       </SidebarFooter>
       <SidebarRail />

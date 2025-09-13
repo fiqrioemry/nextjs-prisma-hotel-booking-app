@@ -1,39 +1,36 @@
 "use client";
 
+import { toast } from "sonner";
 import { useState } from "react";
+import { PlusCircle, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { FileText, PlusCircle, X } from "lucide-react";
 import { Controller, useFormContext } from "react-hook-form";
-import { FieldWrapper } from "@/components/form-fields/field-wrapper";
 
 interface FileFieldProps {
   name: string;
   label?: string;
   helperText?: string;
-  fileType?: "docs" | "image" | "video";
-  accept?: string[];
-  multiple?: boolean;
-  maxSize?: number;
+  maxSizeMB?: number;
   maxItems?: number;
-  className?: string;
+  isSingle?: boolean;
+  accept?: string;
 }
 
 export function FileField({
   name,
   label,
   helperText,
-  fileType = "docs",
-  accept = [],
-  multiple = false,
-  maxItems = 1,
-  className,
+  maxSizeMB = 2,
+  maxItems = 5,
+  isSingle = false,
+  accept = "image/*",
 }: FileFieldProps) {
-  const { control, formState } = useFormContext();
+  const { control } = useFormContext();
   const [isDragging, setIsDragging] = useState(false);
 
-  const getURL = (item: File | string) => {
-    if (item instanceof File) return URL.createObjectURL(item);
-    if (typeof item === "string") return item;
+  const getFileURL = (file: File | string) => {
+    if (file instanceof File) return URL.createObjectURL(file);
+    if (typeof file === "string") return file;
     return "";
   };
 
@@ -41,126 +38,102 @@ export function FileField({
     <Controller
       name={name}
       control={control}
-      render={({ field }) => {
+      render={({ field, fieldState }) => {
         const handleFiles = (files: FileList | null) => {
           if (!files) return;
-          const arr = Array.from(files);
 
-          if (multiple) {
-            const updated = [...(field.value || []), ...arr].slice(0, maxItems);
-            field.onChange(updated);
+          const validFiles = Array.from(files).filter((file) => {
+            const isValid = file.size / (1024 * 1024) <= maxSizeMB;
+            if (!isValid) {
+              toast.warning(`${file.name} exceeds ${maxSizeMB}MB`);
+            }
+            return isValid;
+          });
+
+          if (validFiles.length === 0) return;
+
+          if (isSingle) {
+            field.onChange(validFiles[0]);
           } else {
-            field.onChange(arr[0]);
+            const updated = [...(field.value || []), ...validFiles].slice(
+              0,
+              maxItems
+            );
+            field.onChange(updated);
           }
         };
 
         const handleRemove = (file: File | string) => {
-          if (multiple) {
-            field.onChange((field.value || []).filter((f: any) => f !== file));
-          } else {
+          if (isSingle) {
             field.onChange(null);
+          } else {
+            const updated = (field.value || []).filter((f: any) => f !== file);
+            field.onChange(updated);
           }
         };
 
-        /** Docs rendering */
-        if (fileType === "docs") {
-          return (
-            <FieldWrapper
-              name={name}
-              label={label}
-              helperText={helperText}
-              error={formState.errors?.[name]?.message as string}
-              className={className}
-            >
-              {field.value ? (
-                <div className="flex items-center gap-2">
-                  <FileText className="w-5 h-5 text-primary" />
-                  {typeof field.value === "string" ? (
-                    <a
-                      href={field.value}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="text-sm underline"
-                    >
-                      {field.value}
-                    </a>
-                  ) : (
-                    <span className="text-sm">{field.value.name}</span>
-                  )}
-                  <Button
-                    type="button"
-                    size="icon"
-                    variant="ghost"
-                    onClick={() => handleRemove(field.value)}
-                  >
-                    <X className="w-4 h-4" />
-                  </Button>
-                </div>
-              ) : (
-                <input
-                  type="file"
-                  accept={accept.join(",")}
-                  onChange={(e) => handleFiles(e.target.files)}
-                />
-              )}
-            </FieldWrapper>
-          );
-        }
+        const handleDrop = (e: React.DragEvent) => {
+          e.preventDefault();
+          setIsDragging(false);
+          if (e.dataTransfer.files.length > 0) {
+            handleFiles(e.dataTransfer.files);
+            e.dataTransfer.clearData();
+          }
+        };
 
-        /** Image / Video rendering */
-        const isImage = fileType === "image";
-        const items = multiple
-          ? field.value || []
-          : field.value
-          ? [field.value]
-          : [];
+        const items = isSingle
+          ? field.value
+            ? [field.value]
+            : []
+          : field.value || [];
 
         return (
-          <FieldWrapper
-            name={name}
-            label={label}
-            helperText={helperText}
-            error={formState.errors?.[name]?.message as string}
-            className={className}
-          >
+          <div className="space-y-2">
+            {label && (
+              <label className="block text-sm font-medium text-foreground">
+                {label}
+              </label>
+            )}
+            {helperText && (
+              <p className="text-xs text-muted-foreground">{helperText}</p>
+            )}
+
             <div
-              onDrop={(e) => {
-                e.preventDefault();
-                setIsDragging(false);
-                handleFiles(e.dataTransfer.files);
-              }}
+              onDrop={handleDrop}
               onDragOver={(e) => {
                 e.preventDefault();
                 setIsDragging(true);
               }}
               onDragLeave={() => setIsDragging(false)}
-              className={`flex flex-wrap gap-3 p-3 border-2 rounded-md ${
-                isDragging ? "border-primary bg-primary/10" : "border-border"
+              className={`${
+                isSingle
+                  ? "relative w-full aspect-video flex items-center justify-center overflow-hidden"
+                  : "flex flex-wrap gap-4 p-4"
+              } border-2 rounded-md transition ${
+                isDragging
+                  ? "border-primary bg-primary/10"
+                  : "border-border bg-muted/30"
               }`}
             >
               {items.map((item: any, idx: number) => {
-                const url = getURL(item);
+                const url = getFileURL(item);
                 return (
                   <div
                     key={idx}
-                    className="relative w-32 h-32 border rounded-md overflow-hidden flex items-center justify-center"
+                    className={`relative ${
+                      isSingle
+                        ? "w-full h-full"
+                        : "w-32 h-32 border border-border"
+                    } rounded-md overflow-hidden`}
                   >
-                    {isImage ? (
-                      <img
-                        src={url}
-                        alt="preview"
-                        className="object-cover w-full h-full"
-                      />
-                    ) : (
-                      <video
-                        src={url}
-                        controls
-                        className="object-cover w-full h-full"
-                      />
-                    )}
+                    <img
+                      src={url}
+                      alt="preview"
+                      className="object-cover w-full h-full"
+                    />
                     <Button
-                      type="button"
                       size="icon"
+                      type="button"
                       variant="destructive"
                       onClick={() => handleRemove(item)}
                       className="absolute top-1 right-1 p-1"
@@ -171,27 +144,40 @@ export function FileField({
                 );
               })}
 
-              {(!multiple || items.length < maxItems) && (
+              {/* Upload Button */}
+              {(!field.value || (!isSingle && items.length < maxItems)) && (
                 <label
                   htmlFor={`${name}-upload`}
-                  className="flex flex-col items-center justify-center w-32 h-32 border-2 border-dashed border-primary rounded-md cursor-pointer hover:bg-muted"
+                  className={`flex flex-col items-center justify-center ${
+                    isSingle ? "w-full aspect-video" : "w-32 h-32"
+                  } border-2 border-dashed border-primary rounded-md cursor-pointer hover:bg-muted transition`}
                 >
-                  <PlusCircle className="w-6 h-6 text-primary mb-1" />
-                  <span className="text-xs">
-                    Add {isImage ? "Image" : "Video"}
+                  <PlusCircle className="text-primary mb-2" />
+                  <span className="text-sm">
+                    {isSingle ? "Select File" : "Add File"}
                   </span>
                 </label>
               )}
+
               <input
                 id={`${name}-upload`}
                 type="file"
-                accept={accept.join(",")}
-                onChange={(e) => handleFiles(e.target.files)}
-                multiple={multiple}
+                accept={accept}
+                onChange={(e) => {
+                  handleFiles(e.target.files);
+                  e.target.value = "";
+                }}
+                multiple={!isSingle}
                 hidden
               />
             </div>
-          </FieldWrapper>
+
+            {fieldState.error && (
+              <p className="text-destructive text-xs mt-1">
+                {fieldState.error.message}
+              </p>
+            )}
+          </div>
         );
       }}
     />

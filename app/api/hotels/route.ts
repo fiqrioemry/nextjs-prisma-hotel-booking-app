@@ -1,28 +1,24 @@
 import { NextResponse } from "next/server";
-import {
-  getHotels,
-  createHotel,
-  type hotelsParams,
-} from "@/lib/actions/hotels";
+import { getHotels, createHotel } from "@/lib/actions/hotels";
 
 // -------------------- GET (list hotels) --------------------
-export async function GET(req: Request) {
-  const { searchParams } = new URL(req.url);
+// export async function GET(req: Request) {
+//   const { searchParams } = new URL(req.url);
 
-  const query: hotelsParams = {
-    q: searchParams.get("q") || "",
-    sort: (searchParams.get("sort") as "newest" | "oldest") || "newest",
-    page: parseInt(searchParams.get("page") || "1", 10),
-    limit: parseInt(searchParams.get("limit") || "10", 10),
-  };
+//   const query: HotelsParams = {
+//     q: searchParams.get("q") || "",
+//     sort: (searchParams.get("sort") as "newest" | "oldest") || "newest",
+//     page: parseInt(searchParams.get("page") || "1", 10),
+//     limit: parseInt(searchParams.get("limit") || "10", 10),
+//   };
 
-  try {
-    const data = await getHotels(query);
-    return NextResponse.json(data);
-  } catch (err: any) {
-    return NextResponse.json({ error: err.message }, { status: 400 });
-  }
-}
+//   try {
+//     const data = await adminGetHotels(query);
+//     return NextResponse.json(data);
+//   } catch (err: any) {
+//     return NextResponse.json({ error: err.message }, { status: 400 });
+//   }
+// }
 
 // -------------------- POST (create hotel) --------------------
 export async function POST(req: Request) {
@@ -32,6 +28,27 @@ export async function POST(req: Request) {
     if (!data.success) {
       return NextResponse.json(data, { status: 401 });
     }
+    return NextResponse.json(data);
+  } catch (err: any) {
+    return NextResponse.json({ error: err.message }, { status: 400 });
+  }
+}
+
+export async function GET(req: Request) {
+  const { searchParams } = new URL(req.url);
+
+  const query = {
+    q: searchParams.get("q") || "",
+    location: searchParams.get("location") || "",
+    sort: (searchParams.get("sort") as "newest" | "oldest") || "newest",
+    page: parseInt(searchParams.get("page") || "1", 10),
+    limit: parseInt(searchParams.get("limit") || "10", 10),
+    startDate: searchParams.get("startDate") || "",
+    endDate: searchParams.get("endDate") || "",
+  };
+
+  try {
+    const data = await getHotels(query);
     return NextResponse.json(data);
   } catch (err: any) {
     return NextResponse.json({ error: err.message }, { status: 400 });

@@ -1,9 +1,10 @@
 import "./globals.css";
 import type { Metadata } from "next";
-import AppProvider from "@/context/app-provider";
+import { AppProvider } from "@/context/app-provider";
 import { Geist, Geist_Mono } from "next/font/google";
-import Navbar from "@/components/home/navbar";
-import Footer from "@/components/home/footer";
+import { Analytics } from "@vercel/analytics/react";
+import { SpeedInsights } from "@vercel/speed-insights/next";
+import { EdgeStoreProvider } from "@/context/edge-store-provider";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -26,11 +27,15 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <AppProvider>{children}</AppProvider>
+        <Analytics />
+        <SpeedInsights />
+        <AppProvider>
+          <EdgeStoreProvider>{children}</EdgeStoreProvider>
+        </AppProvider>
       </body>
     </html>
   );

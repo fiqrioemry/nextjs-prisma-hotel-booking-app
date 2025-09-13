@@ -22,7 +22,7 @@ export const SelectFilter = ({
 }: SelectFilterProps) => {
   return (
     <Select defaultValue={initialValue} onValueChange={onChange}>
-      <SelectTrigger>
+      <SelectTrigger className="w-full">
         <SelectValue placeholder={placeholder} />
       </SelectTrigger>
       <SelectContent>

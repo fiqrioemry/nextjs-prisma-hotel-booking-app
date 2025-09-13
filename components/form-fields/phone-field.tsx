@@ -15,6 +15,7 @@ interface PhoneNumberFieldProps {
   disabled?: boolean;
   className?: string;
   reset?: boolean;
+  maxLength?: number; // maximum length of the phone number
   countryCode?: string; // default country code
   showIcon?: boolean;
 }
@@ -27,6 +28,7 @@ export function PhoneNumberField({
   disabled,
   className,
   reset,
+  maxLength = 20,
   countryCode = "+62",
   showIcon = true,
 }: PhoneNumberFieldProps) {
@@ -137,9 +139,7 @@ export function PhoneNumberField({
           <FieldWrapper
             name={name}
             label={label}
-            helperText={
-              helperText || "Format: +62 812-3456-7890 atau 0812-3456-7890"
-            }
+            helperText={helperText}
             error={formState.errors?.[name]?.message as string}
             className={className}
           >
@@ -157,7 +157,7 @@ export function PhoneNumberField({
                 placeholder={placeholder}
                 disabled={disabled}
                 className={showIcon ? "pl-10" : ""}
-                maxLength={20} // Allow for formatting characters
+                maxLength={maxLength}
               />
               {reset && field.value && (
                 <Button

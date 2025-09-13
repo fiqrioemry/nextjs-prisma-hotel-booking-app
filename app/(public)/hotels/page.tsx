@@ -1,5 +1,6 @@
-import React from "react";
+// app/hotels/page.tsx
 import { Metadata } from "next";
+import { getHotels, HotelsParams } from "@/lib/actions/hotels";
 import { HotelsListPreview } from "@/components/hotels/hotels-lists-preview";
 
 export const metadata: Metadata = {
@@ -7,44 +8,30 @@ export const metadata: Metadata = {
   description: "Explore our range of hotels and find the perfect stay.",
 };
 
-// simulate fetching data
-async function getHotels() {
-  await new Promise<void>((resolve) => setTimeout(resolve, 1000));
-  return [
-    {
-      id: "h_001",
-      name: "Hotel Mawar",
-      description: "Hotel nyaman di pusat kota",
-      thumbnail: "https://via.placeholder.com/300",
-      address: "Jl. Sudirman No.1, Jakarta",
-      createdAt: "2025-09-01T10:00:00.000Z",
-      updatedAt: "2025-09-10T10:00:00.000Z",
-      rooms: [
-        { id: "r_001", name: "Deluxe", price: 500000, totalUnits: 10 },
-        { id: "r_002", name: "Suite", price: 1200000, totalUnits: 5 },
-      ],
-    },
-    {
-      id: "h_002",
-      name: "Hotel Melati",
-      description: "Hotel bintang lima dengan pemandangan laut",
-      thumbnail: "https://via.placeholder.com/300",
-      address: "Jl. Sudirman No.1, Jakarta",
-      createdAt: "2025-09-01T10:00:00.000Z",
-      updatedAt: "2025-09-10T10:00:00.000Z",
-      rooms: [
-        { id: "r_001", name: "Deluxe", price: 500000, totalUnits: 10 },
-        { id: "r_002", name: "Suite", price: 1200000, totalUnits: 5 },
-      ],
-    },
-  ];
-}
+export default async function Page({
+  searchParams,
+}: {
+  searchParams: HotelsParams;
+}) {
+  const hotels = await getHotels({
+    q: searchParams.q || "",
+    location: searchParams.location || "",
+    startDate: searchParams.startDate || "",
+    endDate: searchParams.endDate || "",
+    page: Number(searchParams.page) || 1,
+    limit: Number(searchParams.limit) || 8,
+    sort:
+      (searchParams.sort as "newest" | "oldest" | "available_rooms") ||
+      "newest",
+  });
 
-export default async function Page() {
-  const hotels = await getHotels();
   return (
-    <section className="h-screen py-12">
-      <HotelsListPreview hotels={hotels} />
+    <section className="py-12">
+      <HotelsListPreview
+        hotels={hotels.data}
+        meta={hotels.meta}
+        searchParams={searchParams!}
+      />
     </section>
   );
 }
