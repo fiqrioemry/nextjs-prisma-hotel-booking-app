@@ -4,17 +4,16 @@ import bcrypt from "bcryptjs";
 const db = new PrismaClient();
 
 async function main() {
-  const password = "StrongPass123!"; // password sama untuk semua user
+  const password = "password123";
   const hashedPassword = await bcrypt.hash(password, 10);
 
-  // Buat admin
   const admin = await db.user.upsert({
-    where: { email: "admin@example.com" },
+    where: { email: "admin@test.com" },
     update: {},
     create: {
       id: "admin-user-id-001",
       name: "Admin User",
-      email: "admin@example.com",
+      email: "admin@test.com",
       emailVerified: true,
       image:
         "https://ui-avatars.com/api/?name=Admin&background=random&color=fff",
@@ -38,16 +37,15 @@ async function main() {
     },
   });
 
-  // Buat 4 user biasa
   const users = await Promise.all(
     [1, 2, 3, 4].map(async (i) => {
       const user = await db.user.upsert({
-        where: { email: `user${i}@example.com` },
+        where: { email: `user${i}@test.com` },
         update: {},
         create: {
           id: `user-id-00${i}`,
           name: `User ${i}`,
-          email: `user${i}@example.com`,
+          email: `user${i}@test.com`,
           emailVerified: true,
           image: `https://ui-avatars.com/api/?name=User+${i}&background=random&color=fff`,
           role: "USER",
@@ -75,7 +73,7 @@ async function main() {
   );
 
   console.log("✅ Seeding selesai!");
-  console.log("Admin login: admin@example.com /", password);
+  console.log("Admin login: admin@test.com /", password);
   users.forEach((u, idx) =>
     console.log(`User${idx + 1} login: ${u.email} / ${password}`)
   );

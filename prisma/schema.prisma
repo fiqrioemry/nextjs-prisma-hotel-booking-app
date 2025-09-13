@@ -43,16 +43,39 @@ model User {
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
 
+  profile  Profile?
   bookings Booking[]
   payments Payment[]
   sessions Session[]
   accounts Account[]
 }
 
+enum GenderEnum {
+  MALE
+  FEMALE
+}
+
+
+model Profile {
+  id            String   @id @default(cuid())
+  userId        String   @unique
+  bio           String?
+  phone         String?
+  address       String?
+  gender        GenderEnum?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+}
+
+
 // -------------------- HOTEL & ROOM --------------------
 model Hotel {
   id        String   @id @default(cuid())
   name      String
+  location  String
   description String
   thumbnail String
   address   String
@@ -62,12 +85,20 @@ model Hotel {
   rooms Room[]
 }
 
+model RoomType {
+  id        String   @id @default(cuid())
+  name      String   @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
 model Room {
   id          String   @id @default(cuid())
   hotelId     String
   name        String
   facilities  String[]
   description String
+
   price       Int
   capacity    Int
   totalUnits  Int    
@@ -96,6 +127,7 @@ model Booking {
   roomId     String
   checkIn    DateTime
   checkOut   DateTime
+  quantity   Int           @default(1)
   status     BookingStatus @default(PENDING)
   createdAt  DateTime      @default(now())
   updatedAt  DateTime      @updatedAt
@@ -118,7 +150,7 @@ model Payment {
   status        PaymentStatus @default(PENDING)
   paymentMethod PaymentMethod @default(BANK_TRANSFER)
   paymentUrl    String?
-  metadata      Json?
+  metadata      Json          @default("{}")
   createdAt     DateTime      @default(now())
   updatedAt     DateTime      @updatedAt
 
