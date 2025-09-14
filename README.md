@@ -41,20 +41,17 @@ It provides a seamless experience for users to search, book, and manage hotel re
 
 ## 3. System Architecture
 
-The app uses a modular monorepo structure with clear separation between frontend, backend API routes, and database layer.
+The system follows a modular and layered architecture, ensuring clear separation of concerns between frontend, backend API routes, and the database.
 
-```mermaid
-graph TD
-	A[Next.js App Router] --> B[API Routes]
-	B --> C[Prisma ORM]
-	C --> D[PostgreSQL]
-	A --> E[UI Components]
-	B --> F[Integrations (Stripe, Midtrans, Google Sheets)]
-	A --> G[Auth (BetterAuth, OAuth)]
-	A --> H[Admin/User Pages]
-```
+- Next.js App Router handles both frontend pages and backend API routes.
 
----
+- Prisma ORM acts as the database access layer, ensuring type-safe queries.
+
+- PostgreSQL stores relational data such as users, hotels, rooms, bookings, and payments.
+
+- Third-party services (Stripe, Midtrans, Google Sheets) are integrated for payments and reporting.
+
+- Authentication layer is handled via BetterAuth/OAuth, with role-based access control (admin vs. user).
 
 ## 4. Installation & Setup
 
