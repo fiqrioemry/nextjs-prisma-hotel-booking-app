@@ -1,5 +1,5 @@
 import React from "react";
-import { PaymentsList } from "@/components/admin/payments/payments-list";
+import { PaymentsList } from "@/components/admin/payments-list";
 
 import { Metadata } from "next";
 export const metadata: Metadata = {
@@ -7,9 +7,9 @@ export const metadata: Metadata = {
   description: "Manage payments in the admin dashboard.",
 };
 
-export default async function Page() {
+export default function Page() {
   return (
-    <div>
+    <div className="mx-auto w-full px-4 sm:px-6 lg:px-8 py-8 space-y-6">
       <PaymentsList />
     </div>
   );

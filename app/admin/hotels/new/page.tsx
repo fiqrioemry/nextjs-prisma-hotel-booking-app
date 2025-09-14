@@ -1,6 +1,15 @@
 "use client";
 import React from "react";
 
+import {
+  Hotel,
+  Info,
+  Plus,
+  Loader2,
+  Trash2,
+  PlusCircle,
+  FolderDown,
+} from "lucide-react";
 import { z } from "zod";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -8,21 +17,12 @@ import { locationOptions } from "@/lib/constant";
 import { useFormSchema } from "@/hooks/use-form-schema";
 import { useEdgeStoreUpload } from "@/hooks/use-uploader";
 import { FormProvider, useFieldArray } from "react-hook-form";
-import { FileUpload } from "@/components/form-fields/file-upload";
+import { FileUploadField } from "@/components/form-fields/file-upload-field";
 import { NumberField } from "@/components/form-fields/number-field";
 import { SelectField } from "@/components/form-fields/select-field";
 import { LongTextField } from "@/components/form-fields/long-text-field";
 import { ShortTextField } from "@/components/form-fields/short-text-field";
 import { ArrayTextField } from "@/components/form-fields/array-text-field";
-import {
-  FolderDown,
-  Hotel,
-  Info,
-  Loader2,
-  Plus,
-  PlusCircle,
-  Trash2,
-} from "lucide-react";
 
 // ---------------- SCHEMA ----------------
 const RoomSchema = z.object({
@@ -32,10 +32,10 @@ const RoomSchema = z.object({
   description: z.string().min(1, "Description is required"),
   totalUnits: z.coerce.number().min(1, "Total units must be at least 1"),
   facilities: z.array(z.string()).min(1, "Facilities is required"),
-  images: z.array(z.instanceof(File)).optional(),
+  images: z.array(z.any()).max(5, "Max 5 images").optional(),
 });
 
-const HotelSchema = z.object({
+const AddHotelSchema = z.object({
   name: z.string().min(1, "Hotel name is required"),
   description: z.string().min(1, "Description is required"),
   location: z.string().min(1, "Location is required"),
@@ -45,14 +45,14 @@ const HotelSchema = z.object({
 });
 
 export type RoomForm = z.infer<typeof RoomSchema>;
-export type HotelForm = z.infer<typeof HotelSchema>;
+export type AddHotelForm = z.infer<typeof AddHotelSchema>;
 
 // ---------------- PAGE ----------------
 export default function Page() {
   const { uploadMultiple } = useEdgeStoreUpload();
 
   const form = useFormSchema({
-    schema: HotelSchema,
+    schema: AddHotelSchema,
     action: handleAddHotel,
     mode: "onChange",
     state: { rooms: [] },
@@ -64,7 +64,7 @@ export default function Page() {
     name: "rooms",
   });
 
-  async function handleAddHotel(data: HotelForm) {
+  async function handleAddHotel(data: AddHotelForm) {
     // // upload images for each room
     // const processedRooms = await Promise.all(
     //   data.rooms.map(async (room) => {
@@ -355,12 +355,10 @@ export default function Page() {
 
                             {/* Image Upload */}
                             <div>
-                              <FileUpload
+                              <FileUploadField
                                 name={`rooms.${idx}.images`}
-                                mode="preview"
                                 label="Room Images"
                                 fileType="image"
-                                multiple={true}
                                 maxFiles={5}
                                 maxSize={5 * 1024 * 1024}
                               />

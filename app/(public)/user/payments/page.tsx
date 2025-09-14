@@ -1,6 +1,12 @@
-import { UserPaymentsLists } from "@/components/user/user-payments-lists";
-import { getMyPayments } from "@/lib/actions/my";
 import React from "react";
+import { Metadata } from "next";
+import { getMyPayments } from "@/lib/actions/my";
+import { UserPaymentsLists } from "@/components/user/user-payments-lists";
+
+export const metadata: Metadata = {
+  title: "My Payments - Hotel Booking",
+  description: "View and manage your payment history.",
+};
 
 export default async function Page() {
   const { data: payments, pagination } = await getMyPayments();

@@ -1,15 +1,19 @@
 import React from "react";
+import { Metadata } from "next";
+import { getDashboardStatistics } from "@/lib/actions/admin";
+import { AdminDashboard } from "@/components/admin/admin-dashboard";
 
-export default function Page() {
+export const metadata: Metadata = {
+  title: "Admin Dashboard",
+  description: "Overview of admin dashboard statistics.",
+};
+
+export default async function Page() {
+  const dashboardData = await getDashboardStatistics();
+
   return (
-    <div className="space-y-6 max-w-7xl w-full mx-auto px-4 md:px-0">
-      <div>
-        <h1 className="text-2xl font-bold">Admin Dashboard</h1>
-        <p className="text-muted-foreground">
-          Overview of your admin settings and configurations.
-        </p>
-      </div>
-      <div className="h-96 w-full border border-dashed"></div>
+    <div className="space-y-6 w-full mx-auto px-4 md:px-8">
+      <AdminDashboard dashboardData={dashboardData} />
     </div>
   );
 }

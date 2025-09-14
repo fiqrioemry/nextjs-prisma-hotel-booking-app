@@ -1,4 +1,4 @@
-// app/hotels/page.tsx
+import React from "react";
 import { Metadata } from "next";
 import { getHotels, HotelsParams } from "@/lib/actions/hotels";
 import { HotelsListPreview } from "@/components/hotels/hotels-lists-preview";
@@ -8,29 +8,27 @@ export const metadata: Metadata = {
   description: "Explore our range of hotels and find the perfect stay.",
 };
 
-export default async function Page({
-  searchParams,
-}: {
-  searchParams: HotelsParams;
+export default async function Page(props: {
+  searchParams: Promise<HotelsParams>;
 }) {
+  const params = await props.searchParams;
+
   const hotels = await getHotels({
-    q: searchParams.q || "",
-    location: searchParams.location || "",
-    startDate: searchParams.startDate || "",
-    endDate: searchParams.endDate || "",
-    page: Number(searchParams.page) || 1,
-    limit: Number(searchParams.limit) || 8,
-    sort:
-      (searchParams.sort as "newest" | "oldest" | "available_rooms") ||
-      "newest",
+    q: params?.q || "",
+    location: params?.location || "",
+    startDate: params?.startDate || "",
+    endDate: params?.endDate || "",
+    page: Number(params?.page) || 1,
+    limit: Number(params?.limit) || 8,
+    sort: params?.sort || "newest",
   });
 
   return (
-    <section className="py-12">
+    <section className="px-4 mt-14 py-12 max-w-7xl mx-auto w-full min-h-screen">
       <HotelsListPreview
         hotels={hotels.data}
         meta={hotels.meta}
-        searchParams={searchParams!}
+        params={params}
       />
     </section>
   );

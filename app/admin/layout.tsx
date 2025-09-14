@@ -23,7 +23,7 @@ export default function StudentLayout({ children }: { children: ReactNode }) {
             />
           </div>
         </header>
-        {children}
+        <div className="font-mono">{children}</div>
       </SidebarInset>
     </SidebarProvider>
   );

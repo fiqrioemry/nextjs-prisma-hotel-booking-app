@@ -8,8 +8,8 @@ import {
   CardContent,
   CardDescription,
 } from "@/components/ui/card";
-import { Skeleton } from "@/components/ui/skeleton";
 import { Hotel } from "lucide-react";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export default function Loading() {
   return (
@@ -35,9 +35,9 @@ export default function Loading() {
                 <Skeleton className="w-28 h-20 rounded-lg" />
 
                 <div className="space-y-2">
-                  <Skeleton className="h-4 w-40" /> {/* hotel name */}
-                  <Skeleton className="h-3 w-32" /> {/* room name & capacity */}
-                  <Skeleton className="h-3 w-48" /> {/* dates */}
+                  <Skeleton className="h-4 w-40" />
+                  <Skeleton className="h-3 w-32" />
+                  <Skeleton className="h-3 w-48" />
                   <Skeleton className="h-5 w-20 rounded-full" />{" "}
                   {/* status badge */}
                 </div>

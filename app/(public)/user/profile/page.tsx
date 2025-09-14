@@ -1,6 +1,12 @@
 import React from "react";
+import { Metadata } from "next";
 import { getMyProfile } from "@/lib/actions/my";
 import { UserProfileForm } from "@/components/user/user-profile-form";
+
+export const metadata: Metadata = {
+  title: "My Profile - Hotel Booking",
+  description: "View and manage your profile information.",
+};
 
 export default async function Page() {
   const res = await getMyProfile();

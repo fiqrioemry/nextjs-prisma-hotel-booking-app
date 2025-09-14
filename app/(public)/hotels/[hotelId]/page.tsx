@@ -12,7 +12,7 @@ export default async function Page({
   searchParams,
 }: {
   params: { hotelId: string };
-  searchParams: Omit<HotelDetailParams, "hotelId">;
+  searchParams: Omit<HotelDetailParams, "id">;
 }) {
   const hotel = await getHotelById({
     hotelId: params.hotelId,
@@ -30,7 +30,7 @@ export default async function Page({
   }
 
   return (
-    <section className="py-12 flex items-center justify-center">
+    <section className="px-4 mt-14 py-12 max-w-7xl mx-auto w-full min-h-screen">
       <HotelDetailPreview hotel={hotel} />
     </section>
   );

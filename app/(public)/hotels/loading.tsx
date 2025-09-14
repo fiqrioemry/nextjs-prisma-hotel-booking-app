@@ -1,4 +1,5 @@
 import React from "react";
+import { Skeleton } from "@/components/ui/skeleton";
 import { Card, CardContent } from "@/components/ui/card";
 
 export default function Loading() {
@@ -6,8 +7,8 @@ export default function Loading() {
     <section className="p-6 max-w-7xl mx-auto w-full space-y-8">
       {/* Header skeleton */}
       <div className="space-y-2">
-        <div className="h-8 w-48 bg-muted animate-pulse rounded"></div>
-        <div className="h-5 w-72 bg-muted animate-pulse rounded"></div>
+        <Skeleton className="h-8 w-48" />
+        <Skeleton className="h-5 w-72" />
       </div>
 
       {/* Grid skeleton */}
@@ -15,13 +16,13 @@ export default function Loading() {
         {Array.from({ length: 8 }).map((_, i) => (
           <Card key={i} className="bg-card p-0 flex flex-col">
             <CardContent className="p-0 flex flex-col flex-1">
-              <div className="w-full h-48 bg-muted animate-pulse rounded-t-lg"></div>
+              <Skeleton className="w-full h-48 rounded-t-lg" />
               <div className="p-4 space-y-2">
-                <div className="h-5 w-40 bg-muted animate-pulse rounded"></div>
-                <div className="h-4 w-28 bg-muted animate-pulse rounded"></div>
-                <div className="h-4 w-full bg-muted animate-pulse rounded"></div>
+                <Skeleton className="h-5 w-40" />
+                <Skeleton className="h-4 w-28" />
+                <Skeleton className="h-4 w-full" />
               </div>
-              <div className="h-10 bg-muted animate-pulse w-full"></div>
+              <Skeleton className="h-10 w-full" />
             </CardContent>
           </Card>
         ))}
