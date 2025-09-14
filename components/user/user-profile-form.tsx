@@ -14,13 +14,13 @@ import { toast } from "sonner";
 import { formatDateTime } from "@/lib/utils";
 import { FormProvider } from "react-hook-form";
 import { Button } from "@/components/ui/button";
+import { updateMyProfile } from "@/lib/actions/my";
 import { useFormSchema } from "@/hooks/use-form-schema";
 import { SelectField } from "@/components/form-fields/select-field";
 import { X, Check, Loader2, Mail, Calendar, User2 } from "lucide-react";
 import { PhoneNumberField } from "@/components/form-fields/phone-field";
 import { LongTextField } from "@/components/form-fields/long-text-field";
 import { ShortTextField } from "@/components/form-fields/short-text-field";
-import { updateMyProfile } from "@/lib/actions/my";
 
 const ProfileSchema = z.object({
   name: z.string().trim().min(3, "Name required min. 3 characters"),
@@ -58,15 +58,17 @@ export const UserProfileForm = ({ profile }: { profile: ProfileForm }) => {
     <Card className="p-0">
       <CardHeader className="pt-4">
         <CardTitle className="flex items-center gap-2">
-          <User2 className="h-5 w-5" />
+          <User2 className="h-8 w-8" />
           User Profile
         </CardTitle>
         <CardDescription>
           Manage your account settings and personal information
         </CardDescription>
+      </CardHeader>
 
-        {/* READ-ONLY SECTION */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 p-4 rounded-xl border mt-4">
+      <CardContent className="space-y-6 p-4 border-t">
+        {/* Read only section */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 p-4 rounded-xl border">
           {/* Avatar */}
           <div className="flex flex-col items-center">
             <div className="relative h-24 w-24 rounded-full overflow-hidden border shadow-sm">
@@ -108,10 +110,7 @@ export const UserProfileForm = ({ profile }: { profile: ProfileForm }) => {
             </p>
           </div>
         </div>
-      </CardHeader>
-
-      {/* EDITABLE FORM */}
-      <CardContent className="space-y-4 p-4">
+        {/* Editable form */}
         <FormProvider {...form.methods}>
           <form onSubmit={form.handleSubmit} className="space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -142,6 +141,7 @@ export const UserProfileForm = ({ profile }: { profile: ProfileForm }) => {
               label="Bio"
               rows={3}
               placeholder="Tell us about yourself"
+              className="resize-none"
             />
 
             <ShortTextField

@@ -2,19 +2,17 @@
 
 import React from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { Card } from "@/components/ui/card";
-import { User, Package, Heart, Settings } from "lucide-react";
-import { Separator } from "../ui/separator";
-import { Button } from "../ui/button";
-import { SignOutButton } from "../auth/signout-button";
+import { usePathname } from "next/navigation";
+import { Separator } from "@/components/ui/separator";
+import { User2, CreditCard, Hotel } from "lucide-react";
+import { SignOutButton } from "@/components/auth/signout-button";
 
 const navItems = [
-  { href: "/user/profile", label: "Profile", icon: User },
-  { href: "/user/payments", label: "Payments", icon: Package },
-  { href: "/user/bookings", label: "Bookings", icon: Heart },
-  { href: "/user/settings", label: "Settings", icon: Settings },
+  { href: "/user/profile", label: "Profile", icon: User2 },
+  { href: "/user/bookings", label: "Bookings", icon: Hotel },
+  { href: "/user/payments", label: "Payments", icon: CreditCard },
 ];
 
 export function UserSidebar() {

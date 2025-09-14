@@ -2,32 +2,18 @@
 
 import {
   Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
   DialogTitle,
+  DialogHeader,
+  DialogContent,
   DialogTrigger,
+  DialogDescription,
 } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { Eye } from "lucide-react";
-import Image from "next/image";
 import React from "react";
+import Image from "next/image";
+import { Eye } from "lucide-react";
 import { formatRupiah } from "@/lib/utils";
-
-type Room = {
-  id: string;
-  name: string;
-  price: number;
-  capacity: number;
-  description: string;
-  images: string[];
-  hotel: {
-    id: string;
-    name: string;
-    location: string;
-    thumbnail: string;
-  };
-};
+import { Button } from "@/components/ui/button";
+import type { Room } from "@/lib/actions/hotels";
 
 export function BookedRoomDetail({ room }: { room: Room }) {
   return (
@@ -39,7 +25,7 @@ export function BookedRoomDetail({ room }: { room: Room }) {
       </DialogTrigger>
       <DialogContent className="max-w-lg">
         <DialogHeader>
-          <DialogTitle>{room.hotel.name}</DialogTitle>
+          <DialogTitle>{room.name}</DialogTitle>
           <DialogDescription>
             {room.name} · {room.capacity} Guests
           </DialogDescription>
@@ -47,7 +33,7 @@ export function BookedRoomDetail({ room }: { room: Room }) {
         <div className="space-y-3">
           <div className="relative w-full h-48 rounded-lg overflow-hidden">
             <Image
-              src={room.images[0] || room.hotel.thumbnail}
+              src={room.images[0]}
               alt={room.name}
               fill
               sizes="100vw"

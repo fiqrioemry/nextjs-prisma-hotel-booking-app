@@ -12,16 +12,15 @@ import z from "zod";
 import Link from "next/link";
 import { toast } from "sonner";
 import React, { useState } from "react";
-import { AlertCircle } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { FormProvider } from "react-hook-form";
 import { authClient } from "@/lib/auth-client";
 import { useFormSchema } from "@/hooks/use-form-schema";
-import { PasswordField } from "@/components/form-fields/password-field";
+import { ErrorMessageBox } from "@/components/shared/response-message";
 import { SubmitButton } from "@/components/form-control/submit-button";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { PasswordField } from "@/components/form-fields/password-field";
 
-const resetPasswordSchema = z
+const ResetPasswordSchema = z
   .object({
     password: z.string().min(8, "Password must be at least 8 characters"),
     confirmPassword: z.string().min(1, "Confirm password is required"),
@@ -31,7 +30,7 @@ const resetPasswordSchema = z
     path: ["confirmPassword"],
   });
 
-type resetPasswordFormValues = z.infer<typeof resetPasswordSchema>;
+type ResetPasswordForm = z.infer<typeof ResetPasswordSchema>;
 
 export function ResetPasswordForm({ token }: { token: string }) {
   const router = useRouter();
@@ -39,11 +38,11 @@ export function ResetPasswordForm({ token }: { token: string }) {
 
   const form = useFormSchema({
     action: handleResetPassword,
-    schema: resetPasswordSchema,
+    schema: ResetPasswordSchema,
     mode: "onChange",
   });
 
-  async function handleResetPassword(data: resetPasswordFormValues) {
+  async function handleResetPassword(data: ResetPasswordForm) {
     const { error } = await authClient.resetPassword({
       newPassword: data.password,
       token,
@@ -67,15 +66,7 @@ export function ResetPasswordForm({ token }: { token: string }) {
         </CardDescription>
       </CardHeader>
       <CardContent>
-        {error && (
-          <Alert className="flex items-center bg-destructive/10 border-destructive text-destructive mb-4">
-            <AlertCircle className="h-6 w-6" />
-            <div className="flex-1">
-              <AlertTitle>Reset Failed</AlertTitle>
-              <AlertDescription>{error}</AlertDescription>
-            </div>
-          </Alert>
-        )}
+        {error && <ErrorMessageBox message={error} />}
         <FormProvider {...form.methods}>
           <form onSubmit={form.handleSubmit} className="space-y-3">
             <PasswordField

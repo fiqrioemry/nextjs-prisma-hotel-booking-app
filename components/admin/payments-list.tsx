@@ -105,7 +105,7 @@ export function PaymentsList() {
         </Button>
       </div>
       <div className="border rounded-md">
-        {isEmpty ? (
+        {isEmpty && !isFetching ? (
           <div className="flex flex-col items-center justify-center py-16">
             <span className="text-lg font-semibold text-muted-foreground">
               No payments Available

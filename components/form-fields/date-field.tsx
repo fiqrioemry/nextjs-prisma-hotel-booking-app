@@ -1,4 +1,3 @@
-// components/form-fields/DateField.tsx
 "use client";
 
 import {
@@ -10,7 +9,7 @@ import { cn } from "@/lib/utils";
 import { CalendarIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
-import { Controller, useFormContext } from "react-hook-form";
+import { Controller, useFormContext, useWatch } from "react-hook-form";
 import {
   format,
   isValid,
@@ -18,6 +17,7 @@ import {
   formatISO,
   isBefore,
   startOfDay,
+  addDays,
 } from "date-fns";
 import { FieldWrapper } from "@/components/form-fields/field-wrapper";
 
@@ -26,6 +26,7 @@ type DateFieldProps = {
   label?: string;
   helperText?: string;
   className?: string;
+  minDateFrom?: string; // ⬅️ minimum date custom (misalnya untuk endDate)
 };
 
 export function DateField({
@@ -33,8 +34,12 @@ export function DateField({
   label,
   helperText,
   className,
+  minDateFrom,
 }: DateFieldProps) {
-  const { control, formState } = useFormContext();
+  const { control, formState, setValue } = useFormContext();
+
+  // ⬅️ perhatikan startDate kalau field sekarang adalah endDate
+  const startDateValue = useWatch({ name: "startDate" });
 
   const toDate = (v: unknown): Date | undefined => {
     if (!v) return undefined;
@@ -59,6 +64,22 @@ export function DateField({
           selected && isValid(selected)
             ? format(selected, "PPP")
             : "Pick a date";
+
+        // Tentukan minimum date
+        const today = startOfDay(new Date());
+
+        let minDate = today;
+        if (name === "endDate" && startDateValue) {
+          const parsedStart = startOfDay(parseISO(startDateValue));
+          minDate = addDays(parsedStart, 1); // endDate minimal +1 hari
+          // ⬅️ auto set endDate kalau invalid
+          if (selected && selected <= parsedStart) {
+            const newEnd = addDays(parsedStart, 1);
+            setValue("endDate", toStore(newEnd), { shouldValidate: true });
+          }
+        } else if (minDateFrom) {
+          minDate = startOfDay(parseISO(minDateFrom));
+        }
 
         return (
           <FieldWrapper
@@ -87,9 +108,7 @@ export function DateField({
                   mode="single"
                   selected={selected}
                   onSelect={(d) => field.onChange(toStore(d))}
-                  disabled={(date) =>
-                    isBefore(startOfDay(date), startOfDay(new Date()))
-                  }
+                  disabled={(date) => isBefore(startOfDay(date), minDate)}
                 />
               </PopoverContent>
             </Popover>

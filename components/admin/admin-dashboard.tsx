@@ -3,16 +3,12 @@
 import React from "react";
 import {
   Card,
+  CardTitle,
+  CardHeader,
   CardContent,
   CardDescription,
-  CardHeader,
-  CardTitle,
 } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Progress } from "@/components/ui/progress";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+
 import {
   BarChart,
   Bar,
@@ -29,7 +25,7 @@ import {
   CartesianGrid,
   ResponsiveContainer,
 } from "recharts";
-import { DashboardStatistics } from "@/lib/actions/admin";
+
 import {
   Hotel,
   Users,
@@ -41,10 +37,16 @@ import {
   DollarSign,
   CheckCircle,
   CreditCard,
-  AlertCircle,
   TrendingDown,
 } from "lucide-react";
 import Link from "next/link";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Progress } from "@/components/ui/progress";
+import { DashboardStatistics } from "@/lib/actions/admin";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { formatDate, formatRupiah } from "@/lib/utils";
 
 // Color schemes for charts
 const CHART_COLORS = {
@@ -68,15 +70,6 @@ export const AdminDashboard = ({
   dashboardData: DashboardStatistics;
 }) => {
   const data = dashboardData;
-
-  // Format currency
-  const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat("id-ID", {
-      style: "currency",
-      currency: "IDR",
-      minimumFractionDigits: 0,
-    }).format(amount);
-  };
 
   // Format growth percentage
   const formatGrowth = (growth: number) => {
@@ -111,7 +104,7 @@ export const AdminDashboard = ({
         </div>
         <div className="flex items-center space-x-2">
           <Badge variant="secondary" className="text-sm">
-            Last updated: {new Date().toLocaleDateString()}
+            Last updated: {new Date().toLocaleDateString("id-ID")}
           </Badge>
         </div>
       </div>
@@ -125,11 +118,11 @@ export const AdminDashboard = ({
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {formatCurrency(data.totalRevenue)}
+              {formatRupiah(data.totalRevenue)}
             </div>
             <div className="flex items-center justify-between mt-2">
               <p className="text-xs text-muted-foreground">
-                This month: {formatCurrency(data.monthlyRevenue)}
+                This month: {formatRupiah(data.monthlyRevenue)}
               </p>
               {formatGrowth(data.revenueGrowth)}
             </div>
@@ -145,7 +138,7 @@ export const AdminDashboard = ({
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {data.totalBookings.toLocaleString()}
+              {data.totalBookings.toLocaleString("id-ID")}
             </div>
             <div className="flex items-center justify-between mt-2">
               <p className="text-xs text-muted-foreground">
@@ -183,7 +176,7 @@ export const AdminDashboard = ({
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {data.totalActiveUsers.toLocaleString()}
+              {data.totalActiveUsers.toLocaleString("id-ID")}
             </div>
             <div className="flex items-center justify-between mt-2">
               <p className="text-xs text-muted-foreground">
@@ -219,7 +212,7 @@ export const AdminDashboard = ({
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {formatCurrency(data.averageBookingValue)}
+              {formatRupiah(data.averageBookingValue)}
             </div>
             <p className="text-xs text-muted-foreground">
               Per booking transaction
@@ -279,10 +272,10 @@ export const AdminDashboard = ({
                   <AreaChart data={data.monthlyRevenueStats}>
                     <CartesianGrid strokeDasharray="3 3" />
                     <XAxis dataKey="month" />
-                    <YAxis tickFormatter={(value) => formatCurrency(value)} />
+                    <YAxis tickFormatter={(value) => formatRupiah(value)} />
                     <Tooltip
                       formatter={(value: number) => [
-                        formatCurrency(value),
+                        formatRupiah(value),
                         "Revenue",
                       ]}
                       labelFormatter={(label) => `Month: ${label}`}
@@ -305,10 +298,10 @@ export const AdminDashboard = ({
                   <LineChart data={data.monthlyRevenueStats}>
                     <CartesianGrid strokeDasharray="3 3" />
                     <XAxis dataKey="month" />
-                    <YAxis tickFormatter={(value) => formatCurrency(value)} />
+                    <YAxis tickFormatter={(value) => formatRupiah(value)} />
                     <Tooltip
                       formatter={(value: number) => [
-                        formatCurrency(value),
+                        formatRupiah(value),
                         "Avg. Value",
                       ]}
                       labelFormatter={(label) => `Month: ${label}`}
@@ -467,7 +460,7 @@ export const AdminDashboard = ({
                     />
                     <div className="flex justify-between text-xs text-muted-foreground">
                       <span>{method.percentage.toFixed(1)}%</span>
-                      <span>{formatCurrency(method.totalAmount)}</span>
+                      <span>{formatRupiah(method.totalAmount)}</span>
                     </div>
                   </div>
                 ))}
@@ -488,7 +481,7 @@ export const AdminDashboard = ({
               <div className="space-y-4">
                 {data.topPerformingHotels.map((hotel, index) => (
                   <div
-                    key={hotel.hotelId}
+                    key={hotel.id}
                     className="flex items-center space-x-4 p-4 border rounded-lg"
                   >
                     <Badge
@@ -499,19 +492,14 @@ export const AdminDashboard = ({
                     </Badge>
 
                     <Avatar className="h-12 w-12">
-                      <AvatarImage
-                        src={hotel.thumbnail}
-                        alt={hotel.hotelName}
-                      />
+                      <AvatarImage src={hotel.thumbnail} alt={hotel.name} />
                       <AvatarFallback>
                         <Building className="h-6 w-6" />
                       </AvatarFallback>
                     </Avatar>
 
                     <div className="flex-1 space-y-1">
-                      <h4 className="text-sm font-semibold">
-                        {hotel.hotelName}
-                      </h4>
+                      <h4 className="text-sm font-semibold">{hotel.name}</h4>
                       <div className="flex items-center space-x-4 text-xs text-muted-foreground">
                         <span>{hotel.totalBookings} bookings</span>
                         <span>•</span>
@@ -521,7 +509,7 @@ export const AdminDashboard = ({
 
                     <div className="text-right">
                       <div className="text-sm font-semibold">
-                        {formatCurrency(hotel.totalRevenue)}
+                        {formatRupiah(hotel.totalRevenue)}
                       </div>
                       <div className="text-xs text-muted-foreground">
                         Revenue
@@ -592,13 +580,13 @@ export const AdminDashboard = ({
                       <Hotel className="h-3 w-3" />
                       <span>{booking.hotelName}</span>
                       <span>•</span>
-                      <span>{booking.roomName}</span>
+                      <span>{booking.userName}</span>
                     </div>
                     <div className="flex items-center space-x-2 text-xs text-muted-foreground">
                       <Calendar className="h-3 w-3" />
                       <span>
-                        {new Date(booking.checkIn).toLocaleDateString()} -{" "}
-                        {new Date(booking.checkOut).toLocaleDateString()}
+                        {formatDate(booking.checkIn)} -{" "}
+                        {formatDate(booking.checkOut)}
                       </span>
                     </div>
                   </div>
@@ -606,10 +594,10 @@ export const AdminDashboard = ({
 
                 <div className="text-right">
                   <div className="text-sm font-semibold">
-                    {formatCurrency(booking.amount)}
+                    {formatRupiah(booking.amount)}
                   </div>
                   <div className="text-xs text-muted-foreground">
-                    {new Date(booking.createdAt).toLocaleDateString()}
+                    {new Date().toLocaleDateString("id-ID")}
                   </div>
                 </div>
               </div>

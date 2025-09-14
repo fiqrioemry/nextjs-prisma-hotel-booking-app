@@ -36,6 +36,7 @@ import {
   DropdownMenuTrigger,
   DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
+import { DeleteHotelForm } from "./delete-hotel-form";
 
 export function HotelsList() {
   const [q, setQ] = React.useState("");
@@ -101,7 +102,7 @@ export function HotelsList() {
         </Button>
       </div>
       <div className="border rounded-md">
-        {isEmpty ? (
+        {isEmpty && !isFetching ? (
           <div className="flex flex-col items-center justify-center py-16">
             <span className="text-lg font-semibold text-muted-foreground">
               No Hotels Available
@@ -171,15 +172,15 @@ export function HotelsList() {
                   ))
                 ) : hotels.length > 0 ? (
                   hotels.map((hotel: any) => (
-                    <TableRow key={hotel.hotelId} className="h-12">
+                    <TableRow key={hotel.id} className="h-12">
                       <TableCell className="flex items-center gap-3">
                         <img
                           src={hotel.thumbnail}
-                          alt={hotel.hotelName}
+                          alt={hotel.name}
                           className="w-12 h-12 rounded object-cover"
                         />
                         <div className="flex flex-col max-w-32">
-                          <span className="font-medium">{hotel.hotelName}</span>
+                          <span className="font-medium">{hotel.name}</span>
                           <span className="text-xs text-muted-foreground line-clamp-1">
                             {hotel.description}
                           </span>
@@ -199,21 +200,11 @@ export function HotelsList() {
                           </DropdownMenuTrigger>
                           <DropdownMenuContent align="end">
                             <DropdownMenuItem asChild>
-                              <Link href={`/admin/hotels/${hotel.hotelId}`}>
-                                <Eye className="w-4 h-4 mr-2" /> View
+                              <Link href={`/admin/hotels/${hotel.id}`}>
+                                <Edit className="w-4 h-4 " /> Manage
                               </Link>
                             </DropdownMenuItem>
-                            <DropdownMenuItem asChild>
-                              <Link
-                                href={`/admin/hotels/${hotel.hotelId}/edit`}
-                              >
-                                <Edit className="w-4 h-4 mr-2" /> Edit
-                              </Link>
-                            </DropdownMenuItem>
-                            <DropdownMenuSeparator />
-                            <DropdownMenuItem className="text-destructive">
-                              <Trash2 className="w-4 h-4 mr-2" /> Delete
-                            </DropdownMenuItem>
+                            <DeleteHotelForm hotel={hotel} />
                           </DropdownMenuContent>
                         </DropdownMenu>
                       </TableCell>

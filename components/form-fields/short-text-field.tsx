@@ -1,10 +1,10 @@
 // fields/ShortTextField.tsx
-'use client';
-import { X } from 'lucide-react';
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
-import { Controller, useFormContext } from 'react-hook-form';
-import { FieldWrapper } from '@/components/form-fields/field-wrapper';
+"use client";
+import { X } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Controller, useFormContext } from "react-hook-form";
+import { FieldWrapper } from "@/components/form-fields/field-wrapper";
 
 interface ShortTextFieldProps {
   name: string;
@@ -47,7 +47,7 @@ export function ShortTextField({
               id={name}
               type="text"
               {...field}
-              value={field.value ?? ''}
+              value={field.value ?? ""}
               placeholder={placeholder}
               disabled={disabled}
               minLength={minLength}
@@ -58,7 +58,7 @@ export function ShortTextField({
                 type="button"
                 variant="ghost"
                 size="icon"
-                onClick={() => field.onChange('')}
+                onClick={() => field.onChange("")}
                 className="absolute right-2 top-1/2 -translate-y-1/2 h-8 w-8"
                 tabIndex={-1}
               >

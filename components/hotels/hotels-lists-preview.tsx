@@ -1,57 +1,48 @@
 "use client";
 
 import {
-  Select,
-  SelectItem,
-  SelectValue,
-  SelectTrigger,
-  SelectContent,
-} from "@/components/ui/select";
-
-import {
   List,
   SearchX,
   MapPin,
   Grid3X3,
   Calendar,
   Hotel as HotelIcon,
+  Star,
 } from "lucide-react";
 import Link from "next/link";
-import { formatDate } from "@/lib/utils";
+import { cn, formatDate } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { locationOptions } from "@/lib/constant";
+import { useRouter } from "next/navigation";
 import React, { useEffect, useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
-import { useRouter, useSearchParams } from "next/navigation";
+import { locationOptions, sortOptions } from "@/lib/constant";
 import { SelectDateForm, DateForm } from "./select-date-form";
 import { SelectFilter } from "@/components/shared/select-filter";
+import { PaginationCard } from "@/components/shared/pagination-card";
 import { Hotels, HotelsParams, MetaPagination } from "@/lib/actions/hotels";
 
 interface HotelsListPreviewProps {
   hotels: Hotels[];
   meta: MetaPagination;
-  searchParams?: HotelsParams;
+  params?: HotelsParams;
 }
 
 export const HotelsListPreview: React.FC<HotelsListPreviewProps> = ({
   hotels,
   meta,
-  searchParams: initialParamms = {},
+  params,
 }) => {
   const router = useRouter();
-  const searchParams = useSearchParams();
 
-  const q = searchParams.get("q") || initialParamms.q || "";
-  const location =
-    searchParams.get("location") || initialParamms.location || "";
-  const startDate =
-    searchParams.get("startDate") || initialParamms.startDate || "";
-  const endDate = searchParams.get("endDate") || initialParamms.endDate || "";
-  const sort = searchParams.get("sort") || initialParamms.sort || "newest";
-  const page = parseInt(searchParams.get("page") || "1", 10);
-  const limit = parseInt(searchParams.get("limit") || "8", 10);
+  const q = params?.q;
+  const location = params?.location;
+  const startDate = params?.startDate || "";
+  const endDate = params?.endDate || "";
+  const sort = params?.sort || "newest";
+  const page = meta.page;
+  const limit = meta.limit;
 
   const [dialogOpen, setDialogOpen] = useState(false);
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
@@ -65,8 +56,8 @@ export const HotelsListPreview: React.FC<HotelsListPreviewProps> = ({
     if (startDate) params.set("startDate", startDate);
     if (endDate) params.set("endDate", endDate);
     params.set("sort", sort);
-    params.set("page", "1");
-    params.set("limit", meta.limit.toString() || "8");
+    params.set("page", meta.page.toString());
+    params.set("limit", meta.limit.toString());
 
     Object.entries(updates).forEach(([key, value]) => {
       if (value) params.set(key, value.toString());
@@ -103,7 +94,6 @@ export const HotelsListPreview: React.FC<HotelsListPreviewProps> = ({
     if (shouldOpenDialog) {
       setDialogOpen(true);
 
-      // fallback redirect dengan default date
       router.replace(
         buildUrl({
           startDate: defaultStart,
@@ -117,21 +107,20 @@ export const HotelsListPreview: React.FC<HotelsListPreviewProps> = ({
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
     const search = formData.get("q") as string;
-    router.push(buildUrl({ q: search, page: 1, limit: 8 }));
+    router.push(buildUrl({ q: search, page: 1 }));
   };
 
   const handleSort = (value: string) => {
-    router.push(buildUrl({ sort: value, page: 1, limit: 8 }));
+    router.push(buildUrl({ sort: value, page: 1 }));
   };
 
   const handlePageChange = (newPage: number) => {
-    router.push(buildUrl({ page: newPage, limit: 8 }));
+    router.push(buildUrl({ page: newPage }));
   };
 
   const clearFilters = () => {
-    // Reset semua filter kecuali tanggal
     router.push(
-      `/hotels?page=1&limit=8&sort=newest${
+      `/hotels?page=1&limit=${limit}&sort=newest${
         startDate ? `&startDate=${startDate}` : ""
       }${endDate ? `&endDate=${endDate}` : ""}`
     );
@@ -141,10 +130,10 @@ export const HotelsListPreview: React.FC<HotelsListPreviewProps> = ({
     setDialogOpen(false);
     router.push(
       buildUrl({
-        q: q,
+        q: q!,
         startDate: data.startDate,
         endDate: data.endDate,
-        location: location,
+        location: location!,
         page: page,
         sort: sort,
         limit: meta.limit,
@@ -152,50 +141,110 @@ export const HotelsListPreview: React.FC<HotelsListPreviewProps> = ({
     );
   };
 
-  // -------- Empty States --------
+  // Empty State dengan background landscape
   const EmptyState = () => {
     if (meta.total === 0 && !q && !location && !startDate && !endDate) {
       return (
-        <div className="flex flex-col items-center justify-center py-20 text-center space-y-4 border rounded-md bg-muted/30">
-          <HotelIcon className="w-16 h-16 text-muted-foreground" />
-          <h2 className="text-xl font-semibold">No hotels available</h2>
-          <p className="text-muted-foreground">
-            There are currently no hotels in the system.
-          </p>
+        <div className="relative overflow-hidden rounded-3xl">
+          {/* Background Image */}
+          <div
+            className="absolute inset-0 bg-cover bg-center"
+            style={{
+              backgroundImage: `url('https://images.unsplash.com/photo-1571896349842-33c89424de2d?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80')`,
+            }}
+          >
+            <div className="absolute inset-0 bg-gradient-to-br from-slate-900/80 via-blue-900/70 to-emerald-900/80"></div>
+          </div>
+
+          <div className="relative z-10 flex flex-col items-center justify-center py-20 text-center space-y-6 text-white">
+            <div className="w-20 h-20 bg-white/20 backdrop-blur-md rounded-2xl flex items-center justify-center">
+              <HotelIcon className="w-10 h-10" />
+            </div>
+            <div>
+              <h2 className="text-2xl font-bold mb-2">
+                Belum Ada Hotel Tersedia
+              </h2>
+              <p className="text-white/80 max-w-md">
+                Saat ini belum ada hotel yang tersedia di sistem. Silakan coba
+                lagi nanti.
+              </p>
+            </div>
+          </div>
         </div>
       );
     }
+
+    // Empty Results dengan tropical background
     return (
-      <div className="flex flex-col items-center justify-center py-20 text-center space-y-4 border rounded-md bg-muted/30">
-        <SearchX className="w-16 h-16 text-muted-foreground" />
-        <h2 className="text-xl font-semibold">No hotels found</h2>
-        <p className="text-muted-foreground">
-          Try adjusting your search or filters to find what you're looking for.
-        </p>
-        <Button onClick={clearFilters}>Reset Filters</Button>
+      <div className="relative overflow-hidden rounded-3xl">
+        {/* Background Image */}
+        <div
+          className="absolute inset-0 bg-cover bg-center"
+          style={{
+            backgroundImage: `url('https://images.unsplash.com/photo-1559827260-dc66d52bef19?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80')`,
+          }}
+        >
+          <div className="absolute inset-0 bg-gradient-to-br from-orange-900/80 via-red-900/70 to-pink-900/80"></div>
+        </div>
+
+        <div className="relative z-10 flex flex-col items-center justify-center py-20 text-center space-y-6 text-white">
+          <div className="w-20 h-20 bg-white/20 backdrop-blur-md rounded-2xl flex items-center justify-center">
+            <SearchX className="w-10 h-10" />
+          </div>
+          <div>
+            <h2 className="text-2xl font-bold mb-2">Hotel Tidak Ditemukan</h2>
+            <p className="text-white/80 max-w-md mb-6">
+              Coba sesuaikan pencarian atau filter Anda untuk menemukan hotel
+              yang cocok.
+            </p>
+            <Button
+              onClick={clearFilters}
+              className="bg-white/20 backdrop-blur-md hover:bg-white/30 border border-white/30"
+            >
+              Reset Filter
+            </Button>
+          </div>
+        </div>
       </div>
     );
   };
 
   return (
     <>
-      {/* Date Dialog */}
       <SelectDateForm open={dialogOpen} onOpenChange={handleSelectDate} />
 
-      <div className="p-4 max-w-7xl mx-auto w-full min-h-screen">
-        <div className="flex gap-8">
-          {/* Left Sidebar - Filters */}
-          <div className="w-80 flex-shrink-0">
-            <div className="bg-card border rounded-lg p-6 space-y-6 sticky top-4">
-              <h3 className="text-lg font-semibold">Filters</h3>
+      <div className="flex gap-8">
+        {/* Enhanced Left Sidebar - Filters */}
+        <div className="w-80 flex-shrink-0">
+          <div className="relative overflow-hidden rounded-3xl shadow-xl sticky top-4">
+            {/* Filter Background */}
+            <div
+              className="absolute inset-0 bg-cover bg-center"
+              style={{
+                backgroundImage: `url('https://images.unsplash.com/photo-1464822759844-d150baec0200?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80')`,
+              }}
+            >
+              <div className="absolute inset-0 bg-gradient-to-br from-slate-900/90 via-blue-900/85 to-emerald-900/90"></div>
+            </div>
+
+            <div className="relative z-10 p-6 space-y-6 text-white">
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 bg-white/20 backdrop-blur-sm rounded-lg flex items-center justify-center">
+                  <span>🔍</span>
+                </div>
+                <h3 className="text-lg font-bold">Filter Hotel</h3>
+              </div>
 
               {/* Date Filter */}
               <div className="space-y-3">
-                <h4 className="text-sm font-medium">Check-in & Check-out</h4>
+                <h4 className="text-sm font-semibold flex items-center gap-2">
+                  <Calendar className="w-4 h-4" />
+                  Tanggal Menginap
+                </h4>
                 {startDate && endDate && (
-                  <div className="p-3 bg-muted/50 rounded-lg">
+                  <div className="p-3 bg-white/15 backdrop-blur-sm rounded-xl border border-white/20">
                     <div className="flex items-center gap-2 text-sm">
-                      <Calendar className="w-4 h-4" />
+                      <span>📅</span>
                       <span>
                         {formatDate(startDate)} - {formatDate(endDate)}
                       </span>
@@ -203,183 +252,192 @@ export const HotelsListPreview: React.FC<HotelsListPreviewProps> = ({
                   </div>
                 )}
                 <Button
-                  variant="outline"
                   size="sm"
                   onClick={() => setDialogOpen(true)}
-                  className="w-full"
+                  className="w-full bg-blue-500/80 hover:bg-blue-600/90 border-0 backdrop-blur-sm"
                 >
-                  Change Dates
+                  Ubah Tanggal
                 </Button>
               </div>
 
               {/* Location Filter */}
               <div className="space-y-3">
-                <h4 className="text-sm font-medium">Location</h4>
-                <SelectFilter
-                  options={locationOptions}
-                  placeholder="Select location"
-                  initialValue={location}
-                  onChange={(value) =>
-                    router.push(buildUrl({ location: value, page: 1 }))
-                  }
-                />
+                <h4 className="text-sm font-semibold flex items-center gap-2">
+                  <MapPin className="w-4 h-4" />
+                  Lokasi
+                </h4>
+                <div className="backdrop-blur-sm rounded-xl border border-white/20">
+                  <SelectFilter
+                    options={locationOptions}
+                    placeholder="Pilih lokasi"
+                    initialValue={location}
+                    onChange={(value) =>
+                      router.push(buildUrl({ location: value, page: 1 }))
+                    }
+                  />
+                </div>
               </div>
 
-              {/* Active Filters (excluding dates) */}
+              {/* Active Filters */}
               {(location || q) && (
                 <div className="space-y-3">
-                  <h4 className="text-sm font-medium">Active Filters</h4>
+                  <h4 className="text-sm font-semibold">Filter Aktif</h4>
                   <div className="flex flex-wrap gap-2">
                     {location && (
-                      <Badge
-                        variant="secondary"
-                        className="flex items-center gap-1"
-                      >
-                        <MapPin className="w-3 h-3" />
+                      <Badge className="bg-emerald-500/80 backdrop-blur-sm text-white border-0">
+                        <MapPin className="w-3 h-3 mr-1" />
                         {location}
                       </Badge>
                     )}
-                    {q && <Badge variant="secondary">Search: {q}</Badge>}
+                    {q && (
+                      <Badge className="bg-blue-500/80 backdrop-blur-sm text-white border-0">
+                        Pencarian: {q}
+                      </Badge>
+                    )}
                   </div>
                   <Button
                     variant="ghost"
                     size="sm"
                     onClick={clearFilters}
-                    className="text-xs w-full"
+                    className="text-xs w-full text-white hover:bg-white/20"
                   >
-                    Clear Filters
+                    Hapus Semua Filter
                   </Button>
                 </div>
               )}
             </div>
           </div>
+        </div>
 
-          {/* Right Content Area */}
-          <div className="flex-1 space-y-6">
-            {/* Header */}
-            <div className="space-y-2">
-              <h1 className="text-3xl font-bold">Available Hotels</h1>
-              <p className="text-muted-foreground text-lg">
-                {startDate && endDate
-                  ? `Hotels available from ${formatDate(
-                      startDate
-                    )} to ${formatDate(endDate)}`
-                  : "Browse through our selection of hotels."}
-              </p>
+        {/* Enhanced Right Content Area */}
+        <div className="flex-1 space-y-6">
+          {/* Search, Sort, and View Options */}
+          <div className="relative overflow-hidden rounded-3xl shadow-xl">
+            <div
+              className="absolute inset-0 bg-cover bg-center"
+              style={{
+                backgroundImage: `url('https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80')`,
+              }}
+            >
+              <div className="absolute inset-0 bg-gradient-to-r from-white/95 via-blue-50/90 to-cyan-50/95 dark:from-slate-900/95 dark:via-slate-800/90 dark:to-slate-900/95"></div>
             </div>
 
-            {/* Search, Sort, and View Options */}
-            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-              {/* Search */}
-              <form onSubmit={handleSearch} className="flex gap-2">
-                <Input
-                  name="q"
-                  placeholder="Search hotels..."
-                  defaultValue={q}
-                  className="w-64"
-                />
-                <Button type="submit" variant="secondary">
-                  Search
-                </Button>
-              </form>
-
-              {/* Sort and View Options */}
-              <div className="flex gap-2 items-center">
-                <Select value={sort} onValueChange={handleSort}>
-                  <SelectTrigger className="w-[180px]">
-                    <SelectValue placeholder="Select Sort" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="newest">Newest First</SelectItem>
-                    <SelectItem value="oldest">Oldest First</SelectItem>
-                    <SelectItem value="available_rooms">
-                      Most Available
-                    </SelectItem>
-                  </SelectContent>
-                </Select>
-
-                {/* View Mode Toggle */}
-                <div className="flex border rounded-md">
+            <div className="relative z-10 p-6">
+              <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
+                {/* Search */}
+                <form onSubmit={handleSearch} className="flex gap-3">
+                  <Input
+                    name="q"
+                    placeholder="Cari hotel impian Anda..."
+                    defaultValue={q}
+                    className="w-64 bg-white/50 backdrop-blur-sm border-white/50"
+                  />
                   <Button
-                    variant={viewMode === "grid" ? "default" : "ghost"}
-                    size="sm"
-                    onClick={() => setViewMode("grid")}
-                    className="rounded-r-none"
+                    type="submit"
+                    className="bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700"
                   >
-                    <Grid3X3 className="w-4 h-4" />
+                    🔍 Cari
                   </Button>
-                  <Button
-                    variant={viewMode === "list" ? "default" : "ghost"}
-                    size="sm"
-                    onClick={() => setViewMode("list")}
-                    className="rounded-l-none"
-                  >
-                    <List className="w-4 h-4" />
-                  </Button>
+                </form>
+
+                {/* Sort and View Options */}
+
+                <div className="flex gap-3 items-center">
+                  <SelectFilter
+                    initialValue={sort}
+                    onChange={handleSort}
+                    options={sortOptions}
+                  />
+
+                  {/* View Mode Toggle */}
+                  <div className="flex border rounded-xl overflow-hidden bg-white/50 backdrop-blur-sm">
+                    <Button
+                      variant={viewMode === "grid" ? "default" : "ghost"}
+                      size="sm"
+                      onClick={() => setViewMode("grid")}
+                      className="rounded-r-none"
+                    >
+                      <Grid3X3 className="w-4 h-4" />
+                    </Button>
+                    <Button
+                      variant={viewMode === "list" ? "default" : "ghost"}
+                      size="sm"
+                      onClick={() => setViewMode("list")}
+                      className="rounded-l-none"
+                    >
+                      <List className="w-4 h-4" />
+                    </Button>
+                  </div>
                 </div>
               </div>
-            </div>
 
-            {/* Results count */}
-            <div className="text-sm text-muted-foreground">
-              {meta.total === 0
-                ? "No hotels found"
-                : `Showing ${hotels.length} of ${meta.total} hotels`}
+              {/* Results count */}
+              <div className="mt-4 text-sm text-muted-foreground font-medium">
+                {meta.total === 0
+                  ? "Tidak ada hotel ditemukan"
+                  : `Menampilkan ${hotels.length} dari ${meta.total} hotel`}
+              </div>
             </div>
+          </div>
 
-            {/* Hotel Grid/List / Empty */}
-            {hotels.length === 0 ? (
-              <EmptyState />
-            ) : (
-              <>
-                {viewMode === "grid" ? (
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                    {hotels.map((hotel) => (
-                      <Card
-                        key={hotel.hotelId}
-                        className="bg-card p-0 flex flex-col"
-                      >
-                        <CardContent className="p-0 flex flex-col flex-1">
-                          <div className="relative">
-                            <img
-                              src={hotel.thumbnail}
-                              alt={hotel.hotelName}
-                              className="w-full h-48 object-cover"
-                            />
-                            <Badge
-                              variant={
-                                hotel.availableRooms > 0
-                                  ? "default"
-                                  : "destructive"
-                              }
-                              className="absolute top-2 right-2"
-                            >
-                              {hotel.availableRooms > 0
-                                ? `${hotel.availableRooms} rooms available`
-                                : "No availability"}
-                            </Badge>
-                          </div>
-                          <div className="p-4 flex-1">
-                            <h2 className="text-xl font-bold mb-1">
-                              {hotel.hotelName}
-                            </h2>
-                            <p className="text-muted-foreground text-sm mb-2 flex items-center gap-1">
-                              <MapPin className="w-3 h-3" />
-                              {hotel.address}
-                            </p>
-                            {hotel.description && (
-                              <p className="text-muted-foreground line-clamp-3 text-sm">
-                                {hotel.description}
-                              </p>
+          {/* Hotel Grid/List / Empty */}
+          {hotels.length === 0 ? (
+            <EmptyState />
+          ) : (
+            <>
+              {viewMode === "grid" ? (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {hotels.map((hotel) => (
+                    <Card
+                      key={hotel.id}
+                      className="group p-0 hover:shadow-2xl transition-all duration-500 border-0 rounded-3xl overflow-hidden hover:scale-105 bg-white dark:bg-slate-900"
+                    >
+                      <CardContent className="p-0 flex flex-col">
+                        <div className="relative overflow-hidden">
+                          <img
+                            src={hotel.thumbnail}
+                            alt={hotel.name}
+                            className="w-full h-48 object-cover group-hover:scale-110 transition-transform duration-500"
+                          />
+                          <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+
+                          <Badge
+                            className={cn(
+                              "absolute top-3 right-3 backdrop-blur-md border-white/30",
+                              hotel.availableRooms > 0
+                                ? "bg-emerald-500/90 text-white"
+                                : "bg-red-500/90 text-white"
                             )}
-                          </div>
+                          >
+                            {hotel.availableRooms > 0
+                              ? `${hotel.availableRooms} kamar tersedia`
+                              : "Tidak tersedia"}
+                          </Badge>
+                        </div>
+
+                        <div className="p-6 flex-1">
+                          <h2 className="text-xl font-bold mb-2 group-hover:text-emerald-600 transition-colors">
+                            {hotel.name}
+                          </h2>
+                          <p className="text-muted-foreground text-sm mb-3 flex items-center gap-2">
+                            <MapPin className="w-4 h-4 text-emerald-500" />
+                            {hotel.address}
+                          </p>
+                          {hotel.description && (
+                            <p className="text-muted-foreground line-clamp-3 text-sm leading-relaxed">
+                              {hotel.description}
+                            </p>
+                          )}
+                        </div>
+
+                        <div className="px-6 pb-6">
                           <Button
-                            className="w-full rounded-none"
+                            className="w-full rounded-xl bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 shadow-lg hover:shadow-xl transition-all duration-300"
                             asChild
                             disabled={hotel.availableRooms === 0}
                           >
                             <Link
-                              href={`/hotels/${hotel.hotelId}${
+                              href={`/hotels/${hotel.id}${
                                 startDate && endDate
                                   ? `?startDate=${startDate}&endDate=${endDate}${
                                       location
@@ -394,116 +452,114 @@ export const HotelsListPreview: React.FC<HotelsListPreviewProps> = ({
                               }`}
                             >
                               {hotel.availableRooms > 0
-                                ? "See Available Rooms"
-                                : "No Availability"}
+                                ? "🏨 Lihat Kamar Tersedia"
+                                : "Tidak Tersedia"}
                             </Link>
                           </Button>
-                        </CardContent>
-                      </Card>
-                    ))}
-                  </div>
-                ) : (
-                  <div className="space-y-4">
-                    {hotels.map((hotel) => (
-                      <Card key={hotel.hotelId} className="bg-card">
-                        <CardContent className="p-4">
-                          <div className="flex gap-4">
-                            <div className="relative w-48 h-32 flex-shrink-0">
-                              <img
-                                src={hotel.thumbnail}
-                                alt={hotel.hotelName}
-                                className="w-full h-full object-cover rounded-md"
-                              />
-                              <Badge
-                                variant={
-                                  hotel.availableRooms > 0
-                                    ? "default"
-                                    : "destructive"
-                                }
-                                className="absolute top-2 right-2"
-                              >
-                                {hotel.availableRooms > 0
-                                  ? `${hotel.availableRooms} rooms`
-                                  : "No availability"}
-                              </Badge>
-                            </div>
-                            <div className="flex-1 flex flex-col justify-between">
-                              <div>
-                                <h2 className="text-xl font-bold mb-1">
-                                  {hotel.hotelName}
-                                </h2>
-                                <p className="text-muted-foreground text-sm mb-2 flex items-center gap-1">
-                                  <MapPin className="w-3 h-3" />
-                                  {hotel.address}
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+              ) : (
+                <div className="space-y-6">
+                  {hotels.map((hotel) => (
+                    <Card
+                      key={hotel.id}
+                      className="group hover:shadow-2xl transition-all duration-500 border-0 rounded-3xl overflow-hidden hover:scale-[1.02] bg-white dark:bg-slate-900"
+                    >
+                      <CardContent className="p-6">
+                        <div className="flex gap-6">
+                          <div className="relative w-64 h-40 flex-shrink-0 overflow-hidden rounded-2xl">
+                            <img
+                              src={hotel.thumbnail}
+                              alt={hotel.name}
+                              className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                            />
+                            <Badge
+                              className={cn(
+                                "absolute top-3 right-3 backdrop-blur-md",
+                                hotel.availableRooms > 0
+                                  ? "bg-emerald-500/90 text-white"
+                                  : "bg-red-500/90 text-white"
+                              )}
+                            >
+                              {hotel.availableRooms > 0
+                                ? `${hotel.availableRooms} kamar`
+                                : "Tidak tersedia"}
+                            </Badge>
+                          </div>
+
+                          <div className="flex-1 flex flex-col justify-between">
+                            <div>
+                              <h2 className="text-2xl font-bold mb-2 group-hover:text-emerald-600 transition-colors">
+                                {hotel.name}
+                              </h2>
+                              <p className="text-muted-foreground mb-3 flex items-center gap-2">
+                                <MapPin className="w-4 h-4 text-emerald-500" />
+                                {hotel.address}
+                              </p>
+
+                              {/* Rating */}
+                              <div className="flex items-center gap-1 mb-3">
+                                {[...Array(5)].map((_, i) => (
+                                  <Star
+                                    key={i}
+                                    className="w-4 h-4 fill-yellow-400 text-yellow-400"
+                                  />
+                                ))}
+                                <span className="text-sm text-muted-foreground ml-2">
+                                  4.8 (128 ulasan)
+                                </span>
+                              </div>
+
+                              {hotel.description && (
+                                <p className="text-muted-foreground text-sm line-clamp-2 leading-relaxed">
+                                  {hotel.description}
                                 </p>
-                                {hotel.description && (
-                                  <p className="text-muted-foreground text-sm line-clamp-2">
-                                    {hotel.description}
-                                  </p>
-                                )}
-                              </div>
-                              <div className="flex justify-end">
-                                <Button
-                                  asChild
-                                  disabled={hotel.availableRooms === 0}
-                                  className="w-fit"
+                              )}
+                            </div>
+
+                            <div className="flex justify-end mt-4">
+                              <Button
+                                asChild
+                                disabled={hotel.availableRooms === 0}
+                                className="bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300"
+                              >
+                                <Link
+                                  href={`/hotels/${hotel.id}${
+                                    startDate && endDate
+                                      ? `?startDate=${startDate}&endDate=${endDate}${
+                                          location
+                                            ? `&location=${encodeURIComponent(
+                                                location
+                                              )}`
+                                            : ""
+                                        }`
+                                      : location
+                                      ? `?location=${encodeURIComponent(
+                                          location
+                                        )}`
+                                      : ""
+                                  }`}
                                 >
-                                  <Link
-                                    href={`/hotels/${hotel.hotelId}${
-                                      startDate && endDate
-                                        ? `?startDate=${startDate}&endDate=${endDate}${
-                                            location
-                                              ? `&location=${encodeURIComponent(
-                                                  location
-                                                )}`
-                                              : ""
-                                          }`
-                                        : location
-                                        ? `?location=${encodeURIComponent(
-                                            location
-                                          )}`
-                                        : ""
-                                    }`}
-                                  >
-                                    {hotel.availableRooms > 0
-                                      ? "See Available Rooms"
-                                      : "No Availability"}
-                                  </Link>
-                                </Button>
-                              </div>
+                                  {hotel.availableRooms > 0
+                                    ? "🏨 Lihat Kamar Tersedia"
+                                    : "Tidak Tersedia"}
+                                </Link>
+                              </Button>
                             </div>
                           </div>
-                        </CardContent>
-                      </Card>
-                    ))}
-                  </div>
-                )}
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+              )}
 
-                {/* Pagination */}
-                {meta.totalPages > 1 && (
-                  <div className="flex justify-center items-center gap-4 mt-6">
-                    <Button
-                      variant="outline"
-                      disabled={page <= 1}
-                      onClick={() => handlePageChange(page - 1)}
-                    >
-                      Previous
-                    </Button>
-                    <span className="text-sm">
-                      Page {meta.page} of {meta.totalPages}
-                    </span>
-                    <Button
-                      variant="outline"
-                      disabled={page >= meta.totalPages}
-                      onClick={() => handlePageChange(page + 1)}
-                    >
-                      Next
-                    </Button>
-                  </div>
-                )}
-              </>
-            )}
-          </div>
+              <PaginationCard meta={meta} onPageChange={handlePageChange} />
+            </>
+          )}
         </div>
       </div>
     </>

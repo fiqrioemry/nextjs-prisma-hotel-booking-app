@@ -1,8 +1,8 @@
 "use client";
 
+import React from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import React from "react";
 
 export function UserNavItems() {
   const pathname = usePathname();
@@ -18,7 +18,7 @@ export function UserNavItems() {
       {navItems.map((item) => (
         <Link
           key={item.url}
-          className={item.isActive ? "text-blue-500" : ""}
+          className={item.isActive ? "text-teal-500" : ""}
           href={item.url}
         >
           {item.title}

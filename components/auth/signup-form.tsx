@@ -19,10 +19,10 @@ import { Button } from "@/components/ui/button";
 import { useFormSchema } from "@/hooks/use-form-schema";
 import { SignInSocial } from "@/components/auth/signin-social";
 import { EmailField } from "@/components/form-fields/email-field";
-import { ArrowRight, Loader2, Mail, AlertCircle } from "lucide-react";
+import { ArrowRight, Loader2, Mail } from "lucide-react";
 import { PasswordField } from "@/components/form-fields/password-field";
 import { ShortTextField } from "@/components/form-fields/short-text-field";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { ErrorMessageBox } from "@/components/shared/response-message";
 
 const SignUpSchema = z.object({
   name: z.string().min(3, "Minimum 3 characters"),
@@ -79,7 +79,7 @@ export default function SignUpForm() {
   }
 
   return (
-    <Card className="max-w-md w-full z-20 bg-card border-none shadow-lg font-mono">
+    <Card className="max-w-md w-full z-20 bg-card border-none shadow-lg">
       {!emailSent ? (
         <>
           <CardHeader className="space-y-2">
@@ -106,17 +106,7 @@ export default function SignUpForm() {
             </div>
           </CardHeader>
           <CardContent>
-            {error && (
-              <Alert className="flex items-center bg-destructive/10 border-destructive text-destructive mb-4">
-                <AlertCircle className="h-6 w-6" />
-                <div className="flex-1">
-                  <AlertTitle>Sign In Failed</AlertTitle>
-                  <AlertDescription className="text-destructive">
-                    {error}
-                  </AlertDescription>
-                </div>
-              </Alert>
-            )}
+            {error && <ErrorMessageBox message={error} />}
             <FormProvider {...form.methods}>
               <form onSubmit={form.handleSubmit} className="space-y-2">
                 <ShortTextField

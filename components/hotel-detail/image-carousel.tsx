@@ -12,10 +12,10 @@ import { Badge } from "@/components/ui/badge";
 
 export const ImageCarousel = ({
   images,
-  roomName,
+  name,
 }: {
   images: string[];
-  roomName: string;
+  name: string;
 }) => {
   const [currentSlide, setCurrentSlide] = React.useState(0);
 
@@ -30,7 +30,7 @@ export const ImageCarousel = ({
               <div className="relative h-56 overflow-hidden">
                 <img
                   src={image}
-                  alt={`${roomName} - Image ${index + 1}`}
+                  alt={`${name} - Image ${index + 1}`}
                   className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                 />
               </div>

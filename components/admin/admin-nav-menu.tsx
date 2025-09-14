@@ -4,7 +4,6 @@ import {
   SidebarGroup,
   SidebarMenu,
   SidebarMenuItem,
-  SidebarGroupLabel,
   SidebarMenuButton,
 } from "@/components/ui/sidebar";
 import Link from "next/link";

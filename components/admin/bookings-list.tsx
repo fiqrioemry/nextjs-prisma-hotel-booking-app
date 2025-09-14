@@ -13,7 +13,7 @@ import {
 import Link from "next/link";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
-import { Book, Hotel, PlusCircle } from "lucide-react";
+import { Book, PlusCircle } from "lucide-react";
 import { BookingParams } from "@/lib/actions/bookings";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Pagination } from "@/components/shared/pagination";
@@ -35,6 +35,7 @@ import {
   DropdownMenuTrigger,
   DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
+import { formatRupiah } from "@/lib/utils";
 import { useBookings } from "@/hooks/use-bookings";
 
 export function BookingsList() {
@@ -51,7 +52,6 @@ export function BookingsList() {
     params: { q, sort, page, limit, status },
   });
 
-  console.log(bookingsData);
   const bookings = bookingsData?.data ?? [];
   const meta = bookingsData?.meta ?? { page, limit, total: 0, totalPages: 1 };
 
@@ -103,7 +103,7 @@ export function BookingsList() {
         </Button>
       </div>
       <div className="border rounded-md">
-        {isEmpty ? (
+        {isEmpty && !isFetching ? (
           <div className="flex flex-col items-center justify-center py-16">
             <span className="text-lg font-semibold text-muted-foreground">
               No Bookings Available
@@ -201,13 +201,13 @@ export function BookingsList() {
                             {booking.room.name}
                           </span>
                           <span className="text-xs text-muted-foreground">
-                            ${booking.room.price} / night
+                            {formatRupiah(booking.room.price)} / night
                           </span>
                         </div>
                       </TableCell>
 
                       {/* Hotel */}
-                      <TableCell>{booking.room.hotelName}</TableCell>
+                      <TableCell>{booking.room.name}</TableCell>
 
                       {/* Check In / Check Out */}
                       <TableCell>

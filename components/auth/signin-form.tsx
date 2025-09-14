@@ -11,7 +11,6 @@ import {
 import { EmailField } from "@/components/form-fields/email-field";
 import { SubmitButton } from "@/components/form-control/submit-button";
 import { PasswordField } from "@/components/form-fields/password-field";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
 import React, { useState } from "react";
 import { FormProvider } from "react-hook-form";
@@ -19,12 +18,13 @@ import { useFormSchema } from "@/hooks/use-form-schema";
 
 import z from "zod";
 import { toast } from "sonner";
-import { AlertCircle } from "lucide-react";
+
+import Link from "next/link";
 import { authClient } from "@/lib/auth-client";
 import { Icons } from "@/components/auth/icons";
 import { useSearchParams } from "next/navigation";
 import { SignInSocial } from "@/components/auth/signin-social";
-import Link from "next/link";
+import { ErrorMessageBox } from "@/components/shared/response-message";
 
 const SignInSchema = z.object({
   email: z.string().email().min(1, "Email is required"),
@@ -65,7 +65,7 @@ export default function SignInForm() {
   }
 
   return (
-    <Card className="max-w-md w-full shadow bg-card z-20 font-mono">
+    <Card className="max-w-md w-full shadow bg-card backdrop-blur-lg border border-white/20">
       <CardHeader className="space-y-2">
         <CardTitle className="text-2xl font-bold text-center">
           Welcome Back
@@ -88,17 +88,7 @@ export default function SignInForm() {
         </div>
       </CardHeader>
       <CardContent>
-        {error && (
-          <Alert className="flex items-center bg-destructive/10 border-destructive text-destructive mb-4">
-            <AlertCircle className="h-6 w-6" />
-            <div className="flex-1">
-              <AlertTitle>Sign In Failed</AlertTitle>
-              <AlertDescription className="text-destructive">
-                {error}
-              </AlertDescription>
-            </div>
-          </Alert>
-        )}
+        {error && <ErrorMessageBox message={error} />}
         <FormProvider {...form.methods}>
           <form onSubmit={form.handleSubmit} className="space-y-2">
             <EmailField name="email" placeholder="enter your email" reset />

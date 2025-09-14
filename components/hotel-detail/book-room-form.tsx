@@ -31,17 +31,13 @@ const BookSchema = z.object({
 export type BookForm = z.infer<typeof BookSchema>;
 
 export const BookRoomForm = ({
-  startDate,
-  endDate,
   room,
   bookForm,
 }: {
-  hotelId: string;
-  startDate: string;
-  endDate: string;
   room: Room;
   bookForm: BookForm;
 }) => {
+  const router = useRouter();
   const { mutateAsync: bookRoom, isPending } = useBookingWithPayment();
 
   const form = useFormSchema({
@@ -52,13 +48,19 @@ export const BookRoomForm = ({
   });
 
   async function handleBookRoom(data: BookForm) {
+    if (data.quantity > room.availableUnits) {
+      toast.error(`Only ${room.availableUnits} rooms available`);
+      return;
+    }
     const result = await bookRoom(data);
-    console.log(result);
+
     if (result.success) {
       toast.success(result.message);
       window.location.href = result.data.redirectUrl;
     } else {
       console.log(result.message);
+      router.push("/signin");
+      toast.info("Please sign in to continue booking");
     }
   }
 
@@ -83,11 +85,11 @@ export const BookRoomForm = ({
             </DialogDescription>
             <div className="flex items-center gap-2 text-sm">
               <Badge className="bg-blue-500">
-                Check-in: {formatDate(startDate)}
+                Check-in: {formatDate(bookForm.startDate)}
               </Badge>
               <span>•</span>
               <Badge className="bg-blue-500">
-                Check-out: {formatDate(endDate)}
+                Check-out: {formatDate(bookForm.endDate)}
               </Badge>
             </div>
           </DialogHeader>

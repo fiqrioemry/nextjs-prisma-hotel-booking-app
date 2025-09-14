@@ -11,18 +11,16 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Users, Hotel, XCircle, CheckCircle } from "lucide-react";
 
 export const RoomCard = ({
-  hotelId,
   room,
   startDate,
   endDate,
 }: {
-  hotelId: string;
   room: Room;
   endDate: string;
   startDate: string;
 }) => {
   const [bookForm, setBookForm] = React.useState<BookForm>({
-    roomId: room.roomId,
+    roomId: room.id,
     startDate: startDate,
     endDate: endDate,
     quantity: 1,
@@ -33,7 +31,7 @@ export const RoomCard = ({
       <CardContent className="p-0">
         {/* Room Image Carousel */}
         <div className="relative rounded-t-lg overflow-hidden group">
-          <ImageCarousel images={room.images} roomName={room.roomName} />
+          <ImageCarousel images={room.images} name={room.name} />
 
           {/* Availability Badge */}
           <div className="absolute top-4 right-4 z-10">
@@ -52,11 +50,11 @@ export const RoomCard = ({
 
           {/* Price Badge */}
           <div className="absolute bottom-4 left-4 z-10">
-            <div className="bg-white/95 backdrop-blur-sm rounded-lg px-3 py-2 shadow-lg">
+            <div className="bg-card/50 backdrop-blur-sm rounded-lg px-3 py-2 shadow-lg">
               <div className="text-2xl font-bold ">
                 {formatRupiah(room.price)}
               </div>
-              <div className="text-xs text-muted-foreground">per night</div>
+              <div className="text-xs text-white">per night</div>
             </div>
           </div>
         </div>
@@ -65,14 +63,14 @@ export const RoomCard = ({
         <div className="py-2 px-4 space-y-4">
           {/* Room Name & Description */}
           <div className="space-y-2">
-            <h3 className="text-xl font-bold line-clamp-1">{room.roomName}</h3>
+            <h3 className="text-xl font-bold line-clamp-1">{room.name}</h3>
             <p className="text-sm text-muted-foreground line-clamp-2 leading-relaxed">
               {room.description}
             </p>
           </div>
 
           {/* Room Stats */}
-          <div className="grid grid-cols-3 gap-4 py-3 border-t border-b border-gray-100">
+          <div className="grid grid-cols-3 gap-4 py-3 border-t border-b">
             <div className="text-center">
               <div className="flex items-center justify-center mb-1">
                 <Users className="w-4 h-4 text-blue-600" />
@@ -112,33 +110,24 @@ export const RoomCard = ({
             <div className="flex flex-wrap gap-2">
               {room.facilities && room.facilities.length > 0
                 ? room.facilities.slice(0, 4).map((amenity, index) => (
-                    <div
-                      key={index}
-                      className="flex items-center gap-1 bg-gray-50 text-gray-700 px-2 py-1 rounded-md text-xs"
-                    >
+                    <Badge variant="outline" key={index}>
                       <span>{amenity}</span>
-                    </div>
+                    </Badge>
                   ))
                 : null}
             </div>
           </div>
 
           {/* Booking Section */}
-          <div className="pt-4">
+          <div className="pt-4 mb-2">
             {room.availableUnits > 0 ? (
-              <div className="space-y-2 h-12">
+              <div className="space-y-2 h-auto">
                 {room.availableUnits <= 3 && room.availableUnits > 0 && (
                   <div className=" text-xs text-orange-600 bg-orange-50 px-2 py-1 rounded border border-orange-200">
                     Only {room.availableUnits} rooms left!
                   </div>
                 )}
-                <BookRoomForm
-                  hotelId={hotelId}
-                  room={room}
-                  bookForm={bookForm}
-                  endDate={endDate!}
-                  startDate={startDate!}
-                />
+                <BookRoomForm room={room} bookForm={bookForm} />
               </div>
             ) : (
               <div className="text-center py-4">

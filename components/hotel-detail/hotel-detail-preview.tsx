@@ -11,8 +11,8 @@ import { useRouter, useSearchParams } from "next/navigation";
 export const HotelDetailPreview = ({ hotel }: { hotel: HotelDetails }) => {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const startDate = searchParams.get("startDate");
   const endDate = searchParams.get("endDate");
+  const startDate = searchParams.get("startDate");
 
   // always check to ensure startDate and endDate are valid
   useEffect(() => {
@@ -38,18 +38,16 @@ export const HotelDetailPreview = ({ hotel }: { hotel: HotelDetails }) => {
     // Perform redirect if needed
     if (shouldRedirect) {
       router.replace(
-        `/hotels/${hotel.hotelId}?startDate=${defaultStart}&endDate=${defaultEnd}`
+        `/hotels/${hotel.id}?startDate=${defaultStart}&endDate=${defaultEnd}`
       );
     }
-  }, [startDate, endDate, hotel.hotelId, router]);
+  }, [startDate, endDate, hotel.id, router]);
 
   return (
-    <div className="max-w-7xl w-full p-6 rounded-lg space-y-8">
+    <>
       <div className="space-y-6">
         <div className="space-y-4">
-          <h1 className="text-4xl font-bold text-gray-900">
-            {hotel.hotelName}
-          </h1>
+          <h1 className="text-4xl font-bold">{hotel.name}</h1>
           <p className="text-lg text-muted-foreground flex items-center gap-2">
             <Hotel className="w-5 h-5" />
             {hotel.address}
@@ -68,12 +66,13 @@ export const HotelDetailPreview = ({ hotel }: { hotel: HotelDetails }) => {
         </div>
 
         {/* Hotel Description & Stats */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          <div className="relative">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-6">
+          <div className="relative w-full h-full">
             <img
               src={hotel.thumbnail}
-              alt={hotel.hotelName}
-              className="w-full h-80 object-cover rounded-xl shadow-lg"
+              alt={hotel.name}
+              sizes="20vw"
+              className="object-cover"
             />
           </div>
           <div className="flex flex-col justify-center space-y-6">
@@ -113,15 +112,14 @@ export const HotelDetailPreview = ({ hotel }: { hotel: HotelDetails }) => {
         <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
           {hotel.rooms.map((room) => (
             <RoomCard
-              hotelId={hotel.hotelId}
+              key={room.id}
               room={room}
-              key={room.roomId}
               endDate={endDate!}
               startDate={startDate!}
             />
           ))}
         </div>
       </div>
-    </div>
+    </>
   );
 };

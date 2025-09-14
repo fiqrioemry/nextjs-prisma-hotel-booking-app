@@ -10,19 +10,17 @@ import {
 } from "@/components/ui/sidebar";
 
 import {
-  ZapIcon,
   Book,
   Home,
   User2,
   ChartArea,
   CreditCard,
   LayoutDashboard,
+  Hotel,
 } from "lucide-react";
 import Link from "next/link";
 import * as React from "react";
-import { NavMain } from "./admin-nav-menu";
-import { usePathname } from "next/navigation";
-import { authClient } from "@/lib/auth-client";
+
 import {
   DropdownMenu,
   DropdownMenuItem,
@@ -31,6 +29,10 @@ import {
   DropdownMenuTrigger,
   DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
+import { NavMain } from "./admin-nav-menu";
+import { usePathname } from "next/navigation";
+import { authClient } from "@/lib/auth-client";
+import { ThemeToggle } from "@/components/shared/theme-toggle";
 import { SignOutButton } from "@/components/auth/signout-button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
@@ -51,28 +53,22 @@ export function AdminSidebar({
       isActive: pathname === "/admin",
     },
     {
-      title: "users",
-      url: "/admin/users",
-      icon: User2,
-      isActive: pathname === "/admin/users",
-    },
-    {
       title: "Hotels",
       url: "/admin/hotels",
       icon: Home,
-      isActive: pathname === "/admin/hotels",
+      isActive: pathname.startsWith("/admin/hotels"),
     },
     {
       title: "Bookings",
       url: "/admin/bookings",
       icon: Book,
-      isActive: pathname === "/admin/bookings",
+      isActive: pathname.startsWith("/admin/bookings"),
     },
     {
       title: "Payments",
       url: "/admin/payments",
       icon: CreditCard,
-      isActive: pathname === "/admin/payments",
+      isActive: pathname.startsWith("/admin/payments"),
     },
   ];
 
@@ -82,15 +78,15 @@ export function AdminSidebar({
         <div className="flex gap-2 data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground">
           <div className="flex items-center gap-2">
             <div className="p-1 bg-primary/10 rounded">
-              <ZapIcon className="w-4 h-4 text-primary" />
+              <Hotel className="w-8 h-8 text-primary" />
             </div>
             <div className="grid flex-1 text-left text-md py-4 font-mono leading-tight">
-              <span className="truncate font-medium">
-                Easy<span className="text-primary">Task</span>.io
-              </span>
+              <span className="truncate font-medium">EasyBook</span>
             </div>
           </div>
         </div>
+
+        <ThemeToggle />
       </SidebarHeader>
       <SidebarContent>
         <NavMain items={navItems} />
@@ -142,7 +138,7 @@ export function AdminSidebar({
               </DropdownMenuLabel>
               <DropdownMenuSeparator />
               <DropdownMenuItem asChild>
-                <Link href="/admin/dashboard">
+                <Link href="/admin">
                   <LayoutDashboard />
                   <span>Dashboard</span>
                 </Link>
