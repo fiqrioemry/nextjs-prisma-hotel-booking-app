@@ -1,6 +1,9 @@
 import qs from "qs";
 import { HotelsParams } from "@/lib/actions/hotels";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { EditHotelForm } from "@/components/admin/edit-hotel-form";
+import { toast } from "sonner";
+import { AddHotelForm } from "@/app/admin/hotels/new/page";
 
 // -------------------- GET HOTELS --------------------
 export function useHotels({ filters }: { filters: HotelsParams }) {
@@ -8,89 +11,84 @@ export function useHotels({ filters }: { filters: HotelsParams }) {
 
   const query = useQuery({
     queryKey: ["hotels", filters],
-    queryFn: () => fetch(`/api/hotels?${params}`).then((r) => r.json()),
+    queryFn: () => fetch(`/api/admin/hotels?${params}`).then((r) => r.json()),
   });
 
   return { ...query };
 }
 
-// -------------------- GET HOTEL BY ID --------------------
-export function useHotel(id: string) {
+export function useHotel({ id }: { id: string }) {
   const query = useQuery({
     queryKey: ["hotel", id],
-    queryFn: () => fetch(`/api/hotels/${id}`).then((r) => r.json()),
-    enabled: !!id,
+    queryFn: () => fetch(`/api/admin/hotels/${id}`).then((r) => r.json()),
   });
 
   return { ...query };
 }
-
-// -------------------- CREATE HOTEL --------------------
-type CreateHotelInput = {
-  name: string;
-  address: string;
-  description: string;
-  thumbnail: string;
-};
 
 export function useCreateHotel() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (data: CreateHotelInput) => {
-      const res = await fetch(`/api/hotels`, {
+    mutationFn: async (data: AddHotelForm) => {
+      const res = await fetch(`/api/admin/hotels`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data),
       });
       return res.json();
     },
-    onSuccess: () => {
+    onSuccess: (res) => {
       queryClient.invalidateQueries({ queryKey: ["hotels"] });
+      toast.success(res.message || "Hotel created successfully");
+    },
+    onError: (res) => {
+      console.log(res);
+      toast.error(res.message || "Failed to create hotel");
     },
   });
 }
-
-// -------------------- UPDATE HOTEL --------------------
-type UpdateHotelInput = {
-  name: string;
-  address: string;
-  description: string;
-  thumbnail: string;
-};
 
 export function useUpdateHotel(id: string) {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (data: UpdateHotelInput) => {
-      const res = await fetch(`/api/hotels/${id}`, {
+    mutationFn: async (data: EditHotelForm) => {
+      const res = await fetch(`/api/admin/hotels/${id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data),
       });
       return res.json();
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["hotels"] });
+    onSuccess: (res) => {
       queryClient.invalidateQueries({ queryKey: ["hotel", id] });
+      toast.success(res.message || "Hotel updated successfully");
+    },
+    onError: (res) => {
+      console.log(res);
+      toast.error(res.message || "Failed to update hotel");
     },
   });
 }
 
-// -------------------- DELETE HOTEL --------------------
 export function useDeleteHotel() {
   const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: async (id: string) => {
-      const res = await fetch(`/api/hotels/${id}`, {
+      const res = await fetch(`/api/admin/hotels/${id}`, {
         method: "DELETE",
       });
       return res.json();
     },
-    onSuccess: () => {
+    onSuccess: (res) => {
       queryClient.invalidateQueries({ queryKey: ["hotels"] });
+      toast.success(res.message || "Hotel deleted successfully");
+    },
+    onError: (res) => {
+      console.log(res);
+      toast.error(res.message || "Failed to delete hotel");
     },
   });
 }

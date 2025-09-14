@@ -1,13 +1,14 @@
 import qs from "qs";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { PaymentQuery } from "@/lib/actions/payments";
+import { PaymentParams } from "@/lib/actions/payments";
 
 // -------------------- GET PAYMENTS --------------------
-export function usePayments({ filters }: { filters: PaymentQuery }) {
-  const params = qs.stringify(filters, { skipNulls: true });
+export function usePayments({ params }: { params: PaymentParams }) {
+  const queryString = qs.stringify(params, { skipNulls: true });
   return useQuery({
-    queryKey: ["payments", filters],
-    queryFn: () => fetch(`/api/payments?${params}`).then((r) => r.json()),
+    queryKey: ["payments", params],
+    queryFn: () =>
+      fetch(`/api/admin/payments?${queryString}`).then((r) => r.json()),
   });
 }
 
@@ -25,7 +26,7 @@ export function useCreatePayment() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async (data: any) => {
-      const res = await fetch(`/api/payments`, {
+      const res = await fetch(`/api/admin/payments`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data),
@@ -43,7 +44,7 @@ export function useUpdatePayment(id: string) {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async (status: string) => {
-      const res = await fetch(`/api/payments/${id}`, {
+      const res = await fetch(`/api/admin/payments/${id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ status }),
@@ -62,7 +63,9 @@ export function useDeletePayment() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async (id: string) => {
-      const res = await fetch(`/api/payments/${id}`, { method: "DELETE" });
+      const res = await fetch(`/api/admin/payments/${id}`, {
+        method: "DELETE",
+      });
       return res.json();
     },
     onSuccess: () => {

@@ -1,6 +1,16 @@
 import qs from "qs";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { toast } from "sonner";
 import { RoomsParams } from "@/lib/actions/rooms";
+import { AddRoomForm } from "@/components/admin/add-room-form";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { EditRoomForm } from "@/components/admin/edit-room-form";
+
+export function useTypes() {
+  return useQuery({
+    queryKey: ["types"],
+    queryFn: () => fetch(`/api/rooms/types`).then((r) => r.json()),
+  });
+}
 
 // -------------------- GET ROOMS --------------------
 export function useRooms({ filters }: { filters: RoomsParams }) {
@@ -20,42 +30,52 @@ export function useRoom(id: string) {
   });
 }
 
-// -------------------- CREATE ROOM --------------------
+// CREATE NEW ROOM
 export function useCreateRoom() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: async (data: FormData) => {
-      const res = await fetch(`/api/rooms`, {
+    mutationFn: async (data: AddRoomForm) => {
+      const res = await fetch(`/api/admin/rooms`, {
         method: "POST",
-        body: data,
+        body: JSON.stringify(data),
       });
       return res.json();
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["rooms"] });
+    onSuccess: (res) => {
+      console.log(res);
+      // Revalidate rooms by hotel id as key
+      queryClient.invalidateQueries({ queryKey: ["hotel", res.room.hotelId] });
+      toast.success(res.message || "Room created successfully");
+    },
+
+    onError: (res) => {
+      console.log(res);
     },
   });
 }
 
-// -------------------- UPDATE ROOM --------------------
 export function useUpdateRoom(id: string) {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: async (data: FormData) => {
-      const res = await fetch(`/api/rooms/${id}`, {
+    mutationFn: async (data: EditRoomForm) => {
+      const res = await fetch(`/api/admin/rooms/${id}`, {
         method: "PUT",
-        body: data,
+        body: JSON.stringify(data),
       });
       return res.json();
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["rooms"] });
-      queryClient.invalidateQueries({ queryKey: ["room", id] });
+    onSuccess: (res) => {
+      queryClient.invalidateQueries({ queryKey: ["hotel", res.room.hotelId] });
+      toast.success(res.message || "Room updated successfully");
+      return true;
+    },
+    onError: (res) => {
+      console.log(res);
+      return false;
     },
   });
 }
 
-// -------------------- DELETE ROOM --------------------
 export function useDeleteRoom() {
   const queryClient = useQueryClient();
   return useMutation({

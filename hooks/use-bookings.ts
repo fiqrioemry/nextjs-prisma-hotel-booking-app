@@ -1,14 +1,15 @@
 import qs from "qs";
-import { BookingQuery } from "@/lib/actions/bookings";
+import { BookingParams } from "@/lib/actions/bookings";
 import { BookForm } from "@/components/hotel-detail/book-room-form";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 
 // -------------------- GET BOOKINGS --------------------
-export function useBookings({ filters }: { filters: BookingQuery }) {
-  const params = qs.stringify(filters, { skipNulls: true });
+export function useBookings({ params }: { params: BookingParams }) {
+  const queryString = qs.stringify(params, { skipNulls: true });
   return useQuery({
-    queryKey: ["bookings", filters],
-    queryFn: () => fetch(`/api/bookings?${params}`).then((r) => r.json()),
+    queryKey: ["bookings", queryString],
+    queryFn: () =>
+      fetch(`/api/admin/bookings?${queryString}`).then((r) => r.json()),
   });
 }
 
@@ -16,7 +17,7 @@ export function useBookings({ filters }: { filters: BookingQuery }) {
 export function useBooking(id: string) {
   return useQuery({
     queryKey: ["booking", id],
-    queryFn: () => fetch(`/api/bookings/${id}`).then((r) => r.json()),
+    queryFn: () => fetch(`/api/admin/bookings/${id}`).then((r) => r.json()),
     enabled: !!id,
   });
 }
@@ -26,7 +27,7 @@ export function useUpdateBooking(id: string) {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async (status: string) => {
-      const res = await fetch(`/api/bookings/${id}`, {
+      const res = await fetch(`/api/admin/bookings/${id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ status }),
@@ -45,7 +46,9 @@ export function useDeleteBooking() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async (id: string) => {
-      const res = await fetch(`/api/bookings/${id}`, { method: "DELETE" });
+      const res = await fetch(`/api/admin/bookings/${id}`, {
+        method: "DELETE",
+      });
       return res.json();
     },
     onSuccess: () => {
