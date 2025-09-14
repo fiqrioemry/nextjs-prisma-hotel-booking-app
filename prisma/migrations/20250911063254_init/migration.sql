@@ -5,7 +5,7 @@ CREATE TYPE "public"."RoleEnum" AS ENUM ('ADMIN', 'USER');
 CREATE TYPE "public"."PaymentMethod" AS ENUM ('QRIS', 'CASH', 'BANK_TRANSFER');
 
 -- CreateEnum
-CREATE TYPE "public"."PaymentStatus" AS ENUM ('PENDING', 'FAILED', 'PAID');
+CREATE TYPE "public"."status" AS ENUM ('PENDING', 'FAILED', 'PAID');
 
 -- CreateEnum
 CREATE TYPE "public"."TransactionStatus" AS ENUM ('USAGE', 'TOPUP', 'GRANTED');
@@ -56,7 +56,7 @@ CREATE TABLE "public"."payment" (
     "invoiceNo" TEXT NOT NULL,
     "amount" DOUBLE PRECISION NOT NULL,
     "tax" DOUBLE PRECISION NOT NULL DEFAULT 0,
-    "status" "public"."PaymentStatus" NOT NULL DEFAULT 'PENDING',
+    "status" "public"."status" NOT NULL DEFAULT 'PENDING',
     "paymentMethod" "public"."PaymentMethod" NOT NULL DEFAULT 'BANK_TRANSFER',
     "paymentUrl" TEXT,
     "metadata" JSONB,

@@ -26,7 +26,7 @@ enum PaymentMethod {
   BANK_TRANSFER
 }
 
-enum PaymentStatus {
+enum status {
   PENDING
   FAILED
   PAID
@@ -85,12 +85,6 @@ model Hotel {
   rooms Room[]
 }
 
-model RoomType {
-  id        String   @id @default(cuid())
-  name      String   @unique
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-}
 
 model Room {
   id          String   @id @default(cuid())
@@ -98,6 +92,7 @@ model Room {
   name        String
   facilities  String[]
   description String
+  typeId      String  
 
   price       Int
   capacity    Int
@@ -105,7 +100,11 @@ model Room {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
+
+  type      RoomType    @relation(fields: [typeId], references: [id])
   hotel    Hotel       @relation(fields: [hotelId], references: [id], onDelete: Cascade)
+  
+
   bookings Booking[]
   images   RoomImage[]
 }
@@ -119,6 +118,17 @@ model RoomImage {
 
   room Room @relation(fields: [roomId], references: [id], onDelete: Cascade)
 }
+
+
+model RoomType {
+  id        String   @id @default(cuid())
+  name      String   @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  rooms     Room[]
+}
+
 
 // -------------------- BOOKING --------------------
 model Booking {
@@ -147,7 +157,7 @@ model Payment {
   invoiceNo     String        @unique
   amount        Float
   tax           Float         @default(0)
-  status        PaymentStatus @default(PENDING)
+  status        status @default(PENDING)
   paymentMethod PaymentMethod @default(BANK_TRANSFER)
   paymentUrl    String?
   metadata      Json          @default("{}")

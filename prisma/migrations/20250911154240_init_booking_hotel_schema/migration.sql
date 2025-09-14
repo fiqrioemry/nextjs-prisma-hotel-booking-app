@@ -92,7 +92,7 @@ CREATE TABLE "public"."RoomType" (
 -- CreateTable
 CREATE TABLE "public"."Room" (
     "id" TEXT NOT NULL,
-    "hotelId" TEXT NOT NULL,
+    "id" TEXT NOT NULL,
     "name" TEXT NOT NULL,
     "facilities" TEXT[],
     "description" TEXT NOT NULL,
@@ -108,7 +108,7 @@ CREATE TABLE "public"."Room" (
 -- CreateTable
 CREATE TABLE "public"."RoomImage" (
     "id" TEXT NOT NULL,
-    "roomId" TEXT NOT NULL,
+    "id" TEXT NOT NULL,
     "url" TEXT NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
@@ -120,7 +120,7 @@ CREATE TABLE "public"."RoomImage" (
 CREATE TABLE "public"."Booking" (
     "id" TEXT NOT NULL,
     "userId" TEXT NOT NULL,
-    "roomId" TEXT NOT NULL,
+    "id" TEXT NOT NULL,
     "checkIn" TIMESTAMP(3) NOT NULL,
     "checkOut" TIMESTAMP(3) NOT NULL,
     "status" "public"."BookingStatus" NOT NULL DEFAULT 'PENDING',
@@ -138,7 +138,7 @@ CREATE TABLE "public"."Payment" (
     "invoiceNo" TEXT NOT NULL,
     "amount" DOUBLE PRECISION NOT NULL,
     "tax" DOUBLE PRECISION NOT NULL DEFAULT 0,
-    "status" "public"."PaymentStatus" NOT NULL DEFAULT 'PENDING',
+    "status" "public"."status" NOT NULL DEFAULT 'PENDING',
     "paymentMethod" "public"."PaymentMethod" NOT NULL DEFAULT 'BANK_TRANSFER',
     "paymentUrl" TEXT,
     "metadata" JSONB,
@@ -209,16 +209,16 @@ CREATE UNIQUE INDEX "Payment_invoiceNo_key" ON "public"."Payment"("invoiceNo");
 CREATE UNIQUE INDEX "Session_token_key" ON "public"."Session"("token");
 
 -- AddForeignKey
-ALTER TABLE "public"."Room" ADD CONSTRAINT "Room_hotelId_fkey" FOREIGN KEY ("hotelId") REFERENCES "public"."Hotel"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "public"."Room" ADD CONSTRAINT "Room_id_fkey" FOREIGN KEY ("id") REFERENCES "public"."Hotel"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "public"."RoomImage" ADD CONSTRAINT "RoomImage_roomId_fkey" FOREIGN KEY ("roomId") REFERENCES "public"."Room"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "public"."RoomImage" ADD CONSTRAINT "RoomImage_id_fkey" FOREIGN KEY ("id") REFERENCES "public"."Room"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "public"."Booking" ADD CONSTRAINT "Booking_userId_fkey" FOREIGN KEY ("userId") REFERENCES "public"."User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "public"."Booking" ADD CONSTRAINT "Booking_roomId_fkey" FOREIGN KEY ("roomId") REFERENCES "public"."Room"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "public"."Booking" ADD CONSTRAINT "Booking_id_fkey" FOREIGN KEY ("id") REFERENCES "public"."Room"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "public"."Payment" ADD CONSTRAINT "Payment_userId_fkey" FOREIGN KEY ("userId") REFERENCES "public"."User"("id") ON DELETE CASCADE ON UPDATE CASCADE;

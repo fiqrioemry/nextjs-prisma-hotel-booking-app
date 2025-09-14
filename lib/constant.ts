@@ -1,6 +1,7 @@
 import { Brain, Bubbles, Database, Megaphone, Moon, Sun } from "lucide-react";
 
 export const sortOptions = [
+  { value: "available_rooms", label: "room available" },
   { value: "newest", label: "Newest" },
   { value: "oldest", label: "Oldest" },
 ];
@@ -13,6 +14,13 @@ export const limitOptions = [
 ];
 
 export const statusOptions = [
+  { value: "PENDING", label: "Pending" },
+  { value: "PAID", label: "Paid" },
+  { value: "FAILED", label: "Failed" },
+];
+
+export const paymentStatusOptions = [
+  { value: "ALL", label: "All" },
   { value: "PENDING", label: "Pending" },
   { value: "PAID", label: "Paid" },
   { value: "FAILED", label: "Failed" },
