@@ -51,7 +51,7 @@ export interface RecentBooking {
   userName: string;
   userEmail: string;
   hotelName: string;
-  roomName: string;
+  bookingName: string;
   checkIn: string;
   checkOut: string;
   status: "PENDING" | "CONFIRMED" | "CANCELLED" | "COMPLETED";
@@ -60,8 +60,8 @@ export interface RecentBooking {
 }
 
 export interface TopHotel {
-  hotelId: string;
-  hotelName: string;
+  id: string;
+  name: string;
   thumbnail: string;
   totalBookings: number;
   totalRevenue: number;
@@ -360,7 +360,7 @@ export async function getDashboardStatistics(): Promise<DashboardStatistics> {
         userName: booking.user.name,
         userEmail: booking.user.email,
         hotelName: booking.room.hotel.name,
-        roomName: booking.room.name,
+        bookingName: booking.room.name,
         checkIn: booking.checkIn.toISOString(),
         checkOut: booking.checkOut.toISOString(),
         status: booking.status,
@@ -444,8 +444,8 @@ export async function getDashboardStatistics(): Promise<DashboardStatistics> {
         const occupiedUnits = bookings.length;
 
         return {
-          hotelId: hotel.id,
-          hotelName: hotel.name,
+          id: hotel.id,
+          name: hotel.name,
           thumbnail: hotel.thumbnail,
           totalBookings: bookings.length,
           totalRevenue,

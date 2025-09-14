@@ -8,16 +8,30 @@ export interface HotelsParams {
   location?: string;
   endDate?: string;
   startDate?: string;
-  sort?: "newest" | "oldest" | "available_rooms";
+  sort: "newest" | "oldest" | "available_rooms";
   page: number;
   limit: number;
 }
+
+export type MyBooking = {
+  id: string;
+  name: string;
+  hotelThumbnail: string;
+  checkIn: string;
+  checkOut: string;
+  quantity: number;
+  status: "PENDING" | "CONFIRMED" | "CANCELLED" | "COMPLETED";
+  createdAt: string;
+  room: Room;
+};
 
 export type MetaPagination = {
   page: number;
   limit: number;
   total: number;
   totalPages: number;
+  hasNextPage: boolean;
+  hasPrevPage: boolean;
 };
 
 export interface HotelDetailParams {
@@ -36,8 +50,8 @@ export type CreateHotelData = {
 };
 
 export type Room = {
-  roomId: string;
-  roomName: string;
+  id: string;
+  name: string;
   description: string;
   price: number;
   images: string[];
@@ -48,8 +62,8 @@ export type Room = {
 };
 
 export interface Hotels {
-  hotelId: string;
-  hotelName: string;
+  id: string;
+  name: string;
   address: string;
   thumbnail: string;
   description?: string;
@@ -59,13 +73,163 @@ export interface Hotels {
 }
 
 export interface HotelDetails {
-  hotelId: string;
-  hotelName: string;
+  id: string;
+  name: string;
   address: string;
   thumbnail: string;
   description?: string;
   createdAt: Date;
   rooms: Room[];
+}
+
+type UpdateHotelData = {
+  name: string;
+  address: string;
+  description: string;
+  thumbnail: File | string;
+};
+
+export interface AdminHotelData {
+  id: string;
+  name: string;
+  address: string;
+  thumbnail: string;
+  description: string;
+  totalRooms: number;
+  totalUnits: number;
+  totalBookings: number;
+  confirmedBookings: number;
+  pendingBookings: number;
+  completedBookings: number;
+  cancelledBookings: number;
+  totalRevenue: number;
+  createdAt: Date;
+}
+
+export async function getHotels(params: HotelsParams) {
+  try {
+    const {
+      q,
+      location,
+      startDate,
+      endDate,
+      page = 1,
+      limit = 10,
+      sort = "newest",
+    } = params;
+
+    const skip = (page - 1) * limit;
+
+    // WHERE filters
+    const where: any = { AND: [] };
+
+    if (q && q.trim()) {
+      where.AND.push({
+        OR: [
+          { name: { contains: q, mode: "insensitive" } },
+          { address: { contains: q, mode: "insensitive" } },
+          { description: { contains: q, mode: "insensitive" } },
+        ],
+      });
+    }
+
+    if (location && location.trim()) {
+      where.AND.push({
+        OR: [
+          { name: { contains: location, mode: "insensitive" } },
+          { address: { contains: location, mode: "insensitive" } },
+        ],
+      });
+    }
+
+    // Sorting
+    let orderBy: any = {};
+    switch (sort) {
+      case "oldest":
+        orderBy = { createdAt: "asc" };
+        break;
+      case "available_rooms":
+        orderBy = { createdAt: "desc" }; // fallback, available dihitung manual
+        break;
+      case "newest":
+      default:
+        orderBy = { createdAt: "desc" };
+        break;
+    }
+
+    // Query hotels + total
+    const [result, total] = await Promise.all([
+      db.hotel.findMany({
+        where,
+        orderBy,
+        include: {
+          rooms: {
+            include: {
+              images: true,
+              bookings: {
+                where: {
+                  status: { in: ["CONFIRMED", "PENDING"] },
+                },
+              },
+            },
+          },
+        },
+        skip,
+        take: limit,
+      }),
+      db.hotel.count({ where }),
+    ]);
+
+    //map to hotekls interface
+    const hotels: Hotels[] = result.map((h) => {
+      const availableRooms = h.rooms.reduce((acc, r) => {
+        let available = r.totalUnits;
+        if (startDate && endDate) {
+          // count the bookings that overlap with the requested date range
+          available -= r.bookings.length;
+        }
+        return acc + available;
+      }, 0);
+
+      return {
+        id: h.id,
+        name: h.name,
+        address: h.address,
+        thumbnail: h.thumbnail,
+        description: h.description ?? "",
+        createdAt: h.createdAt,
+        availableRooms,
+        rooms: h.rooms.map((r) => ({
+          id: r.id,
+          name: r.name,
+          description: r.description,
+          price: r.price,
+          images: r.images.map((img) => img.url),
+          capacity: r.capacity,
+          totalUnits: r.totalUnits,
+          facilities: r.facilities,
+          availableUnits: r.totalUnits - r.bookings.length,
+        })),
+      };
+    });
+
+    return {
+      data: hotels,
+      meta: {
+        total,
+        page,
+        limit,
+        totalPages: Math.ceil(total / limit),
+        hasNextPage: skip + limit < total,
+        hasPrevPage: page > 1,
+      } as MetaPagination,
+    };
+  } catch (error) {
+    console.error("error fetching hotels:", error);
+    throw new Error(
+      error instanceof Error ? error.message : "Failed to fetch hotels"
+    );
+  }
 }
 
 export async function getHotelById(params: HotelDetailParams) {
@@ -104,7 +268,7 @@ export async function getHotelById(params: HotelDetailParams) {
         if (startDate && endDate) {
           bookedUnits = await db.booking.count({
             where: {
-              roomId: room.id,
+              id: room.id,
               status: { in: ["CONFIRMED", "PENDING"] },
               NOT: {
                 OR: [
@@ -116,9 +280,11 @@ export async function getHotelById(params: HotelDetailParams) {
           });
         }
 
+        // return room with available units
         return {
-          roomId: room.id,
-          roomName: room.name,
+          id: room.id,
+          hotelId: room.hotelId,
+          name: room.name,
           price: room.price,
           capacity: room.capacity,
           totalUnits: room.totalUnits,
@@ -131,8 +297,8 @@ export async function getHotelById(params: HotelDetailParams) {
     );
 
     return {
-      hotelId: hotel.id,
-      hotelName: hotel.name,
+      id: hotel.id,
+      name: hotel.name,
       address: hotel.address,
       thumbnail: hotel.thumbnail,
       description: hotel.description,
@@ -174,20 +340,8 @@ export async function createHotel(data: CreateHotelData) {
     message: "Hotel created successfully",
   };
 }
-type UpdateHotelData = {
-  name: string;
-  address: string;
-  description: string;
-  thumbnail: File | string;
-};
 
-export async function updateHotel(id: string, data: UpdateHotelData) {
-  const session = await auth.api.getSession({ headers: await headers() });
-
-  if (!session || session?.user?.role !== "ADMIN") {
-    return { success: false, message: "Unauthorized" };
-  }
-
+export async function adminUpdateHotel(id: string, data: UpdateHotelData) {
   if (typeof data.thumbnail !== "string") {
     const { uploadSingle } = useEdgeStoreUpload();
     const file = await uploadSingle(data.thumbnail);
@@ -211,14 +365,7 @@ export async function updateHotel(id: string, data: UpdateHotelData) {
   };
 }
 
-// -------------------- DELETE HOTEL --------------------
-export async function deleteHotel(id: string) {
-  const session = await auth.api.getSession({ headers: await headers() });
-
-  if (!session || session?.user?.role !== "ADMIN") {
-    return { success: false, message: "Unauthorized" };
-  }
-
+export async function adminDeleteHotel(id: string) {
   try {
     await db.hotel.delete({ where: { id } });
 
@@ -235,118 +382,206 @@ export async function deleteHotel(id: string) {
   }
 }
 
-export interface AdminHotelData {
-  hotelId: string;
-  hotelName: string;
-  address: string;
-  thumbnail: string;
-  description: string;
-  total_rooms: number;
-  total_units: number;
-  total_bookings: number;
-  confirmed_bookings: number;
-  pending_bookings: number;
-  completed_bookings: number;
-  cancelled_bookings: number;
-  total_revenue: number;
-  createdAt: Date;
-}
-
-// -------------------- ADMIN GET HOTELS  --------------------
 export async function adminGetHotels(params: HotelsParams) {
   const { q = "", page = 1, limit = 10, sort = "newest" } = params;
 
-  // Ensure page and limit are integers
   const currentPage = parseInt(page.toString());
   const limitInt = parseInt(limit.toString());
   const skip = (currentPage - 1) * limitInt;
 
-  // Build search conditions and parameters
-  let searchConditions = "WHERE 1=1";
-  const queryParams: any[] = [];
-  let paramIndex = 1;
-
-  // Add search filter if query exists
-  if (q && q.trim()) {
-    searchConditions += ` AND (
-      h.name ILIKE $${paramIndex} OR 
-      h.address ILIKE $${paramIndex} OR 
-      h.description ILIKE $${paramIndex}
-    )`;
-    queryParams.push(`%${q.trim()}%`);
-    paramIndex++;
-  }
-
-  // Build ORDER BY clause
-  const orderByClause =
-    sort === "oldest"
-      ? 'ORDER BY h."createdAt" ASC'
-      : 'ORDER BY h."createdAt" DESC';
-
-  // Main query to get hotels with comprehensive statistics
-  const hotelsQuery = `
-    SELECT 
-      h.id AS hotel_id,
-      h.name AS hotel_name,
-      h.address,
-      h.thumbnail,
-      h.description,
-      h."createdAt" AS created_at,
-      COUNT(DISTINCT r.id)::integer AS total_rooms,
-      COALESCE(SUM(r."totalUnits"), 0)::integer AS total_units,
-      COUNT(DISTINCT b.id)::integer AS total_bookings,
-      COUNT(DISTINCT CASE WHEN b.status = 'CONFIRMED' THEN b.id END)::integer AS confirmed_bookings,
-      COUNT(DISTINCT CASE WHEN b.status = 'PENDING' THEN b.id END)::integer AS pending_bookings,
-      COUNT(DISTINCT CASE WHEN b.status = 'COMPLETED' THEN b.id END)::integer AS completed_bookings,
-      COUNT(DISTINCT CASE WHEN b.status = 'CANCELLED' THEN b.id END)::integer AS cancelled_bookings,
-      COALESCE(SUM(CASE WHEN p.status = 'PAID' THEN p.amount ELSE 0 END), 0)::numeric AS total_revenue
-    FROM "Hotel" h
-    LEFT JOIN "Room" r ON r."hotelId" = h.id
-    LEFT JOIN "Booking" b ON b."roomId" = r.id
-    LEFT JOIN "Payment" p ON p."bookingId" = b.id
-    ${searchConditions}
-    GROUP BY h.id, h.name, h.address, h.thumbnail, h.description, h."createdAt"
-    ${orderByClause}
-    LIMIT $${paramIndex}::integer OFFSET $${paramIndex + 1}::integer
-  `;
-
-  // Count query for pagination
-  const countQuery = `
-    SELECT COUNT(DISTINCT h.id)::bigint AS total
-    FROM "Hotel" h
-    LEFT JOIN "Room" r ON r."hotelId" = h.id
-    LEFT JOIN "Booking" b ON b."roomId" = r.id
-    LEFT JOIN "Payment" p ON p."bookingId" = b.id
-    ${searchConditions}
-  `;
-
   try {
-    // Add pagination parameters as integers
-    queryParams.push(limitInt, skip);
+    // Build where clause for search
+    const whereClause: any = {};
 
-    // Execute both queries in parallel
-    const [hotelsResult, countResult] = await Promise.all([
-      db.$queryRawUnsafe<AdminHotelData[]>(hotelsQuery, ...queryParams),
-      db.$queryRawUnsafe<[{ total: bigint }]>(
-        countQuery,
-        ...queryParams.slice(0, -2) // Remove limit and offset for count query
-      ),
+    if (q && q.trim()) {
+      whereClause.OR = [
+        { name: { contains: q.trim(), mode: "insensitive" } },
+        { address: { contains: q.trim(), mode: "insensitive" } },
+        { description: { contains: q.trim(), mode: "insensitive" } },
+      ];
+    }
+
+    // Build orderBy clause
+    const orderBy =
+      sort === "oldest"
+        ? { createdAt: "asc" as const }
+        : { createdAt: "desc" as const };
+
+    // Get basic hotel data first
+    const [hotels, total] = await Promise.all([
+      db.hotel.findMany({
+        where: whereClause,
+        select: {
+          id: true,
+          name: true,
+          address: true,
+          thumbnail: true,
+          description: true,
+          createdAt: true,
+        },
+        orderBy,
+        skip,
+        take: limitInt,
+      }),
+      db.hotel.count({
+        where: whereClause,
+      }),
     ]);
 
-    const total = Number(countResult[0]?.total || 0);
+    // Get hotel IDs for subsequent queries
+    const ids = hotels.map((h) => h.id);
 
-    // Transform the results to ensure correct data types
-    const transformedHotels = hotelsResult.map((hotel) => ({
-      ...hotel,
-      total_rooms: Number(hotel.total_rooms),
-      total_units: Number(hotel.total_units),
-      total_bookings: Number(hotel.total_bookings),
-      confirmed_bookings: Number(hotel.confirmed_bookings),
-      pending_bookings: Number(hotel.pending_bookings),
-      completed_bookings: Number(hotel.completed_bookings),
-      cancelled_bookings: Number(hotel.cancelled_bookings),
-      total_revenue: Number(hotel.total_revenue),
-    }));
+    if (ids.length === 0) {
+      return {
+        success: true,
+        data: [],
+        meta: {
+          page: currentPage,
+          limit: limitInt,
+          total,
+          totalPages: Math.ceil(total / limitInt),
+        },
+      };
+    }
+
+    // Get aggregated data for all hotels in parallel
+    const [roomStats, bookingStats, revenueStats] = await Promise.all([
+      // Room statistics
+      db.room.groupBy({
+        by: ["id"],
+        where: {
+          id: { in: ids },
+        },
+        _count: {
+          id: true,
+        },
+        _sum: {
+          totalUnits: true,
+        },
+      }),
+
+      // Booking statistics
+      db.booking.groupBy({
+        by: ["status"],
+        where: {
+          room: {
+            id: { in: ids },
+          },
+        },
+        _count: {
+          id: true,
+        },
+      }),
+
+      // Revenue statistics
+      db.payment.aggregate({
+        where: {
+          status: "PAID",
+          booking: {
+            room: {
+              id: { in: ids },
+            },
+          },
+        },
+        _sum: {
+          amount: true,
+        },
+      }),
+    ]);
+
+    // Get detailed booking data for each hotel
+    const hotelBookings = await db.booking.findMany({
+      where: {
+        room: {
+          id: { in: ids },
+        },
+      },
+      select: {
+        id: true,
+        status: true,
+        room: {
+          select: {
+            id: true,
+          },
+        },
+        payment: {
+          select: {
+            amount: true,
+            status: true,
+          },
+        },
+      },
+    });
+
+    // Create maps for quick lookup
+    const roomStatsMap = new Map(
+      roomStats.map((stat) => [
+        stat.id,
+        {
+          totalRooms: stat._count.id,
+          totalUnits: stat._sum.totalUnits || 0,
+        },
+      ])
+    );
+
+    // Group bookings by hotel
+    const hotelBookingsMap = new Map<string, typeof hotelBookings>();
+    hotelBookings.forEach((booking) => {
+      const id = booking.room.id;
+      if (!hotelBookingsMap.has(id)) {
+        hotelBookingsMap.set(id, []);
+      }
+      hotelBookingsMap.get(id)!.push(booking);
+    });
+
+    // Transform data
+    const transformedHotels: AdminHotelData[] = hotels.map((hotel) => {
+      const roomData = roomStatsMap.get(hotel.id) || {
+        totalRooms: 0,
+        totalUnits: 0,
+      };
+      const bookings = hotelBookingsMap.get(hotel.id) || [];
+
+      // Calculate booking statistics
+      const totalBookings = bookings.length;
+      const confirmedBookings = bookings.filter(
+        (b) => b.status === "CONFIRMED"
+      ).length;
+      const pendingBookings = bookings.filter(
+        (b) => b.status === "PENDING"
+      ).length;
+      const completedBookings = bookings.filter(
+        (b) => b.status === "COMPLETED"
+      ).length;
+      const cancelledBookings = bookings.filter(
+        (b) => b.status === "CANCELLED"
+      ).length;
+
+      // Calculate revenue for this hotel
+      const totalRevenue = bookings.reduce((sum, booking) => {
+        if (booking.payment && booking.payment.status === "PAID") {
+          return sum + Number(booking.payment.amount);
+        }
+        return sum;
+      }, 0);
+
+      return {
+        id: hotel.id,
+        name: hotel.name,
+        address: hotel.address,
+        thumbnail: hotel.thumbnail,
+        description: hotel.description || "",
+        totalRooms: roomData.totalRooms,
+        totalUnits: roomData.totalUnits,
+        totalBookings: totalBookings,
+        confirmedBookings: confirmedBookings,
+        pendingBookings: pendingBookings,
+        completedBookings: completedBookings,
+        cancelledBookings: cancelledBookings,
+        totalRevenue: totalRevenue,
+        createdAt: hotel.createdAt,
+      };
+    });
 
     return {
       success: true,
@@ -359,7 +594,7 @@ export async function adminGetHotels(params: HotelsParams) {
       },
     };
   } catch (error) {
-    console.error("Database query error in adminGetHotels:", error);
+    console.error("Error fetching admin hotels:", error);
     return {
       success: false,
       data: [],
@@ -374,141 +609,51 @@ export async function adminGetHotels(params: HotelsParams) {
   }
 }
 
-export async function getHotels(params: HotelsParams) {
-  const {
-    q,
-    location,
-    startDate,
-    endDate,
-    page = 1,
-    limit = 10,
-    sort = "newest",
-  } = params;
-
-  // Ensure page and limit are integers
-  const currentPage = parseInt(page.toString());
-  const limitInt = parseInt(limit.toString());
-  const skip = (currentPage - 1) * limitInt;
-
-  // Build WHERE conditions for search
-  let searchConditions = "WHERE 1=1";
-  const queryParams: any[] = [];
-  let paramIndex = 1;
-
-  // Search by general query (name, address, description)
-  if (q && q.trim()) {
-    searchConditions += ` AND (
-      h.name ILIKE $${paramIndex} OR 
-      h.address ILIKE $${paramIndex} OR 
-      h.description ILIKE $${paramIndex}
-    )`;
-    queryParams.push(`%${q.trim()}%`);
-    paramIndex++;
-  }
-
-  // Search by location (name or address)
-  if (location && location.trim()) {
-    searchConditions += ` AND (
-      h.name ILIKE $${paramIndex} OR 
-      h.address ILIKE $${paramIndex}
-    )`;
-    queryParams.push(`%${location.trim()}%`);
-    paramIndex++;
-  }
-
-  // Date range filter (for availability calculation)
-  let dateRangeCondition = "";
-  if (startDate && endDate) {
-    dateRangeCondition = `AND NOT (b."checkOut" <= $${paramIndex}::date OR b."checkIn" >= $${
-      paramIndex + 1
-    }::date)`;
-    queryParams.push(startDate, endDate);
-    paramIndex += 2;
-  }
-
-  // Build ORDER BY clause
-  let orderByClause = "";
-  switch (sort) {
-    case "oldest":
-      orderByClause = 'ORDER BY h."createdAt" ASC';
-      break;
-    case "available_rooms":
-      orderByClause = 'ORDER BY available_rooms DESC, h."createdAt" DESC';
-      break;
-    case "newest":
-    default:
-      orderByClause = 'ORDER BY h."createdAt" DESC';
-      break;
-  }
-
-  // Main query to get hotels with available rooms
-  const hotelsQuery = `
-    SELECT 
-      h.id AS hotel_id,
-      h.name AS hotel_name,
-      h.address,
-      h.thumbnail,
-      h.description,
-      h."createdAt" AS created_at,
-      COALESCE(SUM(
-        r."totalUnits" - (
-          SELECT COUNT(*)
-          FROM "Booking" b
-          WHERE b."roomId" = r.id
-            AND b.status IN ('CONFIRMED','PENDING')
-            ${dateRangeCondition}
-        )
-      ), 0) AS available_rooms
-    FROM "Hotel" h
-    LEFT JOIN "Room" r ON r."hotelId" = h.id
-    ${searchConditions}
-    GROUP BY h.id, h.name, h.address, h.thumbnail, h.description, h."createdAt"
-    ${orderByClause}
-    LIMIT $${paramIndex}::integer OFFSET $${paramIndex + 1}::integer
-  `;
-
-  // Count query for pagination
-  const countQuery = `
-    SELECT COUNT(DISTINCT h.id) as total
-    FROM "Hotel" h
-    LEFT JOIN "Room" r ON r."hotelId" = h.id
-    ${searchConditions}
-  `;
-
+export async function adminGetHotelById(id: string) {
   try {
-    // Add pagination parameters as integers
-    queryParams.push(limitInt, skip);
+    const result = await db.hotel.findUnique({
+      where: { id: id },
+      include: { rooms: { include: { images: true, type: true } } },
+    });
 
-    // Execute both queries
-    const [hotelsResult, countResult] = await Promise.all([
-      db.$queryRawUnsafe<Hotels[]>(hotelsQuery, ...queryParams),
-      db.$queryRawUnsafe<[{ total: bigint }]>(
-        countQuery,
-        ...queryParams.slice(0, -2)
-      ),
-    ]);
-
-    const total = Number(countResult[0]?.total || 0);
+    if (!result) {
+      return {
+        success: false,
+        data: null,
+        message: "Hotel not found",
+      };
+    }
+    const hotel = {
+      id: result.id,
+      name: result.name,
+      address: result.address,
+      thumbnail: result.thumbnail,
+      description: result.description || "",
+      rooms: result.rooms.map((r) => ({
+        id: r.id,
+        typeId: r.type.id,
+        hotelId: r.hotelId,
+        name: r.name,
+        description: r.description,
+        facilities: r.facilities,
+        capacity: r.capacity,
+        totalUnits: r.totalUnits,
+        price: r.price,
+        images: r.images,
+      })),
+    };
 
     return {
-      data: hotelsResult.map((hotel: any) => ({
-        hotelId: hotel.hotel_id,
-        hotelName: hotel.hotel_name,
-        address: hotel.address,
-        thumbnail: hotel.thumbnail,
-        description: hotel.description,
-        createdAt: hotel.created_at,
-        availableRooms: Number(hotel.available_rooms ?? 0),
-      })),
-      meta: {
-        page: currentPage,
-        limit: limitInt,
-        total,
-        totalPages: Math.ceil(total / limitInt),
-      },
+      success: true,
+      data: hotel,
+      message: "Hotel fetched successfully",
     };
   } catch (error) {
-    console.error("Database query error:", error);
-    throw new Error("Failed to fetch hotels from database");
+    console.error("Error fetching hotel by ID:", error);
+    return {
+      success: false,
+      data: null,
+      message: "Failed to fetch hotel",
+    };
   }
 }

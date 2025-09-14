@@ -1,8 +1,6 @@
 "use server";
 
 import { db } from "../prisma";
-import { auth } from "../auth";
-import { headers } from "next/headers";
 import { NextRequest } from "next/server";
 
 export async function verifyResetToken(token: string) {

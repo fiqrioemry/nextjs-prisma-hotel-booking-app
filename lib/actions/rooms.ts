@@ -1,39 +1,36 @@
 import { auth } from "@/lib/auth";
 import { db } from "@/lib/prisma";
 import { headers } from "next/headers";
-import { useEdgeStoreUpload } from "@/hooks/use-uploader";
+import { EditRoomForm } from "@/components/admin/edit-room-form";
+import { AddRoomForm } from "@/components/admin/add-room-form";
 
-// -------------------- TYPES --------------------
 export type RoomsParams = {
   q?: string;
   page: number;
   limit: number;
   sort: "newest" | "oldest";
-  hotelId?: string;
+  id?: string;
 };
 
-type CreateRoomData = {
-  hotelId: string;
-  name: string;
-  description: string;
-  facilities: string[];
-  price: number;
-  capacity: number;
-  totalUnits: number;
-  images?: File[];
-};
+export async function getRoomTypes() {
+  const result = await db.roomType.findMany({
+    orderBy: { name: "asc" },
+  });
 
-type UpdateRoomData = Partial<CreateRoomData> & {
-  images?: (File | string)[];
-};
+  const roomTypes = result.map((type) => ({
+    value: type.id,
+    label: type.name,
+  }));
+  return roomTypes;
+}
 
-// -------------------- GET ROOMS --------------------
 export async function getRooms(params: RoomsParams) {
-  const { q, page, limit, sort, hotelId } = params;
+  const { q, page, limit, sort, id } = params;
   const skip = (page - 1) * limit;
 
+  // build where clause
   const where: any = {
-    ...(hotelId && { hotelId }),
+    ...(id && { id }),
     ...(q && {
       OR: [
         { name: { contains: q } },
@@ -43,6 +40,7 @@ export async function getRooms(params: RoomsParams) {
     }),
   };
 
+  // implement where clauase as query params
   const rooms = await db.room.findMany({
     where,
     orderBy: { createdAt: sort === "oldest" ? "asc" : "desc" },
@@ -51,6 +49,7 @@ export async function getRooms(params: RoomsParams) {
     include: { images: true, hotel: true },
   });
 
+  // count the total from query result
   const total = await db.room.count({ where });
   return {
     data: rooms,
@@ -63,7 +62,6 @@ export async function getRooms(params: RoomsParams) {
   };
 }
 
-// -------------------- GET ROOM BY ID --------------------
 export async function getRoomById(id: string, checkIn?: Date, checkOut?: Date) {
   const room = await db.room.findUnique({
     where: { id },
@@ -76,7 +74,7 @@ export async function getRoomById(id: string, checkIn?: Date, checkOut?: Date) {
   if (checkIn && checkOut) {
     const overlappingBookings = await db.booking.count({
       where: {
-        roomId: id,
+        id: id,
         status: { in: ["PENDING", "CONFIRMED"] },
         NOT: {
           OR: [{ checkOut: { lte: checkIn } }, { checkIn: { gte: checkOut } }],
@@ -98,29 +96,11 @@ export async function getRoomById(id: string, checkIn?: Date, checkOut?: Date) {
   };
 }
 
-// -------------------- CREATE ROOM --------------------
-export async function createRoom(data: CreateRoomData) {
-  const session = await auth.api.getSession({ headers: await headers() });
-  if (!session || session?.user?.role !== "ADMIN") {
-    return { success: false, message: "Unauthorized" };
-  }
-
-  let uploadedImages: {
-    url: string;
-    name: string;
-    size: number;
-    type: string;
-  }[] = [];
-
-  if (data.images && data.images.length > 0) {
-    const { uploadMultiple } = useEdgeStoreUpload();
-    const result = await uploadMultiple(data.images);
-    uploadedImages = result.files;
-  }
-
+export async function createRoom(data: AddRoomForm) {
   const newRoom = await db.room.create({
     data: {
       hotelId: data.hotelId,
+      typeId: data.typeId,
       name: data.name,
       description: data.description,
       facilities: data.facilities,
@@ -128,54 +108,71 @@ export async function createRoom(data: CreateRoomData) {
       capacity: data.capacity,
       totalUnits: data.totalUnits,
       images: {
-        create: uploadedImages.map((img) => ({ url: img.url })),
+        create: data.images?.map((img) => ({ url: img.url })) || [],
       },
     },
-    include: { images: true, hotel: true },
+    include: { images: true },
   });
+
+  if (!newRoom) {
+    return { success: false, message: "Failed to create room" };
+  }
 
   return { success: true, room: newRoom, message: "Room created successfully" };
 }
 
-// -------------------- UPDATE ROOM --------------------
-export async function updateRoom(id: string, data: UpdateRoomData) {
-  const session = await auth.api.getSession({ headers: await headers() });
-  if (!session || session?.user?.role !== "ADMIN") {
-    return { success: false, message: "Unauthorized" };
-  }
-
-  let uploadedImages: {
-    url: string;
-    name: string;
-    size: number;
-    type: string;
-  }[] = [];
-
-  if (data.images && data.images.length > 0) {
-    const files = data.images.filter((i): i is File => i instanceof File);
-    if (files.length > 0) {
-      const { uploadMultiple } = useEdgeStoreUpload();
-      const result = await uploadMultiple(files);
-      uploadedImages = result.files;
-    }
-  }
-
+export async function updateRoom(id: string, data: EditRoomForm) {
+  // 1. Update basic room fields
   const updatedRoom = await db.room.update({
     where: { id },
     data: {
-      ...(data.name && { name: data.name }),
-      ...(data.description && { description: data.description }),
-      ...(data.facilities && { facilities: data.facilities }),
-      ...(data.price && { price: data.price }),
-      ...(data.capacity && { capacity: data.capacity }),
-      ...(data.totalUnits && { totalUnits: data.totalUnits }),
-      ...(uploadedImages.length > 0 && {
-        images: { create: uploadedImages.map((img) => ({ url: img.url })) },
-      }),
+      hotelId: data.hotelId,
+      typeId: data.typeId,
+      name: data.name,
+      description: data.description,
+      facilities: data.facilities,
+      price: data.price,
+      capacity: data.capacity,
+      totalUnits: data.totalUnits,
     },
-    include: { images: true, hotel: true },
   });
 
+  //  get old images from db
+  const existingImages = await db.roomImage.findMany({
+    where: { roomId: id },
+  });
+
+  const incomingImages = data.images || [];
+  const incomingIds = incomingImages.map((img) => img.id).filter(Boolean);
+
+  // delete images that are removed in the edit form
+  const removed = existingImages.filter((img) => !incomingIds.includes(img.id));
+  for (const img of removed) {
+    await db.roomImage.delete({ where: { id: img.id } });
+  }
+
+  console.log("Removed images:", incomingImages);
+
+  // Update existing & Insert new
+  for (const img of incomingImages) {
+    if (img.id) {
+      // update existing (misal replace URL)
+      await db.roomImage.update({
+        where: { id: img.id },
+        data: { url: img.url },
+      });
+    } else {
+      // insert new image
+      await db.roomImage.create({
+        data: {
+          roomId: id,
+          url: img.url,
+        },
+      });
+    }
+  }
+
+  // 5. Return updated room dengan images terupdate
   return {
     success: true,
     room: updatedRoom,
@@ -185,11 +182,6 @@ export async function updateRoom(id: string, data: UpdateRoomData) {
 
 // -------------------- DELETE ROOM --------------------
 export async function deleteRoom(id: string) {
-  const session = await auth.api.getSession({ headers: await headers() });
-  if (!session || session?.user?.role !== "ADMIN") {
-    return { success: false, message: "Unauthorized" };
-  }
-
   await db.room.delete({ where: { id } });
   return { success: true, message: "Room deleted successfully" };
 }

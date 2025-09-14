@@ -14,6 +14,7 @@ export async function getMyBookings(page: number = 1, limit: number = 10) {
 
     const skip = (page - 1) * limit;
 
+    // Fetch bookings and total count in parallel
     const [result, total] = await Promise.all([
       db.booking.findMany({
         where: { userId: session.user.id },
@@ -34,12 +35,15 @@ export async function getMyBookings(page: number = 1, limit: number = 10) {
       }),
     ]);
 
+    // Transform data to match the Booking type
     const bookings = result.map((b) => ({
       id: b.id,
-      checkIn: b.checkIn.toISOString(),
-      checkOut: b.checkOut.toISOString(),
+      name: b.room.hotel.name,
+      hotelThumbnail: b.room.hotel.thumbnail,
       quantity: b.quantity,
       status: b.status,
+      checkIn: b.checkIn.toISOString(),
+      checkOut: b.checkOut.toISOString(),
       createdAt: b.createdAt.toISOString(),
       room: {
         id: b.room.id,
@@ -47,13 +51,10 @@ export async function getMyBookings(page: number = 1, limit: number = 10) {
         price: b.room.price,
         capacity: b.room.capacity,
         description: b.room.description,
-        hotel: {
-          id: b.room.hotel.id,
-          name: b.room.hotel.name,
-          location: b.room.hotel.location,
-          thumbnail: b.room.hotel.thumbnail,
-        },
         images: b.room.images.map((img) => img.url),
+        totalUnits: b.room.totalUnits,
+        facilities: b.room.facilities,
+        availableUnits: 0,
       },
     }));
 
@@ -170,8 +171,7 @@ export async function updateMyAvatar(image: string) {
 
   if (!session) return { success: false, message: "Unauthorized" };
 
-  // TODO : edge store function to upload image
-
+  // TODO : use edge store function to upload image and store image
   const updated = await db.user.update({
     where: { id: session.user.id },
     data: { image },
@@ -193,7 +193,7 @@ export async function updateMyProfile(data: ProfileForm) {
     },
   });
 
-  // Upsert profile table
+  // Upsert profile table  (this assures profile always exist)
   const updatedProfile = await db.profile.upsert({
     where: { userId: session.user.id },
     update: {
@@ -211,6 +211,7 @@ export async function updateMyProfile(data: ProfileForm) {
     },
   });
 
+  // revalidate to make it freshed
   revalidatePath("/user/profile");
 
   return {
