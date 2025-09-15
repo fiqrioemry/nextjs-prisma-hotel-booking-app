@@ -1,17 +1,20 @@
 import React from "react";
 import { Metadata } from "next";
-import { getHotels, HotelsParams } from "@/lib/actions/hotels";
+import { getHotels } from "@/lib/actions/hotels";
+import { HotelsParams } from "@/lib/types/hotels";
 import { HotelsListPreview } from "@/components/hotels/hotels-lists-preview";
 
 export const metadata: Metadata = {
-  title: "Hotels - Hotel Booking",
+  title: "Hotels - Pesan Hotel",
   description: "Explore our range of hotels and find the perfect stay.",
 };
 
-export default async function Page(props: {
-  searchParams: Promise<HotelsParams>;
+export default async function Page({
+  searchParams,
+}: {
+  searchParams: HotelsParams;
 }) {
-  const params = await props.searchParams;
+  const params = searchParams;
 
   const hotels = await getHotels({
     q: params?.q || "",

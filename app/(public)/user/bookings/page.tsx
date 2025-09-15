@@ -1,11 +1,13 @@
+export const dynamic = "force-dynamic";
+
 import React from "react";
 import { Metadata } from "next";
 import { getMyBookings } from "@/lib/actions/my";
 import { UserBookingsLists } from "@/components/user/user-bookings-lists";
 
 export const metadata: Metadata = {
-  title: "My Bookings - Hotel Booking",
-  description: "View and manage your hotel bookings.",
+  title: "Pesananku - Pesan Hotel",
+  description: "Lihat dan kelola Pesan Hotels Anda.",
 };
 
 export default async function Page(props: {

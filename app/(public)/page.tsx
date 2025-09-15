@@ -2,6 +2,7 @@
 "use client";
 
 import z from "zod";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { FormProvider } from "react-hook-form";
 import { locationOptions } from "@/lib/constant";
@@ -10,7 +11,6 @@ import { Card, CardContent } from "@/components/ui/card";
 import { DateField } from "@/components/form-fields/date-field";
 import { SelectField } from "@/components/form-fields/select-field";
 import { SubmitButton } from "@/components/form-control/submit-button";
-import { useState, useEffect } from "react";
 
 const today = new Date();
 
@@ -134,7 +134,7 @@ export default function HomePage() {
           `}
           >
             <span className="inline-block px-6 py-3 bg-white/20 backdrop-blur-md rounded-full text-white/95 text-sm font-medium border border-white/30 shadow-lg hover:bg-white/25 hover:scale-105 transition-all duration-300 cursor-pointer">
-              🌍 Jelajahi Keajaiban Dunia
+              Jelajahi Keajaiban Dunia
             </span>
           </div>
 
@@ -184,7 +184,7 @@ export default function HomePage() {
             <CardContent className="p-8 md:p-12">
               <div className="mb-8">
                 <h2 className="text-2xl md:text-3xl font-bold text-foreground mb-2 flex items-center justify-center gap-3 animate-fade-in">
-                  🧳 Mulai Petualangan Anda
+                  Mulai Petualangan Anda
                 </h2>
                 <p className="text-muted-foreground text-lg animate-fade-in-up">
                   Booking akomodasi impian hanya dalam hitungan detik
@@ -369,7 +369,7 @@ export default function HomePage() {
                 <div className="w-full h-full bg-gradient-to-t from-black/80 via-transparent to-transparent flex items-end p-6 group-hover:from-black/90 transition-all duration-300">
                   <div className="text-white transform transition-all duration-500 group-hover:translate-y-0 translate-y-2">
                     <h3 className="text-2xl font-bold mb-2 group-hover:scale-110 transition-transform duration-300">
-                      🌺 Bali, Indonesia
+                      Bali, Indonesia
                     </h3>
                     <p className="text-sm text-white/90 group-hover:text-white transition-colors duration-300">
                       Pulau Dewata yang Memukau
@@ -390,7 +390,7 @@ export default function HomePage() {
                 <div className="w-full h-full bg-gradient-to-t from-black/80 via-transparent to-transparent flex items-end p-6 group-hover:from-black/90 transition-all duration-300">
                   <div className="text-white transform transition-all duration-500 group-hover:translate-y-0 translate-y-2">
                     <h3 className="text-2xl font-bold mb-2 group-hover:scale-110 transition-transform duration-300">
-                      🏛️ Santorini, Greece
+                      Santorini, Greece
                     </h3>
                     <p className="text-sm text-white/90 group-hover:text-white transition-colors duration-300">
                       Sunset Paradise
@@ -411,7 +411,7 @@ export default function HomePage() {
                 <div className="w-full h-full bg-gradient-to-t from-black/80 via-transparent to-transparent flex items-end p-6 group-hover:from-black/90 transition-all duration-300">
                   <div className="text-white transform transition-all duration-500 group-hover:translate-y-0 translate-y-2">
                     <h3 className="text-2xl font-bold mb-2 group-hover:scale-110 transition-transform duration-300">
-                      🏔️ Swiss Alps
+                      Swiss Alps
                     </h3>
                     <p className="text-sm text-white/90 group-hover:text-white transition-colors duration-300">
                       Alpine Luxury & Adventure
@@ -420,14 +420,6 @@ export default function HomePage() {
                 </div>
               </div>
             </Card>
-          </div>
-
-          {/* Enhanced CTA Button */}
-          <div className="text-center mt-12 animate-fade-in-up delay-1000">
-            <button className="group px-8 py-4 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white font-bold rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-500 transform hover:scale-110 hover:-translate-y-2 backdrop-blur-sm relative overflow-hidden">
-              <span className="relative z-10">🌍 Lihat Semua Destinasi</span>
-              <div className="absolute inset-0 bg-gradient-to-r from-emerald-400 to-teal-500 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-            </button>
           </div>
         </div>
       </section>

@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
-import { getPayments, type PaymentParams } from "@/lib/actions/payments";
+import { getPayments } from "@/lib/actions/payments";
+import { PaymentParams } from "@/lib/types/payments";
 
 export async function GET(req: Request) {
   const { searchParams } = new URL(req.url);

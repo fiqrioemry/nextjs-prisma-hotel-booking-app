@@ -33,7 +33,7 @@ export async function GET(request: NextRequest) {
       // Update semua payment → FAILED
       const updatedPayments = await tx.payment.updateMany({
         where: {
-          id: { in: expiredPayments.map((p) => p.id) },
+          id: { in: expiredPayments.map((p: { id: any }) => p.id) },
         },
         data: {
           status: "FAILED",
@@ -46,8 +46,8 @@ export async function GET(request: NextRequest) {
         where: {
           id: {
             in: expiredPayments
-              .map((p) => p.bookingId)
-              .filter((id): id is string => !!id),
+              .map((p: { bookingId: any }) => p.bookingId)
+              .filter((id: any): id is string => !!id),
           },
           status: "PENDING",
         },
@@ -63,10 +63,6 @@ export async function GET(request: NextRequest) {
     return createCronResponse({
       success: true,
       message: "Expired payments & bookings updated",
-      results: {
-        updatedPayments: result.updatedPayments.count,
-        updatedBookings: result.updatedBookings.count,
-      },
     });
   } catch (error) {
     console.error("Cron GET error:", error);
@@ -119,8 +115,8 @@ export async function POST(request: NextRequest) {
           where: {
             id: {
               in: relatedPayments
-                .map((p) => p.bookingId)
-                .filter((id): id is string => !!id),
+                .map((p: { bookingId: any }) => p.bookingId)
+                .filter((id: any): id is string => !!id),
             },
             status: "PENDING",
           },
@@ -134,11 +130,6 @@ export async function POST(request: NextRequest) {
     return createCronResponse({
       success: true,
       message: "Manual update completed",
-      results: {
-        updatedPayments: result.updatedPayments.count,
-        updatedBookings: result.updatedBookings.count,
-        newStatus,
-      },
     });
   } catch (error) {
     console.error("Cron POST error:", error);

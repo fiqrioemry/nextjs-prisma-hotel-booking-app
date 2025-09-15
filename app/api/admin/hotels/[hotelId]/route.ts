@@ -1,6 +1,6 @@
 import {
-  adminUpdateHotel,
-  adminDeleteHotel,
+  updateHotel,
+  deleteHotel,
   adminGetHotelById,
 } from "@/lib/actions/hotels";
 import { auth } from "@/lib/auth";
@@ -45,7 +45,7 @@ export async function PUT(
     }
 
     const body = await req.json();
-    const data = await adminUpdateHotel(hotelId, body);
+    const data = await updateHotel(hotelId, body);
     if (!data.success) {
       return NextResponse.json(data, { status: 401 });
     }
@@ -68,7 +68,7 @@ export async function DELETE(
     if (!session || session.user.role !== "ADMIN") {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
-    const data = await adminDeleteHotel(hotelId);
+    const data = await deleteHotel(hotelId);
     if (!data.success) {
       return NextResponse.json(data, { status: 401 });
     }

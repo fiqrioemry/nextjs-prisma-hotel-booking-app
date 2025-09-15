@@ -2,6 +2,7 @@
 "use client";
 
 import { Card, CardContent } from "@/components/ui/card";
+import Link from "next/link";
 
 export default function AboutPage() {
   return (
@@ -29,7 +30,7 @@ export default function AboutPage() {
         <div className="relative z-10 max-w-6xl mx-auto px-6 text-center">
           <div className="mb-6">
             <span className="inline-block px-6 py-3 bg-white/15 backdrop-blur-md rounded-full text-white/95 text-sm font-medium border border-white/30 shadow-lg">
-              🌴 Jelajahi Dunia Bersama Kami
+              Jelajahi Dunia Bersama Kami
             </span>
           </div>
 
@@ -112,7 +113,7 @@ export default function AboutPage() {
               >
                 <div className="w-full h-full bg-gradient-to-t from-black/80 via-transparent to-transparent flex items-end p-6">
                   <div className="text-white">
-                    <h3 className="text-2xl font-bold mb-2">🏝️ Maldives</h3>
+                    <h3 className="text-2xl font-bold mb-2"> Maldives</h3>
                     <p className="text-sm text-white/90">
                       Paradise on Earth - Overwater Villas
                     </p>
@@ -131,7 +132,7 @@ export default function AboutPage() {
               >
                 <div className="w-full h-full bg-gradient-to-t from-black/80 via-transparent to-transparent flex items-end p-6">
                   <div className="text-white">
-                    <h3 className="text-2xl font-bold mb-2">🏔️ Swiss Alps</h3>
+                    <h3 className="text-2xl font-bold mb-2"> Swiss Alps</h3>
                     <p className="text-sm text-white/90">
                       Majestic Mountains & Alpine Luxury
                     </p>
@@ -150,7 +151,7 @@ export default function AboutPage() {
               >
                 <div className="w-full h-full bg-gradient-to-t from-black/80 via-transparent to-transparent flex items-end p-6">
                   <div className="text-white">
-                    <h3 className="text-2xl font-bold mb-2">🌺 Bali</h3>
+                    <h3 className="text-2xl font-bold mb-2"> Bali</h3>
                     <p className="text-sm text-white/90">
                       Tropical Paradise & Cultural Heritage
                     </p>
@@ -169,7 +170,7 @@ export default function AboutPage() {
               >
                 <div className="w-full h-full bg-gradient-to-t from-black/80 via-transparent to-transparent flex items-end p-6">
                   <div className="text-white">
-                    <h3 className="text-2xl font-bold mb-2">🌸 Jepang</h3>
+                    <h3 className="text-2xl font-bold mb-2"> Jepang</h3>
                     <p className="text-sm text-white/90">
                       Cherry Blossoms & Zen Gardens
                     </p>
@@ -188,7 +189,7 @@ export default function AboutPage() {
               >
                 <div className="w-full h-full bg-gradient-to-t from-black/80 via-transparent to-transparent flex items-end p-6">
                   <div className="text-white">
-                    <h3 className="text-2xl font-bold mb-2">🍇 Tuscany</h3>
+                    <h3 className="text-2xl font-bold mb-2"> Tuscany</h3>
                     <p className="text-sm text-white/90">
                       Rolling Hills & Renaissance Beauty
                     </p>
@@ -207,7 +208,7 @@ export default function AboutPage() {
               >
                 <div className="w-full h-full bg-gradient-to-t from-black/80 via-transparent to-transparent flex items-end p-6">
                   <div className="text-white">
-                    <h3 className="text-2xl font-bold mb-2">🌌 Iceland</h3>
+                    <h3 className="text-2xl font-bold mb-2"> Iceland</h3>
                     <p className="text-sm text-white/90">
                       Northern Lights & Natural Wonders
                     </p>
@@ -384,22 +385,22 @@ export default function AboutPage() {
           <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
             <Card className="text-center p-8 rounded-3xl border-0 bg-gradient-to-br from-emerald-500 to-teal-600 text-white hover:scale-105 transition-transform duration-500 shadow-2xl">
               <div className="text-4xl md:text-5xl font-bold mb-2">75K+</div>
-              <p className="text-lg text-white/90">🌍 Traveler Bahagia</p>
+              <p className="text-lg text-white/90">Traveler Bahagia</p>
             </Card>
 
             <Card className="text-center p-8 rounded-3xl border-0 bg-gradient-to-br from-blue-500 to-indigo-600 text-white hover:scale-105 transition-transform duration-500 shadow-2xl">
               <div className="text-4xl md:text-5xl font-bold mb-2">200+</div>
-              <p className="text-lg text-white/90">🏨 Destinasi Premium</p>
+              <p className="text-lg text-white/90">Destinasi Premium</p>
             </Card>
 
             <Card className="text-center p-8 rounded-3xl border-0 bg-gradient-to-br from-purple-500 to-pink-600 text-white hover:scale-105 transition-transform duration-500 shadow-2xl">
               <div className="text-4xl md:text-5xl font-bold mb-2">150+</div>
-              <p className="text-lg text-white/90">🗺️ Negara Terjangkau</p>
+              <p className="text-lg text-white/90">Negara Terjangkau</p>
             </Card>
 
             <Card className="text-center p-8 rounded-3xl border-0 bg-gradient-to-br from-orange-500 to-red-500 text-white hover:scale-105 transition-transform duration-500 shadow-2xl">
               <div className="text-4xl md:text-5xl font-bold mb-2">24/7</div>
-              <p className="text-lg text-white/90">🎯 Travel Support</p>
+              <p className="text-lg text-white/90">Travel Support</p>
             </Card>
           </div>
         </div>
@@ -426,12 +427,11 @@ export default function AboutPage() {
             impian mereka. Mulai petualangan tak terlupakan Anda hari ini.
           </p>
           <div className="flex flex-col sm:flex-row gap-6 justify-center">
-            <button className="px-8 py-4 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white font-bold rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:scale-105 backdrop-blur-sm">
-              🌍 Jelajahi Destinasi
-            </button>
-            <button className="px-8 py-4 bg-white/15 backdrop-blur-md border border-white/30 text-white font-bold rounded-2xl shadow-xl hover:shadow-2xl hover:bg-white/20 transition-all duration-300 transform hover:scale-105">
-              📸 Lihat Galeri Foto
-            </button>
+            <Link href="/">
+              <button className="px-8 py-4 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white font-bold rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:scale-105 backdrop-blur-sm">
+                Jelajahi Destinasi
+              </button>
+            </Link>
           </div>
         </div>
       </section>

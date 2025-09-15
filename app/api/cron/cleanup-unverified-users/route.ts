@@ -5,7 +5,7 @@ import { validateCronRequest, createCronResponse } from "@/lib/actions/auth";
 export async function GET(request: NextRequest) {
   // Validate cron request
   const authError = validateCronRequest(request);
-  if (authError) return authError;
+  if (authError) return authError; // always Response, never null
 
   try {
     // Calculate cutoff date (2 days ago)
@@ -49,7 +49,7 @@ export async function GET(request: NextRequest) {
       users: usersToDelete,
     });
 
-    // Delete unverified users (cascade will handle related records)
+    // Delete unverified users
     const deleteResult = await db.user.deleteMany({
       where: {
         emailVerified: false,
@@ -59,7 +59,7 @@ export async function GET(request: NextRequest) {
       },
     });
 
-    // Also cleanup expired verification tokens
+    // Cleanup expired verification tokens
     const expiredVerifications = await db.verification.deleteMany({
       where: {
         expiresAt: {
@@ -68,7 +68,7 @@ export async function GET(request: NextRequest) {
       },
     });
 
-    // Clean up expired sessions while we're at it
+    // Cleanup expired sessions
     const expiredSessions = await db.session.deleteMany({
       where: {
         expiresAt: {
@@ -102,12 +102,9 @@ export async function GET(request: NextRequest) {
   }
 }
 
-// Optional: Add POST method for manual trigger with admin authentication
 export async function POST(request: NextRequest) {
-  // You can add admin authentication here if needed
   const authError = validateCronRequest(request);
   if (authError) return authError;
 
-  // Same logic as GET but maybe with different parameters
   return GET(request);
 }

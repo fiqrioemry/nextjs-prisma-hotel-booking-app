@@ -1,16 +1,18 @@
-import { NextResponse } from "next/server";
 import {
   getPaymentById,
   updatestatus,
   deletePayment,
 } from "@/lib/actions/payments";
+import { NextResponse } from "next/server";
 
 export async function GET(
   req: Request,
-  { params }: { params: { id: string } }
+  context: { params: Promise<{ id: string }> }
 ) {
+  const { id } = await context.params;
+
   try {
-    const payment = await getPaymentById(params.id);
+    const payment = await getPaymentById(id);
     if (!payment) {
       return NextResponse.json({ error: "Payment not found" }, { status: 404 });
     }
@@ -22,11 +24,13 @@ export async function GET(
 
 export async function PUT(
   req: Request,
-  { params }: { params: { id: string } }
+  context: { params: Promise<{ id: string }> }
 ) {
+  const { id } = await context.params;
+
   try {
     const { status } = await req.json();
-    const result = await updatestatus(params.id, status);
+    const result = await updatestatus(id, status);
     return NextResponse.json(result);
   } catch (err: any) {
     return NextResponse.json({ error: err.message }, { status: 400 });
@@ -35,10 +39,12 @@ export async function PUT(
 
 export async function DELETE(
   req: Request,
-  { params }: { params: { id: string } }
+  context: { params: Promise<{ id: string }> }
 ) {
+  const { id } = await context.params;
+
   try {
-    const result = await deletePayment(params.id);
+    const result = await deletePayment(id);
     return NextResponse.json(result);
   } catch (err: any) {
     return NextResponse.json({ error: err.message }, { status: 400 });

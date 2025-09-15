@@ -1,9 +1,11 @@
 import { Metadata } from "next";
-import { getHotelById, HotelDetailParams } from "@/lib/actions/hotels";
+import { getHotelById } from "@/lib/actions/hotels";
+import { HotelDetailParams } from "@/lib/types/hotels";
+import { HotelNotFound } from "@/components/hotel-detail/hotel-not-found";
 import { HotelDetailPreview } from "@/components/hotel-detail/hotel-detail-preview";
 
 export const metadata: Metadata = {
-  title: "Hotel Detail - Hotel Booking",
+  title: "Hotel Detail - Pesan Hotel",
   description: "Explore our range of hotels and find the perfect stay.",
 };
 
@@ -18,15 +20,10 @@ export default async function Page({
     hotelId: params.hotelId,
     startDate: searchParams.startDate,
     endDate: searchParams.endDate,
-    location: searchParams.location,
   });
 
   if (!hotel) {
-    return (
-      <section className="h-screen flex items-center justify-center">
-        <p className="text-lg text-muted-foreground">Hotel not found.</p>
-      </section>
-    );
+    return <HotelNotFound />;
   }
 
   return (

@@ -14,11 +14,9 @@ export async function GET(request: NextRequest) {
     // 1. Backup Users
     const users = await db.user.findMany({
       include: {
-        balance: true,
         _count: {
           select: {
             payments: true,
-            transactions: true,
             sessions: true,
           },
         },
@@ -101,88 +99,12 @@ export async function GET(request: NextRequest) {
     await googleSheets.createSheetIfNotExists("Payments");
     await googleSheets.clearAndUpdateSheet("Payments", paymentsData);
 
-    // 3. Backup Transactions
-    const transactions = await db.transaction.findMany({
-      include: {
-        user: {
-          select: {
-            name: true,
-            email: true,
-          },
-        },
-      },
-      orderBy: { createdAt: "desc" },
-    });
-
-    const transactionsData = [
-      [
-        "ID",
-        "User Name",
-        "User Email",
-        "Description",
-        "Amount",
-        "Transaction Type",
-        "Created At",
-        "Updated At",
-      ],
-      ...transactions.map((transaction: any) => [
-        transaction.id,
-        transaction.user.name,
-        transaction.user.email,
-        transaction.description,
-        transaction.amount,
-        transaction.transactionType,
-        transaction.createdAt.toISOString(),
-        transaction.updatedAt.toISOString(),
-      ]),
-    ];
-
-    await googleSheets.createSheetIfNotExists("Transactions");
-    await googleSheets.clearAndUpdateSheet("Transactions", transactionsData);
-
-    // 4. Backup Balance Summary
-    const balances = await db.balance.findMany({
-      include: {
-        user: {
-          select: {
-            name: true,
-            email: true,
-          },
-        },
-      },
-      orderBy: { amount: "desc" },
-    });
-
-    const balancesData = [
-      [
-        "User ID",
-        "User Name",
-        "User Email",
-        "Balance Amount",
-        "Created At",
-        "Updated At",
-      ],
-      ...balances.map((balance: any) => [
-        balance.userId,
-        balance.user.name,
-        balance.user.email,
-        balance.amount,
-        balance.createdAt.toISOString(),
-        balance.updatedAt.toISOString(),
-      ]),
-    ];
-
-    await googleSheets.createSheetIfNotExists("Balances");
-    await googleSheets.clearAndUpdateSheet("Balances", balancesData);
-
     return createCronResponse({
       success: true,
       message: "Database backup completed successfully",
       stats: {
         users: users.length,
         payments: payments.length,
-        transactions: transactions.length,
-        balances: balances.length,
       },
     });
   } catch (error) {

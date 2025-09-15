@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
-import { getBookings, type BookingParams } from "@/lib/actions/bookings";
+import { getBookings } from "@/lib/actions/bookings";
+import { BookingParams } from "@/lib/types/bookings";
 
 export async function GET(req: Request) {
   const { searchParams } = new URL(req.url);
@@ -15,8 +16,10 @@ export async function GET(req: Request) {
   try {
     const data = await getBookings(params);
     return NextResponse.json(data);
-  } catch (err: any) {
-    console.log(err);
-    return NextResponse.json({ error: err.message }, { status: 400 });
+  } catch (err: unknown) {
+    if (err instanceof Error) {
+      return NextResponse.json({ error: err.message }, { status: 400 });
+    }
+    return NextResponse.json({ error: "Unknown error" }, { status: 500 });
   }
 }

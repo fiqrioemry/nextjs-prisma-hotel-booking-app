@@ -17,8 +17,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Easy Booking - Hotel Booking",
-  description: "Book your dream hotel easily and quickly.",
+  title: "PesanHotel- Cara mudah pesan hotel impian Anda",
+  description: "Pesan hotel impian Anda dengan mudah dan cepat.",
 };
 
 export default function RootLayout({

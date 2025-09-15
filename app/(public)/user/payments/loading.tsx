@@ -1,5 +1,7 @@
 "use client";
 
+import React from "react";
+
 import {
   Card,
   CardTitle,
@@ -7,9 +9,8 @@ import {
   CardContent,
   CardDescription,
 } from "@/components/ui/card";
-import { Skeleton } from "@/components/ui/skeleton";
 import { User2 } from "lucide-react";
-import React from "react";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export default function Loading() {
   return (

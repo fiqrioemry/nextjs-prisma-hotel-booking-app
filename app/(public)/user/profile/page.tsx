@@ -1,11 +1,13 @@
+export const dynamic = "force-dynamic";
+
 import React from "react";
 import { Metadata } from "next";
 import { getMyProfile } from "@/lib/actions/my";
 import { UserProfileForm } from "@/components/user/user-profile-form";
 
 export const metadata: Metadata = {
-  title: "My Profile - Hotel Booking",
-  description: "View and manage your profile information.",
+  title: "Profile Ku - Pesan Hotel",
+  description: "Lihat dan kelola informasi profil Anda.",
 };
 
 export default async function Page() {

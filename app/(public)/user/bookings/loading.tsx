@@ -20,7 +20,7 @@ export default function Loading() {
           My Bookings
         </CardTitle>
         <CardDescription>
-          Your hotel bookings and reservation history
+          Your Pesan Hotels and reservation history
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-6 p-4 border-t">
