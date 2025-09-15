@@ -1,12 +1,12 @@
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
-# Next.js Prisma Hotel Booking App
+# Next.js Prisma Pesan Hotel App
 
 ---
 
 ## 1. Project Overview
 
-A modern hotel booking web application built with Next.js, Prisma ORM, and PostgreSQL.  
+A modern Pesan Hotel web application built with Next.js, Prisma ORM, and PostgreSQL.  
 It provides a seamless experience for users to search, book, and manage hotel reservations, while admins can manage hotels, rooms, bookings, and payments.
 
 **Key Features:**
