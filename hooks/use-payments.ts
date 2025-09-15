@@ -1,6 +1,6 @@
 import qs from "qs";
+import { PaymentParams } from "@/lib/types/payments";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { PaymentParams } from "@/lib/actions/payments";
 
 // -------------------- GET PAYMENTS --------------------
 export function usePayments({ params }: { params: PaymentParams }) {

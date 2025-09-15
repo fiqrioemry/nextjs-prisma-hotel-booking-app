@@ -1,9 +1,8 @@
 import qs from "qs";
-import { BookingParams } from "@/lib/actions/bookings";
+import { BookingParams } from "@/lib/types/bookings";
 import { BookForm } from "@/components/hotel-detail/book-room-form";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 
-// -------------------- GET BOOKINGS --------------------
 export function useBookings({ params }: { params: BookingParams }) {
   const queryString = qs.stringify(params, { skipNulls: true });
   return useQuery({
@@ -13,7 +12,6 @@ export function useBookings({ params }: { params: BookingParams }) {
   });
 }
 
-// -------------------- GET BOOKING BY ID --------------------
 export function useBooking(id: string) {
   return useQuery({
     queryKey: ["booking", id],
@@ -22,7 +20,6 @@ export function useBooking(id: string) {
   });
 }
 
-// -------------------- UPDATE BOOKING STATUS --------------------
 export function useUpdateBooking(id: string) {
   const queryClient = useQueryClient();
   return useMutation({
@@ -41,7 +38,6 @@ export function useUpdateBooking(id: string) {
   });
 }
 
-// -------------------- DELETE BOOKING --------------------
 export function useDeleteBooking() {
   const queryClient = useQueryClient();
   return useMutation({
@@ -57,7 +53,6 @@ export function useDeleteBooking() {
   });
 }
 
-// -------------------- CREATE BOOKING --------------------
 export function useBookingWithPayment() {
   return useMutation({
     mutationFn: async (payload: BookForm) => {

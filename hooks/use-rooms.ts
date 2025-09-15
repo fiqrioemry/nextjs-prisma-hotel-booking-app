@@ -2,8 +2,8 @@ import qs from "qs";
 import { toast } from "sonner";
 import { RoomsParams } from "@/lib/actions/rooms";
 import { AddRoomForm } from "@/components/admin/add-room-form";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { EditRoomForm } from "@/components/admin/edit-room-form";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 
 export function useTypes() {
   return useQuery({

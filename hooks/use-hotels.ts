@@ -1,9 +1,9 @@
 import qs from "qs";
-import { HotelsParams } from "@/lib/actions/hotels";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { EditHotelForm } from "@/components/admin/edit-hotel-form";
 import { toast } from "sonner";
+import { HotelsParams } from "@/lib/types/hotels";
 import { AddHotelForm } from "@/app/admin/hotels/new/page";
+import { EditHotelForm } from "@/components/admin/edit-hotel-form";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 
 // -------------------- GET HOTELS --------------------
 export function useHotels({ filters }: { filters: HotelsParams }) {
