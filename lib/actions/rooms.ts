@@ -1,6 +1,4 @@
-import { auth } from "@/lib/auth";
 import { db } from "@/lib/prisma";
-import { headers } from "next/headers";
 import { EditRoomForm } from "@/components/admin/edit-room-form";
 import { AddRoomForm } from "@/components/admin/add-room-form";
 
@@ -17,7 +15,7 @@ export async function getRoomTypes() {
     orderBy: { name: "asc" },
   });
 
-  const roomTypes = result.map((type) => ({
+  const roomTypes = result.map((type: { id: string; name: string }) => ({
     value: type.id,
     label: type.name,
   }));
@@ -146,7 +144,9 @@ export async function updateRoom(id: string, data: EditRoomForm) {
   const incomingIds = incomingImages.map((img) => img.id).filter(Boolean);
 
   // delete images that are removed in the edit form
-  const removed = existingImages.filter((img) => !incomingIds.includes(img.id));
+  const removed = existingImages.filter(
+    (img: any) => !incomingIds.includes(img.id)
+  );
   for (const img of removed) {
     await db.roomImage.delete({ where: { id: img.id } });
   }

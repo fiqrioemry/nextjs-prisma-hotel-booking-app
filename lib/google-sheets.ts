@@ -21,7 +21,7 @@ export class GoogleSheetsService {
     this.spreadsheetId = process.env.GOOGLE_SHEETS_SPREADSHEET_ID!;
   }
 
-  async clearAndUpdateSheet(sheetName: string, data: any[][]) {
+  async clearAndUpdateSheet(sheetName: string, data: any) {
     try {
       // Clear existing data
       await this.sheets.spreadsheets.values.clear({

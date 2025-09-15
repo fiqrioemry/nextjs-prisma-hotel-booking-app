@@ -1,110 +1,7 @@
-import { auth } from "@/lib/auth";
 import { db } from "@/lib/prisma";
-import { headers } from "next/headers";
-import { useEdgeStoreUpload } from "@/hooks/use-uploader";
-
-export interface HotelsParams {
-  q?: string;
-  location?: string;
-  endDate?: string;
-  startDate?: string;
-  sort: "newest" | "oldest" | "available_rooms";
-  page: number;
-  limit: number;
-}
-
-export type MyBooking = {
-  id: string;
-  name: string;
-  hotelThumbnail: string;
-  checkIn: string;
-  checkOut: string;
-  quantity: number;
-  status: "PENDING" | "CONFIRMED" | "CANCELLED" | "COMPLETED";
-  createdAt: string;
-  room: Room;
-};
-
-export type MetaPagination = {
-  page: number;
-  limit: number;
-  total: number;
-  totalPages: number;
-  hasNextPage: boolean;
-  hasPrevPage: boolean;
-};
-
-export interface HotelDetailParams {
-  hotelId: string;
-  startDate?: string;
-  endDate?: string;
-  location?: string;
-}
-
-export type CreateHotelData = {
-  name: string;
-  address: string;
-  description: string;
-  thumbnail: File;
-  location: string;
-};
-
-export type Room = {
-  id: string;
-  name: string;
-  description: string;
-  price: number;
-  images: string[];
-  capacity: number;
-  totalUnits: number;
-  facilities: string[];
-  availableUnits: number;
-};
-
-export interface Hotels {
-  id: string;
-  name: string;
-  address: string;
-  thumbnail: string;
-  description?: string;
-  availableRooms: number;
-  createdAt: Date;
-  rooms: Room[];
-}
-
-export interface HotelDetails {
-  id: string;
-  name: string;
-  address: string;
-  thumbnail: string;
-  description?: string;
-  createdAt: Date;
-  rooms: Room[];
-}
-
-type UpdateHotelData = {
-  name: string;
-  address: string;
-  description: string;
-  thumbnail: File | string;
-};
-
-export interface AdminHotelData {
-  id: string;
-  name: string;
-  address: string;
-  thumbnail: string;
-  description: string;
-  totalRooms: number;
-  totalUnits: number;
-  totalBookings: number;
-  confirmedBookings: number;
-  pendingBookings: number;
-  completedBookings: number;
-  cancelledBookings: number;
-  totalRevenue: number;
-  createdAt: Date;
-}
+import { HotelForm } from "@/app/admin/hotels/new/page";
+import { EditHotelForm } from "@/components/admin/edit-hotel-form";
+import type { HotelsParams, HotelDetailParams } from "@/lib/types/hotels";
 
 export async function getHotels(params: HotelsParams) {
   try {
@@ -170,6 +67,10 @@ export async function getHotels(params: HotelsParams) {
                 where: {
                   status: { in: ["CONFIRMED", "PENDING"] },
                 },
+                include: {
+                  user: true,
+                  room: true,
+                },
               },
             },
           },
@@ -181,7 +82,7 @@ export async function getHotels(params: HotelsParams) {
     ]);
 
     //map to hotekls interface
-    const hotels: Hotels[] = result.map((h) => {
+    const hotels = result.map((h) => {
       const availableRooms = h.rooms.reduce((acc, r) => {
         let available = r.totalUnits;
         if (startDate && endDate) {
@@ -196,19 +97,22 @@ export async function getHotels(params: HotelsParams) {
         name: h.name,
         address: h.address,
         thumbnail: h.thumbnail,
-        description: h.description ?? "",
+        description: h.description,
         createdAt: h.createdAt,
         availableRooms,
         rooms: h.rooms.map((r) => ({
           id: r.id,
+          hotelId: r.hotelId,
+          typeId: r.typeId,
           name: r.name,
           description: r.description,
           price: r.price,
-          images: r.images.map((img) => img.url),
+          images: r.images,
           capacity: r.capacity,
           totalUnits: r.totalUnits,
           facilities: r.facilities,
           availableUnits: r.totalUnits - r.bookings.length,
+          bookings: r.bookings,
         })),
       };
     });
@@ -222,7 +126,7 @@ export async function getHotels(params: HotelsParams) {
         totalPages: Math.ceil(total / limit),
         hasNextPage: skip + limit < total,
         hasPrevPage: page > 1,
-      } as MetaPagination,
+      },
     };
   } catch (error) {
     console.error("error fetching hotels:", error);
@@ -249,6 +153,7 @@ export async function getHotelById(params: HotelDetailParams) {
                 id: true,
                 url: true,
                 createdAt: true,
+                updatedAt: true,
               },
               orderBy: { createdAt: "asc" },
             },
@@ -283,14 +188,15 @@ export async function getHotelById(params: HotelDetailParams) {
         // return room with available units
         return {
           id: room.id,
+          typeId: room.typeId,
           hotelId: room.hotelId,
           name: room.name,
           price: room.price,
           capacity: room.capacity,
+          description: room.description,
           totalUnits: room.totalUnits,
           facilities: room.facilities,
-          description: room.description,
-          images: room.images.map((img) => img.url),
+          images: room.images,
           availableUnits: Math.max(0, room.totalUnits - bookedUnits),
         };
       })
@@ -313,23 +219,13 @@ export async function getHotelById(params: HotelDetailParams) {
   }
 }
 
-export async function createHotel(data: CreateHotelData) {
-  const { uploadSingle } = useEdgeStoreUpload();
-
-  const session = await auth.api.getSession({ headers: await headers() });
-
-  if (!session || session?.user?.role !== "ADMIN") {
-    return { success: false, message: "Unauthorized" };
-  }
-
-  const file = await uploadSingle(data.thumbnail);
-
+export async function createHotel(data: HotelForm) {
   const newHotel = await db.hotel.create({
     data: {
       name: data.name,
       address: data.address,
       description: data.description,
-      thumbnail: file.url,
+      thumbnail: "",
       location: data.location,
     },
   });
@@ -341,20 +237,14 @@ export async function createHotel(data: CreateHotelData) {
   };
 }
 
-export async function adminUpdateHotel(id: string, data: UpdateHotelData) {
-  if (typeof data.thumbnail !== "string") {
-    const { uploadSingle } = useEdgeStoreUpload();
-    const file = await uploadSingle(data.thumbnail);
-    data.thumbnail = file.url;
-  }
-
+export async function updateHotel(id: string, data: EditHotelForm) {
   const updatedHotel = await db.hotel.update({
     where: { id },
     data: {
       name: data.name,
       description: data.description,
       address: data.address,
-      thumbnail: data.thumbnail,
+      thumbnail: "",
     },
   });
 
@@ -365,7 +255,7 @@ export async function adminUpdateHotel(id: string, data: UpdateHotelData) {
   };
 }
 
-export async function adminDeleteHotel(id: string) {
+export async function deleteHotel(id: string) {
   try {
     await db.hotel.delete({ where: { id } });
 
@@ -429,7 +319,7 @@ export async function adminGetHotels(params: HotelsParams) {
     ]);
 
     // Get hotel IDs for subsequent queries
-    const ids = hotels.map((h) => h.id);
+    const ids = hotels.map((h: { id: string }) => h.id);
 
     if (ids.length === 0) {
       return {
@@ -445,7 +335,7 @@ export async function adminGetHotels(params: HotelsParams) {
     }
 
     // Get aggregated data for all hotels in parallel
-    const [roomStats, bookingStats, revenueStats] = await Promise.all([
+    const [roomStats] = await Promise.all([
       // Room statistics
       db.room.groupBy({
         by: ["id"],
@@ -513,17 +403,6 @@ export async function adminGetHotels(params: HotelsParams) {
       },
     });
 
-    // Create maps for quick lookup
-    const roomStatsMap = new Map(
-      roomStats.map((stat) => [
-        stat.id,
-        {
-          totalRooms: stat._count.id,
-          totalUnits: stat._sum.totalUnits || 0,
-        },
-      ])
-    );
-
     // Group bookings by hotel
     const hotelBookingsMap = new Map<string, typeof hotelBookings>();
     hotelBookings.forEach((booking) => {
@@ -535,44 +414,44 @@ export async function adminGetHotels(params: HotelsParams) {
     });
 
     // Transform data
-    const transformedHotels: AdminHotelData[] = hotels.map((hotel) => {
-      const roomData = roomStatsMap.get(hotel.id) || {
-        totalRooms: 0,
-        totalUnits: 0,
-      };
+    const transformedHotels = hotels.map((hotel) => {
       const bookings = hotelBookingsMap.get(hotel.id) || [];
 
       // Calculate booking statistics
       const totalBookings = bookings.length;
       const confirmedBookings = bookings.filter(
-        (b) => b.status === "CONFIRMED"
+        (b: { status: string }) => b.status === "CONFIRMED"
       ).length;
       const pendingBookings = bookings.filter(
-        (b) => b.status === "PENDING"
+        (b: { status: string }) => b.status === "PENDING"
       ).length;
       const completedBookings = bookings.filter(
-        (b) => b.status === "COMPLETED"
+        (b: { status: string }) => b.status === "COMPLETED"
       ).length;
       const cancelledBookings = bookings.filter(
-        (b) => b.status === "CANCELLED"
+        (b: { status: string }) => b.status === "CANCELLED"
       ).length;
 
       // Calculate revenue for this hotel
-      const totalRevenue = bookings.reduce((sum, booking) => {
-        if (booking.payment && booking.payment.status === "PAID") {
-          return sum + Number(booking.payment.amount);
-        }
-        return sum;
-      }, 0);
+      const totalRevenue = bookings.reduce(
+        (
+          sum: number,
+          booking: { payment: { status: any; amount: number } | null }
+        ) => {
+          if (booking.payment?.status === "PAID") {
+            return sum + Number(booking.payment.amount);
+          }
+          return sum;
+        },
+        0
+      );
 
       return {
         id: hotel.id,
         name: hotel.name,
         address: hotel.address,
         thumbnail: hotel.thumbnail,
-        description: hotel.description || "",
-        totalRooms: roomData.totalRooms,
-        totalUnits: roomData.totalUnits,
+        description: hotel.description,
         totalBookings: totalBookings,
         confirmedBookings: confirmedBookings,
         pendingBookings: pendingBookings,
@@ -631,7 +510,7 @@ export async function adminGetHotelById(id: string) {
       description: result.description || "",
       rooms: result.rooms.map((r) => ({
         id: r.id,
-        typeId: r.type.id,
+        typeId: r.typeId,
         hotelId: r.hotelId,
         name: r.name,
         description: r.description,

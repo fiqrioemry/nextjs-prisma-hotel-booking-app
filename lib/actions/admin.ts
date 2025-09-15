@@ -1,3 +1,5 @@
+"use server";
+
 import { auth } from "@/lib/auth";
 import { db } from "@/lib/prisma";
 import { headers } from "next/headers";
@@ -304,7 +306,7 @@ export async function getDashboardStatistics(): Promise<DashboardStatistics> {
       completed: 0,
     };
 
-    bookingStatusCounts.forEach((stat) => {
+    bookingStatusCounts.forEach((stat: any) => {
       switch (stat.status) {
         case "CONFIRMED":
           bookingStats.confirmed = stat._count.id;
@@ -354,7 +356,7 @@ export async function getDashboardStatistics(): Promise<DashboardStatistics> {
 
     // Process recent bookings
     const recentBookings: RecentBooking[] = recentBookingsData.map(
-      (booking) => ({
+      (booking: any) => ({
         bookingId: booking.id,
         userId: booking.userId,
         userName: booking.user.name,
@@ -376,7 +378,7 @@ export async function getDashboardStatistics(): Promise<DashboardStatistics> {
       { revenue: number; bookings: number }
     >();
 
-    monthlyRevenueData.forEach((payment) => {
+    monthlyRevenueData.forEach((payment: any) => {
       const monthKey = `${payment.createdAt.getFullYear()}-${payment.createdAt.getMonth()}`;
       const existing = monthlyRevenueMap.get(monthKey) || {
         revenue: 0,
@@ -416,11 +418,15 @@ export async function getDashboardStatistics(): Promise<DashboardStatistics> {
 
     // Process payment method statistics
     const totalPayments = paymentMethodData.reduce(
-      (sum, method) => sum + method._count.id,
+      (sum: any, method: { _count: { id: any } }) => sum + method._count.id,
       0
     );
     const paymentMethodStats: PaymentMethodStat[] = paymentMethodData.map(
-      (method) => ({
+      (method: {
+        paymentMethod: any;
+        _count: { id: number };
+        _sum: { amount: any };
+      }) => ({
         method: method.paymentMethod,
         count: method._count.id,
         totalAmount: Number(method._sum.amount || 0),
@@ -431,7 +437,7 @@ export async function getDashboardStatistics(): Promise<DashboardStatistics> {
 
     // Process top hotels
     const topPerformingHotels: TopHotel[] = topHotelsData
-      .map((hotel) => {
+      .map((hotel: { rooms: any[]; id: any; name: any; thumbnail: any }) => {
         const bookings = hotel.rooms.flatMap((room) => room.bookings);
         const totalRevenue = bookings.reduce(
           (sum, booking) => sum + Number(booking.payment?.amount || 0),
@@ -453,7 +459,10 @@ export async function getDashboardStatistics(): Promise<DashboardStatistics> {
             totalUnits > 0 ? (occupiedUnits / totalUnits) * 100 : 0,
         };
       })
-      .sort((a, b) => b.totalRevenue - a.totalRevenue)
+      .sort(
+        (a: { totalRevenue: number }, b: { totalRevenue: number }) =>
+          b.totalRevenue - a.totalRevenue
+      )
       .slice(0, 5);
 
     // Generate monthly booking stats (simplified)

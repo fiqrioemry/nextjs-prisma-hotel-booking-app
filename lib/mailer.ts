@@ -1,6 +1,6 @@
 import nodemailer from "nodemailer";
 
-const APP_NAME = process.env.APP_NAME || "EasyBook";
+const APP_NAME = process.env.APP_NAME || "pesanhotel";
 const APP_URL = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
 
 export const transporter = nodemailer.createTransport({

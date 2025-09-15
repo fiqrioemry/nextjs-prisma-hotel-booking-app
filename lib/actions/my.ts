@@ -38,20 +38,22 @@ export async function getMyBookings(page: number = 1, limit: number = 10) {
     // Transform data to match the Booking type
     const bookings = result.map((b) => ({
       id: b.id,
-      name: b.room.hotel.name,
-      hotelThumbnail: b.room.hotel.thumbnail,
+      name: b.room?.hotel?.name,
+      thumbnail: b.room?.hotel?.thumbnail,
       quantity: b.quantity,
       status: b.status,
-      checkIn: b.checkIn.toISOString(),
-      checkOut: b.checkOut.toISOString(),
-      createdAt: b.createdAt.toISOString(),
+      checkIn: b.checkIn,
+      checkOut: b.checkOut,
+      createdAt: b.createdAt,
       room: {
         id: b.room.id,
+        hotelId: b.room.hotelId,
+        typeId: b.room.typeId,
         name: b.room.name,
         price: b.room.price,
         capacity: b.room.capacity,
         description: b.room.description,
-        images: b.room.images.map((img) => img.url),
+        images: b.room.images.map((img: any) => img.url),
         totalUnits: b.room.totalUnits,
         facilities: b.room.facilities,
         availableUnits: 0,
@@ -147,15 +149,15 @@ export async function getMyProfile() {
       throw new Error("Profile not found");
     }
 
-    const profile: ProfileForm = {
-      name: rawProfile?.name ?? "",
-      email: rawProfile?.email ?? "",
-      image: rawProfile?.image ?? "https://placehold.co/100x100", // add fallback image
-      gender: rawProfile?.profile?.gender,
-      bio: rawProfile?.profile?.bio ?? "",
-      phone: rawProfile?.profile?.phone ?? "",
-      address: rawProfile?.profile?.address ?? "",
-      joinedAt: rawProfile?.createdAt?.toISOString() ?? "",
+    const profile = {
+      name: rawProfile.name,
+      email: rawProfile.email,
+      image: rawProfile.image ?? "https://placehold.co/100x100", // add fallback image
+      gender: rawProfile.profile?.gender,
+      bio: rawProfile.profile?.bio ?? "",
+      phone: rawProfile.profile?.phone ?? "",
+      address: rawProfile.profile?.address ?? "",
+      joinedAt: rawProfile.createdAt,
     };
     return profile;
   } catch (error) {

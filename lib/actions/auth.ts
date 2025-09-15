@@ -19,7 +19,9 @@ export async function verifyResetToken(token: string) {
   return true;
 }
 
-export async function validateCronRequest(request: NextRequest) {
+export async function validateCronRequest(
+  request: NextRequest
+): Promise<Response | undefined> {
   const authHeader = request.headers.get("authorization");
   const cronSecret = process.env.CRON_SECRET;
 
@@ -34,10 +36,13 @@ export async function validateCronRequest(request: NextRequest) {
     });
   }
 
-  return null;
+  return undefined;
 }
 
-export async function createCronResponse(data: any, status: number = 200) {
+export async function createCronResponse(
+  data: any,
+  status: number = 200
+): Promise<Response> {
   return Response.json(
     {
       timestamp: new Date().toISOString(),

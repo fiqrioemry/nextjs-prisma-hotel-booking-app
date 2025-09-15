@@ -2,7 +2,7 @@ import Stripe from "stripe";
 import { auth } from "@/lib/auth";
 import { db } from "@/lib/prisma";
 import { headers } from "next/headers";
-
+import { Booking, BookingParams } from "@/lib/types/bookings";
 import type { BookForm } from "@/components/hotel-detail/book-room-form";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string, {
@@ -12,15 +12,8 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string, {
 const MIDTRANS_URL = process.env.MIDTRANS_URL as string;
 const MIDTRANS_SERVER_KEY = process.env.MIDTRANS_SERVER_KEY as string;
 
-export type BookingParams = {
-  q?: string;
-  page: number;
-  limit: number;
-  sort: "newest" | "oldest";
-  status?: "PENDING" | "CONFIRMED" | "CANCELLED" | "COMPLETED" | "ALL";
-};
-
 async function checkAvailability(bookForm: BookForm) {
+  console.log("book form", bookForm);
   const room = await db.room.findUnique({ where: { id: bookForm.roomId } });
 
   if (!room) throw new Error("Room not found");
@@ -89,7 +82,7 @@ export async function getBookings(params: BookingParams) {
     db.booking.count({ where: whereClause }),
   ]);
 
-  const bookings = result.map((booking) => ({
+  const bookings = result.map((booking: Booking) => ({
     id: booking.id,
     user: {
       id: booking.user.id,
@@ -105,12 +98,12 @@ export async function getBookings(params: BookingParams) {
       price: booking.room.price,
       capacity: booking.room.capacity,
       totalUnits: booking.room.totalUnits,
-      images: booking.room.images.map((img) => img.url)[0] || null,
+      images: booking.room.images.map((img: any) => img.url) || [],
       hotelName: booking.room.hotel.name,
     },
     quantity: booking.quantity,
-    checkIn: booking.checkIn,
-    checkOut: booking.checkOut,
+    checkIn: booking.checkIn.toISOString(),
+    checkOut: booking.checkOut.toISOString(),
   }));
 
   return {

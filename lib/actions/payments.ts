@@ -1,13 +1,5 @@
 import { db } from "@/lib/prisma";
-
-// -------------------- TYPES --------------------
-export type PaymentParams = {
-  sort: "newest" | "oldest";
-  status: "ALL" | "PENDING" | "PAID" | "FAILED";
-  page: number;
-  limit: number;
-  q?: string;
-};
+import { PaymentParams } from "@/lib/types/payments";
 
 export async function getPayments(params: PaymentParams) {
   const { page, limit, sort, status, q } = params;
@@ -60,9 +52,9 @@ export async function getPayments(params: PaymentParams) {
     paymentMethod: p.paymentMethod,
     paymentUrl: p.paymentUrl,
     user: {
-      id: p.user.id,
-      name: p.user.name,
-      email: p.user.email,
+      id: p.user?.id,
+      name: p.user?.name,
+      email: p.user?.email,
     },
   }));
 
