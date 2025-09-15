@@ -1,6 +1,5 @@
 // fields/RadioGroupField.tsx
 "use client";
-import type { Option } from "@/lib/types/form";
 import { Controller, useFormContext } from "react-hook-form";
 import { FieldWrapper } from "@/components/form-fields/field-wrapper";
 
@@ -14,7 +13,7 @@ export function RadioGroupField({
   name: string;
   label?: string;
   helperText?: string;
-  options?: Option[];
+  options?: { label: string; value: string }[];
   className?: string;
 }) {
   const { control, formState } = useFormContext();

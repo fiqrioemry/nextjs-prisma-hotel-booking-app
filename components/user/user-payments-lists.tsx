@@ -8,11 +8,11 @@ import {
   CardDescription,
 } from "@/components/ui/card";
 import React from "react";
-import { cn } from "@/lib/utils";
+import { cn, formatRupiah } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import type { MetaPagination } from "@/lib/actions/hotels";
-import { User2, Receipt, Calendar, CreditCard } from "lucide-react";
+import type { MetaPagination } from "@/lib/types/hotels";
+import { Receipt, Calendar, CreditCard } from "lucide-react";
 import { PaginationTable } from "@/components/shared/pagination-table";
 
 type payments = {
@@ -38,10 +38,12 @@ export const UserPaymentsLists = ({
       <CardHeader className="pt-4">
         <CardTitle className="flex items-center gap-2">
           <CreditCard className="h-8 w-8" />
-          User Payments
+          Daftar Pembayaran
+          {/* User Payments */}
         </CardTitle>
         <CardDescription>
-          Your payment status and transaction history
+          Riwayat dari status pembayaran dan transaksi kamu
+          {/* Your payment status and transaction history */}
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-6 p-4 border-t">
@@ -49,8 +51,14 @@ export const UserPaymentsLists = ({
         {payments.length === 0 && (
           <div className="flex flex-col items-center justify-center py-12 text-center text-muted-foreground">
             <Receipt className="w-12 h-12 mb-3 opacity-40" />
-            <p className="text-lg font-medium">No payment history found</p>
-            <p className="text-sm">Your payments will appear here</p>
+            <p className="text-lg font-medium">
+              Tidak ada riwayat pembayaran
+              {/* No payment history found */}
+            </p>
+            <p className="text-sm">
+              Pembayaran kamu akan tampil disini
+              {/* Your payments will appear here */}
+            </p>
           </div>
         )}
 
@@ -93,9 +101,7 @@ const PaymentsList = ({ payments }: { payments: payments[] }) => {
           </div>
 
           <div className="flex flex-col items-start sm:items-end gap-2">
-            <p className="font-bold text-lg">
-              Rp {new Intl.NumberFormat("id-ID").format(payment.amount)}
-            </p>
+            <p className="font-bold text-lg">{formatRupiah(payment.amount)}</p>
             <div className="flex items-center gap-2">
               <Badge
                 className={cn(
@@ -110,7 +116,8 @@ const PaymentsList = ({ payments }: { payments: payments[] }) => {
               {payment.paymentUrl && (
                 <Button asChild size="sm" variant="outline">
                   <a href={payment.paymentUrl} target="_blank">
-                    View Invoice
+                    Lihat invoice
+                    {/* View Invoice */}
                   </a>
                 </Button>
               )}

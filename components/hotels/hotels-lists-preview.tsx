@@ -21,7 +21,8 @@ import { locationOptions, sortOptions } from "@/lib/constant";
 import { SelectDateForm, DateForm } from "./select-date-form";
 import { SelectFilter } from "@/components/shared/select-filter";
 import { PaginationCard } from "@/components/shared/pagination-card";
-import { Hotels, HotelsParams, MetaPagination } from "@/lib/actions/hotels";
+import { Hotels, HotelsParams, MetaPagination } from "@/lib/types/hotels";
+import Image from "next/image";
 
 interface HotelsListPreviewProps {
   hotels: Hotels[];
@@ -211,7 +212,11 @@ export const HotelsListPreview: React.FC<HotelsListPreviewProps> = ({
 
   return (
     <>
-      <SelectDateForm open={dialogOpen} onOpenChange={handleSelectDate} />
+      <SelectDateForm
+        open={dialogOpen}
+        onOpenChange={handleSelectDate}
+        initialValues={{ startDate, endDate }}
+      />
 
       <div className="flex gap-8">
         {/* Enhanced Left Sidebar - Filters */}
@@ -350,7 +355,7 @@ export const HotelsListPreview: React.FC<HotelsListPreviewProps> = ({
                   />
 
                   {/* View Mode Toggle */}
-                  <div className="flex border rounded-xl overflow-hidden bg-white/50 backdrop-blur-sm">
+                  <div className="grid grid-cols-2 w-40 border rounded-xl overflow-hidden bg-white/50 backdrop-blur-sm">
                     <Button
                       variant={viewMode === "grid" ? "default" : "ghost"}
                       size="sm"
@@ -394,9 +399,13 @@ export const HotelsListPreview: React.FC<HotelsListPreviewProps> = ({
                     >
                       <CardContent className="p-0 flex flex-col">
                         <div className="relative overflow-hidden">
-                          <img
+                          <Image
                             src={hotel.thumbnail}
                             alt={hotel.name}
+                            fill
+                            sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"
+                            priority
+                            quality={75}
                             className="w-full h-48 object-cover group-hover:scale-110 transition-transform duration-500"
                           />
                           <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
@@ -404,12 +413,12 @@ export const HotelsListPreview: React.FC<HotelsListPreviewProps> = ({
                           <Badge
                             className={cn(
                               "absolute top-3 right-3 backdrop-blur-md border-white/30",
-                              hotel.availableRooms > 0
+                              hotel?.availableRooms! > 0
                                 ? "bg-emerald-500/90 text-white"
                                 : "bg-red-500/90 text-white"
                             )}
                           >
-                            {hotel.availableRooms > 0
+                            {hotel?.availableRooms! > 0
                               ? `${hotel.availableRooms} kamar tersedia`
                               : "Tidak tersedia"}
                           </Badge>
@@ -451,8 +460,8 @@ export const HotelsListPreview: React.FC<HotelsListPreviewProps> = ({
                                   : ""
                               }`}
                             >
-                              {hotel.availableRooms > 0
-                                ? "🏨 Lihat Kamar Tersedia"
+                              {hotel?.availableRooms! > 0
+                                ? "Lihat Kamar Tersedia"
                                 : "Tidak Tersedia"}
                             </Link>
                           </Button>
@@ -479,12 +488,12 @@ export const HotelsListPreview: React.FC<HotelsListPreviewProps> = ({
                             <Badge
                               className={cn(
                                 "absolute top-3 right-3 backdrop-blur-md",
-                                hotel.availableRooms > 0
+                                hotel?.availableRooms! > 0
                                   ? "bg-emerald-500/90 text-white"
                                   : "bg-red-500/90 text-white"
                               )}
                             >
-                              {hotel.availableRooms > 0
+                              {hotel?.availableRooms! > 0
                                 ? `${hotel.availableRooms} kamar`
                                 : "Tidak tersedia"}
                             </Badge>
@@ -543,8 +552,8 @@ export const HotelsListPreview: React.FC<HotelsListPreviewProps> = ({
                                       : ""
                                   }`}
                                 >
-                                  {hotel.availableRooms > 0
-                                    ? "🏨 Lihat Kamar Tersedia"
+                                  {hotel?.availableRooms! > 0
+                                    ? "Lihat Kamar Tersedia"
                                     : "Tidak Tersedia"}
                                 </Link>
                               </Button>

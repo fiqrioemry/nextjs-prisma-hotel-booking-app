@@ -51,12 +51,12 @@ export default function ForgotPasswordForm() {
   }
 
   return (
-    <Card className="max-w-md w-full shadow bg-card z-20 font-mono">
+    <Card className="max-w-md w-full shadow bg-card z-20 ">
       {!emailSent ? (
         <>
           <CardHeader className="space-y-2">
             <CardTitle className="text-center text-2xl">
-              Forgot Password
+              Lupa Password
             </CardTitle>
             <CardDescription className="text-center text-muted-foreground">
               Enter your email to receive a password reset link.

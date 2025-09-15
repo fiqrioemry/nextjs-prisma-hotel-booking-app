@@ -2,10 +2,14 @@
 
 import React from "react";
 import { Button } from "@/components/ui/button";
-import { MetaPagination } from "@/lib/actions/hotels";
 
 interface PaginationCardProps {
-  meta: MetaPagination;
+  meta: {
+    page: number;
+    totalPages: number;
+    hasNextPage: boolean;
+    hasPrevPage: boolean;
+  };
   onPageChange: (page: number) => void;
 }
 

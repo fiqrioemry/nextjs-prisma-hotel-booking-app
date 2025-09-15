@@ -12,7 +12,6 @@ import {
 import {
   Book,
   Home,
-  User2,
   ChartArea,
   CreditCard,
   LayoutDashboard,
@@ -81,7 +80,7 @@ export function AdminSidebar({
               <Hotel className="w-8 h-8 text-primary" />
             </div>
             <div className="grid flex-1 text-left text-md py-4 font-mono leading-tight">
-              <span className="truncate font-medium">EasyBook</span>
+              <span className="truncate font-medium">pesanhotel</span>
             </div>
           </div>
         </div>

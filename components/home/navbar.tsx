@@ -4,7 +4,7 @@ import Link from "next/link";
 import { authClient } from "@/lib/auth-client";
 import { Button } from "@/components/ui/button";
 import { UserNavItems } from "./user-nav-items";
-import { NavbarMenu } from "./navbar-menu-button";
+import { NavbarMenu } from "./navbar-menu";
 import React, { useState, useEffect } from "react";
 import { AppLogo } from "@/components/shared/app-logo";
 import { ThemeToggle } from "@/components/shared/theme-toggle";
@@ -73,20 +73,16 @@ export default function Navbar() {
 
         {/* Action buttons with animation */}
 
-        <div>
-          {data && (
-            <div className="flex items-center gap-2">
-              <ThemeToggle />
-              {data.user ? (
-                <div>
-                  <NavbarMenu user={data?.user} />
-                </div>
-              ) : (
-                <Button variant="outline" asChild>
-                  <Link href="/signin">Sign In</Link>
-                </Button>
-              )}
+        <div className="flex items-center gap-2">
+          <ThemeToggle />
+          {data?.user ? (
+            <div>
+              <NavbarMenu user={data?.user} />
             </div>
+          ) : (
+            <Button variant="outline" asChild>
+              <Link href="/signin">Sign In</Link>
+            </Button>
           )}
         </div>
       </div>

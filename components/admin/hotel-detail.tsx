@@ -10,10 +10,8 @@ import {
   CardDescription,
 } from "@/components/ui/card";
 import { toast } from "sonner";
-import { Trash } from "lucide-react";
 import { useHotel } from "@/hooks/use-hotels";
 import { AddRoomForm } from "./add-room-form";
-import { Button } from "@/components/ui/button";
 import { EditRoomForm } from "./edit-room-form";
 import { Skeleton } from "@/components/ui/skeleton";
 import { EditHotelForm } from "./edit-hotel-form";
@@ -44,7 +42,6 @@ export const HotelDetail = ({ id }: { id: string }) => {
   }
 
   const hotel = data.data;
-  console.log(hotel);
 
   return (
     <div className="space-y-8">

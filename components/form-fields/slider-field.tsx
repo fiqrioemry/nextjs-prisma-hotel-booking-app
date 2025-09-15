@@ -1,5 +1,6 @@
 // fields/SliderField.tsx
 "use client";
+
 import { Slider } from "@/components/ui/slider";
 import { Controller, useFormContext } from "react-hook-form";
 import { FieldWrapper } from "@/components/form-fields/field-wrapper";

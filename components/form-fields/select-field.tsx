@@ -24,7 +24,7 @@ export function SelectField({
   label?: string;
   placeholder?: string;
   helperText?: string;
-  options?: any;
+  options?: { label: string; value: string }[];
   disabled?: boolean;
   className?: string;
 }) {

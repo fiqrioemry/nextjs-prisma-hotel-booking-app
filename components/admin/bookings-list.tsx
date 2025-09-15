@@ -1,5 +1,12 @@
 "use client";
-
+import {
+  Eye,
+  Edit,
+  Trash2,
+  RotateCcw,
+  Filter,
+  MoreHorizontal,
+} from "lucide-react";
 import React from "react";
 import {
   Table,
@@ -14,19 +21,11 @@ import Link from "next/link";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Book, PlusCircle } from "lucide-react";
-import { BookingParams } from "@/lib/actions/bookings";
+import { BookingParams } from "@/lib/types/bookings";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Pagination } from "@/components/shared/pagination";
 import { SearchInput } from "@/components/shared/search-input";
 import { SelectFilter } from "@/components/shared/select-filter";
-import {
-  Eye,
-  Edit,
-  Trash2,
-  RotateCcw,
-  Filter,
-  MoreHorizontal,
-} from "lucide-react";
 
 import {
   DropdownMenu,
@@ -92,7 +91,7 @@ export function BookingsList() {
             <Book className="h-8 w-8" />
             Lists of Bookings
           </h1>
-          <p>Manage your hotel bookings and reservations</p>
+          <p>Manage your Pesan Hotels and reservations</p>
         </div>
 
         <Button asChild size="sm">

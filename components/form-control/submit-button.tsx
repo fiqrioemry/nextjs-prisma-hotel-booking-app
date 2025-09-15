@@ -1,10 +1,9 @@
 // src/components/form-control/SubmitButton.jsx
-import { Loader2 } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { Loader2 } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 export const SubmitButton = ({
-  text = 'Submit',
-  className = '',
+  text = "Submit",
   disabled = false,
   isLoading = false,
   ...props

@@ -14,7 +14,7 @@ import Link from "next/link";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Book, PlusCircle } from "lucide-react";
-import { PaymentParams } from "@/lib/actions/payments";
+import { PaymentParams } from "@/lib/types/payments";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Pagination } from "@/components/shared/pagination";
 import { SearchInput } from "@/components/shared/search-input";

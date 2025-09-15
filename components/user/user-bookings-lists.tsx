@@ -10,11 +10,12 @@ import {
 } from "@/components/ui/card";
 import { cn, formatDate } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
-import type { MyBooking } from "@/lib/actions/hotels";
-import { MetaPagination } from "@/lib/actions/hotels";
+import type { MyBooking } from "@/lib/types/bookings";
+import type { MetaPagination } from "@/lib/types/hotels";
 import { BookedRoomDetail } from "./booked-room-detail";
 import { Calendar, Hotel, Receipt } from "lucide-react";
 import { PaginationTable } from "@/components/shared/pagination-table";
+import Image from "next/image";
 
 export const UserBookingsLists = ({
   bookings,
@@ -28,10 +29,12 @@ export const UserBookingsLists = ({
       <CardHeader className="pt-4">
         <CardTitle className="flex items-center gap-2">
           <Hotel className="h-8 w-8" />
-          My Bookings
+          Daftar Pemesanan
+          {/* My Bookings */}
         </CardTitle>
         <CardDescription>
-          Your hotel bookings and reservation history
+          Riwayat pemesanan kamu di Pesan Hotel
+          {/* Your Pesan Hotels and reservation history */}
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-6 p-4 border-t">
@@ -39,8 +42,14 @@ export const UserBookingsLists = ({
         {bookings.length === 0 && (
           <div className="flex flex-col items-center justify-center py-12 text-center text-muted-foreground">
             <Receipt className="w-12 h-12 mb-3 opacity-40" />
-            <p className="text-lg font-medium">No bookings found</p>
-            <p className="text-sm">Your bookings will appear here</p>
+            <p className="text-lg font-medium">
+              Riwayat Tidak Ditemukan
+              {/* No bookings found */}
+            </p>
+            <p className="text-sm">
+              Pesanan kamu akan tampil disini
+              {/* Your bookings will appear here */}
+            </p>
           </div>
         )}
 
@@ -73,10 +82,13 @@ const BookingLists = ({ bookings }: { bookings: MyBooking[] }) => {
           <div className="flex gap-4">
             {/* Thumbnail */}
             <div className="relative w-28 h-20 rounded-lg overflow-hidden border">
-              <img
-                src={b.hotelThumbnail}
+              <Image
+                src={b.thumbnail}
                 alt={b.name}
                 className="object-cover w-full h-full"
+                fill
+                sizes="(max-width: 640px) 100vw, 28rem"
+                priority
               />
             </div>
             <div className="space-y-1">
@@ -86,7 +98,8 @@ const BookingLists = ({ bookings }: { bookings: MyBooking[] }) => {
               </p>
               <div className="flex items-center gap-2 text-sm text-muted-foreground">
                 <Calendar className="w-4 h-4" />
-                {formatDate(b.checkIn)} → {formatDate(b.checkOut)}
+                {formatDate(b.checkIn.toISOString())} →{" "}
+                {formatDate(b.checkOut.toISOString())}
               </div>
               <Badge
                 className={cn(

@@ -29,7 +29,6 @@ export function PhoneNumberField({
   className,
   reset,
   maxLength = 20,
-  countryCode = "+62",
   showIcon = true,
 }: PhoneNumberFieldProps) {
   const { control, formState } = useFormContext();

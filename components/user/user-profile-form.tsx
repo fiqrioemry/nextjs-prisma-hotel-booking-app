@@ -30,7 +30,7 @@ const ProfileSchema = z.object({
   phone: z.string().optional().nullable(),
   gender: z.enum(["MALE", "FEMALE"]).optional().nullable(),
   image: z.string().url("Invalid image URL").nullable().optional(),
-  joinedAt: z.string().readonly(),
+  joinedAt: z.date().readonly(),
 });
 
 export type ProfileForm = z.infer<typeof ProfileSchema>;
@@ -59,10 +59,12 @@ export const UserProfileForm = ({ profile }: { profile: ProfileForm }) => {
       <CardHeader className="pt-4">
         <CardTitle className="flex items-center gap-2">
           <User2 className="h-8 w-8" />
-          User Profile
+          Profile Kamu
+          {/* User Profile */}
         </CardTitle>
         <CardDescription>
-          Manage your account settings and personal information
+          Kelola informasi personal akun kamu
+          {/* Manage your account settings and personal information */}
         </CardDescription>
       </CardHeader>
 
@@ -86,13 +88,15 @@ export const UserProfileForm = ({ profile }: { profile: ProfileForm }) => {
           <div className="space-y-2">
             <label className="text-sm font-medium text-muted-foreground flex items-center gap-2">
               <Mail className="w-4 h-4" />
-              Email Address
+              Alamat Email
+              {/* Email Address */}
             </label>
             <div className="px-3 py-2 border rounded-lg text-muted-foreground shadow-sm">
               {profile.email}
             </div>
             <p className="text-xs text-muted-foreground/50">
-              Your email address cannot be changed
+              Email tidak dapat diubah
+              {/* Your email address cannot be changed */}
             </p>
           </div>
 
@@ -100,13 +104,15 @@ export const UserProfileForm = ({ profile }: { profile: ProfileForm }) => {
           <div className="space-y-2">
             <label className="text-sm font-medium text-muted-foreground flex items-center gap-2">
               <Calendar className="w-4 h-4" />
-              Member Since
+              Bergabung sejak
+              {/* Member Since */}
             </label>
             <div className="px-3 py-2 border rounded-lg text-muted-foreground shadow-sm">
-              {formatDateTime(new Date(profile.joinedAt))}
+              {formatDateTime(profile.joinedAt)}
             </div>
             <p className="text-xs text-muted-foreground/50">
-              Account creation date
+              Tanggal pembuatan
+              {/* Account creation date */}
             </p>
           </div>
         </div>
@@ -116,20 +122,20 @@ export const UserProfileForm = ({ profile }: { profile: ProfileForm }) => {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <ShortTextField
                 name="name"
-                label="Full Name"
-                placeholder="Enter your name"
+                label="Nama lengkap"
+                placeholder="Masukkan nama kamu"
               />
               <PhoneNumberField
                 name="phone"
                 label="Phone"
-                placeholder="Enter your phone number"
+                placeholder="Masukkan nomor telpon"
               />
             </div>
 
             <SelectField
               name="gender"
               label="Gender"
-              placeholder="Select gender"
+              placeholder="Pilih kelamin"
               options={[
                 { label: "Male", value: "MALE" },
                 { label: "Female", value: "FEMALE" },
@@ -140,7 +146,7 @@ export const UserProfileForm = ({ profile }: { profile: ProfileForm }) => {
               name="bio"
               label="Bio"
               rows={3}
-              placeholder="Tell us about yourself"
+              placeholder="Ceritakan tentang diri anda"
               className="resize-none"
             />
 
@@ -161,7 +167,8 @@ export const UserProfileForm = ({ profile }: { profile: ProfileForm }) => {
               <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
                 <div className="flex items-center text-sm text-muted-foreground">
                   <div className="w-2 h-2 bg-orange-400 rounded-full mr-2 animate-pulse"></div>
-                  You have unsaved changes
+                  Perubahan belum tersimpan
+                  {/* You have unsaved changes */}
                 </div>
 
                 <div className="flex items-center gap-3">
@@ -178,12 +185,14 @@ export const UserProfileForm = ({ profile }: { profile: ProfileForm }) => {
                     {form.isSubmitting ? (
                       <>
                         <Loader2 className="w-4 h-4 animate-spin" />
-                        <span> Saving...</span>
+                        <span> Menyimpan...</span>
+                        {/* <span> Saving...</span> */}
                       </>
                     ) : (
                       <>
                         <Check className="w-4 h-4" />
                         <span> Save Changes</span>
+                        <span> Simpan perubahan</span>
                       </>
                     )}
                   </Button>

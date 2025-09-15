@@ -1,10 +1,10 @@
 // fields/NumberField.tsx
-'use client';
-import { X } from 'lucide-react';
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
-import { Controller, useFormContext } from 'react-hook-form';
-import { FieldWrapper } from '@/components/form-fields/field-wrapper';
+"use client";
+import { X } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Controller, useFormContext } from "react-hook-form";
+import { FieldWrapper } from "@/components/form-fields/field-wrapper";
 
 interface NumberFieldProps {
   name: string;
@@ -49,9 +49,9 @@ export function NumberField({
               id={name}
               type="number"
               {...field}
-              onChange={e =>
+              onChange={(e) =>
                 field.onChange(
-                  e.target.value === '' ? '' : Number(e.target.value)
+                  e.target.value === "" ? "" : Number(e.target.value)
                 )
               }
               placeholder={placeholder}

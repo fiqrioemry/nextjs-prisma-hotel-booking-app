@@ -15,7 +15,7 @@ import { toast } from "sonner";
 import { useHotels } from "@/hooks/use-hotels";
 import { Button } from "@/components/ui/button";
 import { Hotel, PlusCircle } from "lucide-react";
-import { HotelsParams } from "@/lib/actions/hotels";
+import { HotelsParams } from "@/lib/types/hotels";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Pagination } from "@/components/shared/pagination";
 import { SearchInput } from "@/components/shared/search-input";

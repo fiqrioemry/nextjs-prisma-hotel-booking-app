@@ -5,10 +5,10 @@ import { Hotel } from "lucide-react";
 import { RoomCard } from "./room-card";
 import { formatDate } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
-import { HotelDetails } from "@/lib/actions/hotels";
+import { HotelDetail } from "@/lib/types/hotels";
 import { useRouter, useSearchParams } from "next/navigation";
 
-export const HotelDetailPreview = ({ hotel }: { hotel: HotelDetails }) => {
+export const HotelDetailPreview = ({ hotel }: { hotel: HotelDetail }) => {
   const router = useRouter();
   const searchParams = useSearchParams();
   const endDate = searchParams.get("endDate");
@@ -67,17 +67,17 @@ export const HotelDetailPreview = ({ hotel }: { hotel: HotelDetails }) => {
 
         {/* Hotel Description & Stats */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-6">
-          <div className="relative w-full h-full">
+          <div className="relative w-full h-full overflow-hidden">
             <img
               src={hotel.thumbnail}
               alt={hotel.name}
               sizes="20vw"
-              className="object-cover"
+              className="object-cover rounded-xl "
             />
           </div>
           <div className="flex flex-col justify-center space-y-6">
             <div>
-              <h3 className="text-xl font-bold mb-3">About This Hotel</h3>
+              <h3 className="text-2xl font-bold mb-3">Tentang Hotel ini</h3>
               <p className="text-muted-foreground leading-relaxed text-lg">
                 {hotel.description}
               </p>
@@ -90,13 +90,13 @@ export const HotelDetailPreview = ({ hotel }: { hotel: HotelDetails }) => {
                     0
                   )}
                 </div>
-                <div className="text-sm text-green-600">Available Rooms</div>
+                <div className="text-sm text-green-600">Kamar Tersedia</div>
               </div>
               <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
                 <div className="text-2xl font-bold text-blue-700">
                   {hotel.rooms.length}
                 </div>
-                <div className="text-sm text-blue-600">Room Types</div>
+                <div className="text-sm text-blue-600">Tipe kamar</div>
               </div>
             </div>
           </div>
@@ -106,7 +106,7 @@ export const HotelDetailPreview = ({ hotel }: { hotel: HotelDetails }) => {
       {/* Available Rooms */}
       <div className="space-y-6">
         <div className="flex items-center justify-between">
-          <h2 className="text-3xl font-bold">Available Rooms</h2>
+          <h2 className="text-3xl font-bold">Kamar Tersedia</h2>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">

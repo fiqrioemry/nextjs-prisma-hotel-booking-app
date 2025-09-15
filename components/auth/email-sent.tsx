@@ -28,21 +28,25 @@ export function EmailSent({ form }: { form: any }) {
         <CardHeader className="text-center space-y-2">
           <MailCheck className="mx-auto h-12 w-12 text-green-600 dark:text-green-400" />
           <CardTitle className="text-2xl font-bold tracking-tight">
-            Check your email
+            Cek inbox email kamu
+            {/* Check your email */}
           </CardTitle>
           <CardDescription className="text-muted-foreground">
-            We’ve sent you a magic link to continue
+            Kami telah mengirim magic link untuk melanjutkan
+            {/* We’ve sent you a magic link to continue */}
           </CardDescription>
         </CardHeader>
 
         <CardContent className="space-y-4 text-center">
           <p className="text-sm text-muted-foreground leading-relaxed">
-            A magic link was sent to{" "}
+            Link aktivasi telah dikirimkan ke
+            {/* A magic link was sent to{" "} */}
             <span className="font-medium text-foreground">
               {form.methods.getValues("email")}
             </span>
             .<br />
-            Please check your inbox and follow the link.
+            Harap cek inbox dan lanjutkan klik link
+            {/* Please check your inbox and follow the link. */}
           </p>
         </CardContent>
       </Card>

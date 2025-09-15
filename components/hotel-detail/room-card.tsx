@@ -3,11 +3,10 @@
 import React from "react";
 import { formatRupiah } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
-import { BookRoomForm } from "./book-room-form";
-import type { BookForm } from "./book-room-form";
-import type { Room } from "@/lib/actions/hotels";
+import type { RoomDetail } from "@/lib/types/rooms";
 import { ImageCarousel } from "./image-carousel";
 import { Card, CardContent } from "@/components/ui/card";
+import { BookRoomForm, type BookForm } from "./book-room-form";
 import { Users, Hotel, XCircle, CheckCircle } from "lucide-react";
 
 export const RoomCard = ({
@@ -15,7 +14,7 @@ export const RoomCard = ({
   startDate,
   endDate,
 }: {
-  room: Room;
+  room: RoomDetail;
   endDate: string;
   startDate: string;
 }) => {
@@ -27,23 +26,23 @@ export const RoomCard = ({
   });
 
   return (
-    <Card className="border-0 p-0 shadow-lg">
-      <CardContent className="p-0">
+    <Card className="border-0 p-0 shadow-lg h-full">
+      <CardContent className="p-0 flex flex-col h-full">
         {/* Room Image Carousel */}
         <div className="relative rounded-t-lg overflow-hidden group">
-          <ImageCarousel images={room.images} name={room.name} />
+          <ImageCarousel room={room} />
 
           {/* Availability Badge */}
           <div className="absolute top-4 right-4 z-10">
             {room.availableUnits > 0 ? (
               <Badge className="bg-green-600 hover:bg-green-700 text-white">
                 <CheckCircle className="w-3 h-3 mr-1" />
-                Available
+                Tersedia
               </Badge>
             ) : (
               <Badge variant="destructive">
                 <XCircle className="w-3 h-3 mr-1" />
-                Fully Booked
+                Habis dibooking
               </Badge>
             )}
           </div>
@@ -54,13 +53,13 @@ export const RoomCard = ({
               <div className="text-2xl font-bold ">
                 {formatRupiah(room.price)}
               </div>
-              <div className="text-xs text-white">per night</div>
+              <div className="text-xs text-white">per malam</div>
             </div>
           </div>
         </div>
 
         {/* Room Details */}
-        <div className="py-2 px-4 space-y-4">
+        <div className="py-2 px-4 space-y-4 flex flex-col flex-1">
           {/* Room Name & Description */}
           <div className="space-y-2">
             <h3 className="text-xl font-bold line-clamp-1">{room.name}</h3>
@@ -100,31 +99,31 @@ export const RoomCard = ({
               >
                 {room.availableUnits}
               </div>
-              <div className="text-xs text-muted-foreground">Available</div>
+              <div className="text-xs text-muted-foreground">Tersedia</div>
             </div>
           </div>
 
           {/* facilities */}
           <div className="space-y-2">
-            <h4 className="text-sm font-semibold ">Room Facilities</h4>
+            <h4 className="text-sm font-semibold ">Fasilitas Kamar</h4>
             <div className="flex flex-wrap gap-2">
               {room.facilities && room.facilities.length > 0
-                ? room.facilities.slice(0, 4).map((amenity, index) => (
-                    <Badge variant="outline" key={index}>
-                      <span>{amenity}</span>
+                ? room.facilities.slice(0, 4).map((f: string, idx: number) => (
+                    <Badge variant="outline" key={idx}>
+                      <span>{f}</span>
                     </Badge>
                   ))
                 : null}
             </div>
           </div>
 
-          {/* Booking Section */}
-          <div className="pt-4 mb-2">
+          {/* Booking Section (selalu di bawah) */}
+          <div className="mt-auto">
             {room.availableUnits > 0 ? (
-              <div className="space-y-2 h-auto">
-                {room.availableUnits <= 3 && room.availableUnits > 0 && (
-                  <div className=" text-xs text-orange-600 bg-orange-50 px-2 py-1 rounded border border-orange-200">
-                    Only {room.availableUnits} rooms left!
+              <div className="space-y-2">
+                {room.availableUnits <= 3 && (
+                  <div className="text-xs text-destructive/90 bg-destructive/10 px-2 py-1 rounded border border-destructive/10">
+                    Hanya tersisa {room.availableUnits} kamar!
                   </div>
                 )}
                 <BookRoomForm room={room} bookForm={bookForm} />
@@ -132,10 +131,10 @@ export const RoomCard = ({
             ) : (
               <div className="text-center py-4">
                 <div className="text-sm text-muted-foreground mb-2">
-                  This room type is fully booked
+                  Kamar sudah terisi penuh
                 </div>
                 <Badge variant="outline" className="text-xs">
-                  Try different dates
+                  Coba tanggal lain
                 </Badge>
               </div>
             )}

@@ -11,8 +11,8 @@ import { SignOutButton } from "@/components/auth/signout-button";
 
 const navItems = [
   { href: "/user/profile", label: "Profile", icon: User2 },
-  { href: "/user/bookings", label: "Bookings", icon: Hotel },
-  { href: "/user/payments", label: "Payments", icon: CreditCard },
+  { href: "/user/bookings", label: "Pemesanan", icon: Hotel },
+  { href: "/user/payments", label: "Pembayaran", icon: CreditCard },
 ];
 
 export function UserSidebar() {
