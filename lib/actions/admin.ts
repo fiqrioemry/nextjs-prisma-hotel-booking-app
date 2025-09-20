@@ -1,8 +1,6 @@
 "use server";
 
-import { auth } from "@/lib/auth";
 import { db } from "@/lib/prisma";
-import { headers } from "next/headers";
 
 // -------------------- TYPES --------------------
 export interface DashboardStatistics {
@@ -99,17 +97,10 @@ export interface PaymentMethodStat {
 // -------------------- MAIN FUNCTION --------------------
 export async function getDashboardStatistics(): Promise<DashboardStatistics> {
   try {
-    const session = await auth.api.getSession({ headers: await headers() });
-
-    if (!session || session?.user?.role !== "ADMIN") {
-      throw new Error("Unauthorized access");
-    }
-
     // Get current date ranges
     const now = new Date();
     const currentMonth = new Date(now.getFullYear(), now.getMonth(), 1);
     const lastMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1);
-    const lastMonthEnd = new Date(now.getFullYear(), now.getMonth(), 0);
     const oneYearAgo = new Date(now.getFullYear() - 1, now.getMonth(), 1);
 
     // Execute all queries in parallel for better performance
@@ -550,65 +541,5 @@ export async function getDashboardStatistics(): Promise<DashboardStatistics> {
     throw new Error(
       error instanceof Error ? error.message : "Failed to fetch hotels"
     );
-  }
-}
-
-// -------------------- HELPER FUNCTIONS --------------------
-
-/**
- * Get statistics for a specific date range
- */
-export async function getDashboardStatisticsByDateRange(
-  startDate: Date,
-  endDate: Date
-): Promise<{
-  success: boolean;
-  data?: Partial<DashboardStatistics>;
-  message?: string;
-}> {
-  try {
-    const session = await auth.api.getSession({ headers: await headers() });
-
-    if (!session || session?.user?.role !== "ADMIN") {
-      return { success: false, message: "Unauthorized access" };
-    }
-
-    const [bookings, revenue, users] = await Promise.all([
-      db.booking.count({
-        where: {
-          createdAt: { gte: startDate, lte: endDate },
-        },
-      }),
-
-      db.payment.aggregate({
-        where: {
-          status: "PAID",
-          createdAt: { gte: startDate, lte: endDate },
-        },
-        _sum: { amount: true },
-      }),
-
-      db.user.count({
-        where: {
-          role: "USER",
-          createdAt: { gte: startDate, lte: endDate },
-        },
-      }),
-    ]);
-
-    return {
-      success: true,
-      data: {
-        totalBookings: bookings,
-        totalRevenue: Number(revenue._sum.amount || 0),
-        totalUsers: users,
-      },
-    };
-  } catch (error) {
-    console.error("Error fetching date range statistics:", error);
-    return {
-      success: false,
-      message: "Failed to fetch statistics for date range",
-    };
   }
 }

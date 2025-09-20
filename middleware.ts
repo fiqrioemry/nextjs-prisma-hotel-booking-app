@@ -13,13 +13,13 @@ const unauthenticatedPaths = [
 const userOnlyPaths = ["/", "/contact", "/about", "/hotels"];
 
 export async function middleware(request: NextRequest) {
+  const { pathname } = request.nextUrl;
+
   const sessionCookie = getSessionCookie(request);
 
   const session = await auth.api.getSession({
     headers: await headers(),
   });
-
-  const { pathname } = request.nextUrl;
 
   // unsigned & akses /user/*
   if (!session && pathname.startsWith("/user")) {

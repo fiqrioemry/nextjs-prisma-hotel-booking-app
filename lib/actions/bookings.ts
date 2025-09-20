@@ -2,7 +2,7 @@ import Stripe from "stripe";
 import { auth } from "@/lib/auth";
 import { db } from "@/lib/prisma";
 import { headers } from "next/headers";
-import { Booking, BookingParams } from "@/lib/types/bookings";
+import { BookingParams } from "@/lib/types/bookings";
 import type { BookForm } from "@/components/hotel-detail/book-room-form";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string, {
@@ -13,7 +13,6 @@ const MIDTRANS_URL = process.env.MIDTRANS_URL as string;
 const MIDTRANS_SERVER_KEY = process.env.MIDTRANS_SERVER_KEY as string;
 
 async function checkAvailability(bookForm: BookForm) {
-  console.log("book form", bookForm);
   const room = await db.room.findUnique({ where: { id: bookForm.roomId } });
 
   if (!room) throw new Error("Room not found");
@@ -47,18 +46,23 @@ export async function getBookings(params: BookingParams) {
   const currentPage = parseInt(page.toString());
   const limitInt = parseInt(limit.toString());
 
-  // build where clause
-  const whereClause: any = {};
+  const whereClause: any = {
+    AND: [] as any[],
+  };
 
   if (status && status !== "ALL") {
     whereClause.AND.push({ status });
   }
 
   if (q && q.trim()) {
-    whereClause.OR = [
-      { name: { contains: q.trim(), mode: "insensitive" } },
-      { email: { contains: q.trim(), mode: "insensitive" } },
-    ];
+    whereClause.AND.push({
+      OR: [
+        { user: { name: { contains: q.trim(), mode: "insensitive" } } },
+        { user: { email: { contains: q.trim(), mode: "insensitive" } } },
+        // kalau booking ada field `referenceCode` / `id` juga bisa ditambah
+        { id: { contains: q.trim(), mode: "insensitive" } },
+      ],
+    });
   }
 
   // sorting
@@ -67,7 +71,6 @@ export async function getBookings(params: BookingParams) {
       ? { createdAt: "asc" as const }
       : { createdAt: "desc" as const };
 
-  // Query bookings + total
   const [result, total] = await Promise.all([
     db.booking.findMany({
       where: whereClause,
@@ -82,7 +85,7 @@ export async function getBookings(params: BookingParams) {
     db.booking.count({ where: whereClause }),
   ]);
 
-  const bookings = result.map((booking: Booking) => ({
+  const bookings = result.map((booking) => ({
     id: booking.id,
     user: {
       id: booking.user.id,
@@ -92,13 +95,13 @@ export async function getBookings(params: BookingParams) {
     room: {
       id: booking.room.id,
       hotelId: booking.room.hotelId,
-      facilities: booking.room.facilities,
       name: booking.room.name,
-      description: booking.room.description,
-      price: booking.room.price,
       capacity: booking.room.capacity,
+      price: booking.room.price,
+      description: booking.room.description,
       totalUnits: booking.room.totalUnits,
-      images: booking.room.images.map((img: any) => img.url) || [],
+      facilities: booking.room.facilities,
+      images: booking.room.images,
       hotelName: booking.room.hotel.name,
     },
     quantity: booking.quantity,

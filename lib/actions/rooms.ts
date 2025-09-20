@@ -27,7 +27,7 @@ export async function getRooms(params: RoomsParams) {
   const skip = (page - 1) * limit;
 
   // build where clause
-  const where: any = {
+  const where = {
     ...(id && { id }),
     ...(q && {
       OR: [
@@ -144,9 +144,7 @@ export async function updateRoom(id: string, data: EditRoomForm) {
   const incomingIds = incomingImages.map((img) => img.id).filter(Boolean);
 
   // delete images that are removed in the edit form
-  const removed = existingImages.filter(
-    (img: any) => !incomingIds.includes(img.id)
-  );
+  const removed = existingImages.filter((img) => !incomingIds.includes(img.id));
   for (const img of removed) {
     await db.roomImage.delete({ where: { id: img.id } });
   }

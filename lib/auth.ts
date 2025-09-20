@@ -82,7 +82,7 @@ export const auth = betterAuth({
   databaseHooks: {
     user: {
       create: {
-        after: async (user, _) => {
+        after: async (user) => {
           try {
             await db.profile.create({
               data: {
