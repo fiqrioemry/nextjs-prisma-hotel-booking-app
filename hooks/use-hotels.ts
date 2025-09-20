@@ -12,6 +12,8 @@ export function useHotels({ filters }: { filters: HotelsParams }) {
   const query = useQuery({
     queryKey: ["hotels", filters],
     queryFn: () => fetch(`/api/admin/hotels?${params}`).then((r) => r.json()),
+    staleTime: 1000 * 60 * 5,
+    gcTime: 1000 * 60 * 10,
   });
 
   return { ...query };

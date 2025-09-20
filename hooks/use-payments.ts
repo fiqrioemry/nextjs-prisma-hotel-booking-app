@@ -9,6 +9,8 @@ export function usePayments({ params }: { params: PaymentParams }) {
     queryKey: ["payments", params],
     queryFn: () =>
       fetch(`/api/admin/payments?${queryString}`).then((r) => r.json()),
+    staleTime: 1000 * 60 * 5,
+    gcTime: 1000 * 60 * 10,
   });
 }
 

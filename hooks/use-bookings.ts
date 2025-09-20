@@ -9,6 +9,8 @@ export function useBookings({ params }: { params: BookingParams }) {
     queryKey: ["bookings", queryString],
     queryFn: () =>
       fetch(`/api/admin/bookings?${queryString}`).then((r) => r.json()),
+    staleTime: 1000 * 60 * 5,
+    gcTime: 1000 * 60 * 10,
   });
 }
 
