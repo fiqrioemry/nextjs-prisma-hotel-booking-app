@@ -1,8 +1,17 @@
 // app/about/page.tsx
-"use client";
 
-import { Card, CardContent } from "@/components/ui/card";
 import Link from "next/link";
+import { Card, CardContent } from "@/components/ui/card";
+
+import { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "About Us - Pesan Hotel",
+  description: "Learn more about our journey and values.",
+};
+
+export const revalidate = false;
+export const dynamic = "force-static";
 
 export default function AboutPage() {
   return (

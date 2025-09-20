@@ -9,7 +9,7 @@ export const metadata: Metadata = {
 
 export default function Page() {
   return (
-    <div className="mx-auto w-full px-4 sm:px-6 lg:px-8 py-8 space-y-6">
+    <div className="space-y-6 w-full mx-auto px-4 md:px-8">
       <PaymentsList />
     </div>
   );

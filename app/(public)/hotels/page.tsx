@@ -9,12 +9,10 @@ export const metadata: Metadata = {
   description: "Explore our range of hotels and find the perfect stay.",
 };
 
-export default async function Page({
-  searchParams,
-}: {
-  searchParams: HotelsParams;
+export default async function Page(props: {
+  searchParams: Promise<HotelsParams>;
 }) {
-  const params = searchParams;
+  const params = await props.searchParams;
 
   const hotels = await getHotels({
     q: params?.q || "",

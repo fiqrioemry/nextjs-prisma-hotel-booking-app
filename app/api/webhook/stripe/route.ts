@@ -30,7 +30,7 @@ export async function POST(req: Request) {
     const bookingId = session.metadata?.bookingId;
 
     if (paymentId) {
-      await db.$transaction(async (tx) => {
+      await db.$transaction(async (tx: any) => {
         await tx.payment.update({
           where: { id: paymentId },
           data: {
