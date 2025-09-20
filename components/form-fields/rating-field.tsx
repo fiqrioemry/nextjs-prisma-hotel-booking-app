@@ -3,6 +3,15 @@
 import { Controller, useFormContext } from "react-hook-form";
 import { FieldWrapper } from "@/components/form-fields/field-wrapper";
 
+type RatingFieldProps = {
+  name: string;
+  label?: string;
+  helperText?: string;
+  min?: number;
+  max?: number;
+  className?: string;
+};
+
 export function RatingField({
   name,
   label,
@@ -10,7 +19,7 @@ export function RatingField({
   min = 1,
   max = 5,
   className,
-}: any) {
+}: RatingFieldProps) {
   const { control, formState } = useFormContext();
   const stars = Array.from({ length: max }, (_, i) => i + 1);
   return (

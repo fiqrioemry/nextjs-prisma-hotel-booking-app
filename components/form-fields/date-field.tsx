@@ -26,7 +26,7 @@ type DateFieldProps = {
   label?: string;
   helperText?: string;
   className?: string;
-  minDateFrom?: string; // ⬅️ minimum date custom (misalnya untuk endDate)
+  minDateFrom?: string;
 };
 
 export function DateField({
@@ -38,7 +38,6 @@ export function DateField({
 }: DateFieldProps) {
   const { control, formState, setValue } = useFormContext();
 
-  // ⬅️ perhatikan startDate kalau field sekarang adalah endDate
   const startDateValue = useWatch({ name: "startDate" });
 
   const toDate = (v: unknown): Date | undefined => {
@@ -71,8 +70,7 @@ export function DateField({
         let minDate = today;
         if (name === "endDate" && startDateValue) {
           const parsedStart = startOfDay(parseISO(startDateValue));
-          minDate = addDays(parsedStart, 1); // endDate minimal +1 hari
-          // ⬅️ auto set endDate kalau invalid
+          minDate = addDays(parsedStart, 1);
           if (selected && selected <= parsedStart) {
             const newEnd = addDays(parsedStart, 1);
             setValue("endDate", toStore(newEnd), { shouldValidate: true });

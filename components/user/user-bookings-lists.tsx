@@ -8,22 +8,24 @@ import {
   CardContent,
   CardDescription,
 } from "@/components/ui/card";
+import Image from "next/image";
 import { cn, formatDate } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
+import { useMyBookings } from "@/hooks/use-my";
 import type { MyBooking } from "@/lib/types/bookings";
-import type { MetaPagination } from "@/lib/types/hotels";
 import { BookedRoomDetail } from "./booked-room-detail";
 import { Calendar, Hotel, Receipt } from "lucide-react";
+import UserBookingsLoading from "./user-bookings-loading";
 import { PaginationTable } from "@/components/shared/pagination-table";
-import Image from "next/image";
 
-export const UserBookingsLists = ({
-  bookings,
-  pagination,
-}: {
-  bookings: MyBooking[];
-  pagination: MetaPagination;
-}) => {
+export const UserBookingsLists = () => {
+  const { data, isFetching } = useMyBookings();
+
+  if (isFetching) return <UserBookingsLoading />;
+
+  const bookings = data?.data || [];
+  const pagination = data?.pagination;
+
   return (
     <Card className="p-0">
       <CardHeader className="pt-4">
@@ -98,8 +100,8 @@ const BookingLists = ({ bookings }: { bookings: MyBooking[] }) => {
               </p>
               <div className="flex items-center gap-2 text-sm text-muted-foreground">
                 <Calendar className="w-4 h-4" />
-                {formatDate(b.checkIn.toISOString())} →{" "}
-                {formatDate(b.checkOut.toISOString())}
+                {formatDate(b.checkIn.toString())} →{" "}
+                {formatDate(b.checkOut.toString())}
               </div>
               <Badge
                 className={cn(

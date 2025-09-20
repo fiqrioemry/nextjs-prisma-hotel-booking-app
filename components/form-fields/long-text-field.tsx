@@ -5,6 +5,18 @@ import { Textarea } from "@/components/ui/textarea";
 import { Controller, useFormContext } from "react-hook-form";
 import { FieldWrapper } from "@/components/form-fields/field-wrapper";
 
+type LongTextFieldProps = {
+  name: string;
+  label?: string;
+  placeholder?: string;
+  helperText?: string;
+  rows?: number;
+  maxLength?: number;
+  disabled?: boolean;
+  className?: string;
+  reset?: boolean;
+};
+
 export function LongTextField({
   name,
   label,
@@ -15,7 +27,7 @@ export function LongTextField({
   disabled,
   className,
   reset,
-}: any) {
+}: LongTextFieldProps) {
   const { control, formState } = useFormContext();
   return (
     <Controller

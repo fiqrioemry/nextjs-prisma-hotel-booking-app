@@ -397,34 +397,30 @@ export const HotelsListPreview: React.FC<HotelsListPreviewProps> = ({
                       key={hotel.id}
                       className="group p-0 hover:shadow-2xl transition-all duration-500 border-0 rounded-3xl overflow-hidden hover:scale-105 bg-white dark:bg-slate-900"
                     >
-                      <CardContent className="p-0 flex flex-col">
-                        <div className="relative overflow-hidden">
+                      <CardContent className="p-2 flex flex-col">
+                        <div className="relative h-40 flex-shrink-0 overflow-hidden rounded-2xl group">
                           <Image
                             src={hotel.thumbnail}
                             alt={hotel.name}
                             fill
-                            sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"
-                            priority
-                            quality={75}
-                            className="w-full h-48 object-cover group-hover:scale-110 transition-transform duration-500"
+                            className="object-cover transition-transform duration-500 group-hover:scale-110"
                           />
-                          <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-
-                          <Badge
-                            className={cn(
-                              "absolute top-3 right-3 backdrop-blur-md border-white/30",
-                              hotel?.availableRooms! > 0
-                                ? "bg-emerald-500/90 text-white"
-                                : "bg-red-500/90 text-white"
-                            )}
-                          >
-                            {hotel?.availableRooms! > 0
-                              ? `${hotel.availableRooms} kamar tersedia`
-                              : "Tidak tersedia"}
-                          </Badge>
                         </div>
 
-                        <div className="p-6 flex-1">
+                        <Badge
+                          className={cn(
+                            "absolute top-3 right-3 backdrop-blur-md border-white/30",
+                            hotel?.availableRooms! > 0
+                              ? "bg-emerald-500/90 text-white"
+                              : "bg-red-500/90 text-white"
+                          )}
+                        >
+                          {hotel?.availableRooms! > 0
+                            ? `${hotel.availableRooms} kamar tersedia`
+                            : "Tidak tersedia"}
+                        </Badge>
+
+                        <div className="p-2 flex-1">
                           <h2 className="text-xl font-bold mb-2 group-hover:text-emerald-600 transition-colors">
                             {hotel.name}
                           </h2>
@@ -439,7 +435,7 @@ export const HotelsListPreview: React.FC<HotelsListPreviewProps> = ({
                           )}
                         </div>
 
-                        <div className="px-6 pb-6">
+                        <div className="px-6 py-4">
                           <Button
                             className="w-full rounded-xl bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 shadow-lg hover:shadow-xl transition-all duration-300"
                             asChild
@@ -479,11 +475,12 @@ export const HotelsListPreview: React.FC<HotelsListPreviewProps> = ({
                     >
                       <CardContent className="p-6">
                         <div className="flex gap-6">
-                          <div className="relative w-64 h-40 flex-shrink-0 overflow-hidden rounded-2xl">
-                            <img
+                          <div className="relative w-64 h-40 flex-shrink-0 overflow-hidden rounded-2xl group">
+                            <Image
                               src={hotel.thumbnail}
                               alt={hotel.name}
-                              className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                              fill
+                              className="object-cover transition-transform duration-500 group-hover:scale-110"
                             />
                             <Badge
                               className={cn(

@@ -1,5 +1,15 @@
 "use client";
 
+import {
+  Bold,
+  Italic,
+  List,
+  Quote,
+  Undo,
+  Redo,
+  ListOrdered,
+  Link as LinkIcon,
+} from "lucide-react";
 import React from "react";
 import Link from "@tiptap/extension-link";
 import StarterKit from "@tiptap/starter-kit";
@@ -8,16 +18,6 @@ import Placeholder from "@tiptap/extension-placeholder";
 import { useEditor, EditorContent } from "@tiptap/react";
 import { Controller, useFormContext } from "react-hook-form";
 import { FieldWrapper } from "@/components/form-fields/field-wrapper";
-import {
-  Bold,
-  Italic,
-  List,
-  ListOrdered,
-  Link as LinkIcon,
-  Quote,
-  Undo,
-  Redo,
-} from "lucide-react";
 
 interface TextEditorProps {
   name: string;

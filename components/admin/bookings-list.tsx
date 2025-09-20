@@ -21,8 +21,8 @@ import Link from "next/link";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Book, PlusCircle } from "lucide-react";
-import { BookingParams } from "@/lib/types/bookings";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Booking, BookingParams } from "@/lib/types/bookings";
 import { Pagination } from "@/components/shared/pagination";
 import { SearchInput } from "@/components/shared/search-input";
 import { SelectFilter } from "@/components/shared/select-filter";
@@ -36,6 +36,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { formatRupiah } from "@/lib/utils";
 import { useBookings } from "@/hooks/use-bookings";
+import Image from "next/image";
 
 export function BookingsList() {
   const [q, setQ] = React.useState("");
@@ -172,7 +173,7 @@ export function BookingsList() {
                     </TableRow>
                   ))
                 ) : bookings.length > 0 ? (
-                  bookings.map((booking: any) => (
+                  bookings.map((booking: Booking) => (
                     <TableRow key={booking.id} className="h-12">
                       {/* User */}
                       <TableCell>
@@ -188,11 +189,13 @@ export function BookingsList() {
 
                       {/* Room */}
                       <TableCell className="flex items-center gap-3">
-                        {booking.room.roomImage && (
-                          <img
-                            src={booking.room.roomImage}
+                        {booking.room.images && (
+                          <Image
+                            src={booking.room.images[0]?.url}
                             alt={booking.room.name}
-                            className="w-12 h-12 rounded object-cover"
+                            width={48}
+                            className="rounded-md"
+                            height={48}
                           />
                         )}
                         <div className="flex flex-col max-w-32">

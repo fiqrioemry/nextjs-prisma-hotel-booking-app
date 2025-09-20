@@ -7,6 +7,7 @@ import { formatDate } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import { HotelDetail } from "@/lib/types/hotels";
 import { useRouter, useSearchParams } from "next/navigation";
+import Image from "next/image";
 
 export const HotelDetailPreview = ({ hotel }: { hotel: HotelDetail }) => {
   const router = useRouter();
@@ -68,11 +69,12 @@ export const HotelDetailPreview = ({ hotel }: { hotel: HotelDetail }) => {
         {/* Hotel Description & Stats */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-6">
           <div className="relative w-full h-full overflow-hidden">
-            <img
+            <Image
               src={hotel.thumbnail}
               alt={hotel.name}
+              fill
               sizes="20vw"
-              className="object-cover rounded-xl "
+              className="object-cover rounded-xl"
             />
           </div>
           <div className="flex flex-col justify-center space-y-6">

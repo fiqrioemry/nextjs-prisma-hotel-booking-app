@@ -9,7 +9,7 @@ import {
   CardDescription,
 } from "@/components/ui/card";
 import Link from "next/link";
-import z from "zod";
+import { z } from "zod";
 import { toast } from "sonner";
 import { Mail } from "lucide-react";
 import React, { useState } from "react";

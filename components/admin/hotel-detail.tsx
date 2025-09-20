@@ -16,6 +16,11 @@ import { EditRoomForm } from "./edit-room-form";
 import { Skeleton } from "@/components/ui/skeleton";
 import { EditHotelForm } from "./edit-hotel-form";
 import { DeleteRoomForm } from "./delete-room-form";
+import Image from "next/image";
+import { Room } from "@/lib/types/rooms";
+import { array } from "zod";
+import { Button } from "../ui/button";
+import { Trash } from "lucide-react";
 
 export const HotelDetail = ({ id }: { id: string }) => {
   const { data, isLoading, isError } = useHotel({ id: id });
@@ -27,10 +32,16 @@ export const HotelDetail = ({ id }: { id: string }) => {
   if (isLoading) {
     return (
       <div className="space-y-4">
-        <Skeleton className="h-10 w-1/3" />
-        <Skeleton className="h-48 w-full" />
-        <Skeleton className="h-10 w-1/4" />
-        <Skeleton className="h-40 w-full" />
+        <Skeleton className="h-[475px] w-full" />
+        <div className="flex items-center justify-between py-6">
+          <Skeleton className="h-6 w-20" />
+          <Skeleton className="h-8 w-24" />
+        </div>
+        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3  ">
+          {[...Array(3)].map((_, index) => (
+            <Skeleton key={index} className="h-[350px] w-full rounded-lg" />
+          ))}
+        </div>
       </div>
     );
   }
@@ -53,16 +64,24 @@ export const HotelDetail = ({ id }: { id: string }) => {
               <CardTitle className="text-2xl">{hotel.name}</CardTitle>
               <CardDescription>{hotel.address}</CardDescription>
             </div>
-            <EditHotelForm hotel={hotel} />
+            <div className="flex items-center gap-2">
+              <EditHotelForm hotel={hotel} />
+              <Button onClick={handleDelete} variant="destructive" size="icon">
+                <Trash className="w-4 h-4" />
+              </Button>
+            </div>
           </div>
         </CardHeader>
         <CardContent className="space-y-4">
           {hotel.thumbnail && (
-            <img
-              src={hotel.thumbnail}
-              alt={hotel.name}
-              className="w-full h-64 object-cover rounded-lg"
-            />
+            <div className="relative w-full h-64">
+              <Image
+                src={hotel.thumbnail}
+                alt={hotel.name}
+                fill
+                className="object-cover rounded-lg "
+              />
+            </div>
           )}
           <p className="text-muted-foreground">{hotel.description}</p>
         </CardContent>
@@ -75,7 +94,7 @@ export const HotelDetail = ({ id }: { id: string }) => {
       </div>
 
       <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-        {hotel.rooms?.map((room: any) => (
+        {hotel.rooms?.map((room: Room) => (
           <Card key={room.id} className="flex flex-col">
             <CardHeader className="px-2">
               <div className="flex items-center justify-between gap-2">
@@ -89,11 +108,14 @@ export const HotelDetail = ({ id }: { id: string }) => {
             </CardHeader>
             <CardContent className="space-y-2 px-2">
               {room.images?.[0] && (
-                <img
-                  src={room.images[0].url}
-                  alt={room.name}
-                  className="w-full h-40 object-cover rounded-md"
-                />
+                <div className="relative w-full h-64">
+                  <Image
+                    src={room.images[0].url}
+                    alt={room.name}
+                    fill
+                    className="object-cover rounded-lg"
+                  />
+                </div>
               )}
               <p className="text-lg font-medium">
                 Rp {room.price.toLocaleString("id-ID")}

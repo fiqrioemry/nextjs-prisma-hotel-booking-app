@@ -9,6 +9,7 @@ import React, { useState, useCallback } from "react";
 import { useEdgeStoreUpload } from "@/hooks/use-uploader";
 import { Controller, useFormContext } from "react-hook-form";
 import { FileText, X, Upload, Loader2, CheckCircle } from "lucide-react";
+import Image from "next/image";
 
 type FileType = "image" | "video" | "documents";
 type UploadMode = "preview" | "direct";
@@ -231,11 +232,12 @@ export function FileEdgeUpload({
                 {fileType === "image" && (
                   <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
                     {files.map((f, i) => (
-                      <div key={i} className="relative group">
-                        <img
+                      <div key={i} className="relative group w-full h-32">
+                        <Image
                           src={f.preview || f.url!}
-                          alt={f.name}
-                          className="w-full h-32 object-cover rounded"
+                          alt={f.name!}
+                          fill
+                          className="object-cover rounded"
                         />
                         {f.isUploading && (
                           <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
@@ -245,6 +247,7 @@ export function FileEdgeUpload({
                             </span>
                           </div>
                         )}
+
                         {f.progress === 100 && f.url && (
                           <CheckCircle className="absolute top-2 left-2 h-5 w-5 text-green-500" />
                         )}

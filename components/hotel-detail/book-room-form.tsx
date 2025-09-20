@@ -1,6 +1,6 @@
 "use client";
 
-import z from "zod";
+import { z } from "zod";
 import {
   Dialog,
   DialogTitle,
@@ -10,13 +10,13 @@ import {
   DialogHeader,
 } from "@/components/ui/dialog";
 import { toast } from "sonner";
-import { formatDate, formatRupiah } from "@/lib/utils";
 import { PlusCircle } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { Badge } from "@/components/ui/badge";
-import type { Room, RoomDetail } from "@/lib/types/rooms";
 import { Button } from "@/components/ui/button";
+import type { RoomDetail } from "@/lib/types/rooms";
 import { useFormSchema } from "@/hooks/use-form-schema";
+import { formatDate, formatRupiah } from "@/lib/utils";
 import { FormProvider, useWatch } from "react-hook-form";
 import { useBookingWithPayment } from "@/hooks/use-bookings";
 import { NumberField } from "@/components/form-fields/number-field";

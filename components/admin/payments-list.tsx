@@ -14,9 +14,9 @@ import Link from "next/link";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Book, PlusCircle } from "lucide-react";
-import { PaymentParams } from "@/lib/types/payments";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Pagination } from "@/components/shared/pagination";
+import { Payment, PaymentParams } from "@/lib/types/payments";
 import { SearchInput } from "@/components/shared/search-input";
 import { SelectFilter } from "@/components/shared/select-filter";
 import { Edit, Trash2, RotateCcw, Filter, MoreHorizontal } from "lucide-react";
@@ -182,14 +182,14 @@ export function PaymentsList() {
                     </TableRow>
                   ))
                 ) : payments.length > 0 ? (
-                  payments.map((p: any) => (
+                  payments.map((p: Payment) => (
                     <TableRow key={p.id} className="h-12">
                       {/* User */}
                       <TableCell>
                         <div className="flex flex-col">
-                          <span className="font-medium">{p.user.name}</span>
+                          <span className="font-medium">{p.user?.name}</span>
                           <span className="text-xs text-muted-foreground">
-                            {p.user.email}
+                            {p.user?.email}
                           </span>
                         </div>
                       </TableCell>

@@ -15,28 +15,21 @@ import { toast } from "sonner";
 import { useHotels } from "@/hooks/use-hotels";
 import { Button } from "@/components/ui/button";
 import { Hotel, PlusCircle } from "lucide-react";
-import { HotelsParams } from "@/lib/types/hotels";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Pagination } from "@/components/shared/pagination";
 import { SearchInput } from "@/components/shared/search-input";
 import { SelectFilter } from "@/components/shared/select-filter";
-import {
-  Eye,
-  Edit,
-  Trash2,
-  RotateCcw,
-  Filter,
-  MoreHorizontal,
-} from "lucide-react";
+import { AdminHotelDetails, HotelsParams } from "@/lib/types/hotels";
+import { Edit, RotateCcw, Filter, MoreHorizontal } from "lucide-react";
 
 import {
   DropdownMenu,
   DropdownMenuItem,
   DropdownMenuContent,
   DropdownMenuTrigger,
-  DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
 import { DeleteHotelForm } from "./delete-hotel-form";
+import Image from "next/image";
 
 export function HotelsList() {
   const [q, setQ] = React.useState("");
@@ -171,13 +164,15 @@ export function HotelsList() {
                     </TableRow>
                   ))
                 ) : hotels.length > 0 ? (
-                  hotels.map((hotel: any) => (
+                  hotels.map((hotel: AdminHotelDetails) => (
                     <TableRow key={hotel.id} className="h-12">
                       <TableCell className="flex items-center gap-3">
-                        <img
+                        <Image
                           src={hotel.thumbnail}
                           alt={hotel.name}
-                          className="w-12 h-12 rounded object-cover"
+                          width={48}
+                          height={48}
+                          className="rounded object-cover w-12 h-12"
                         />
                         <div className="flex flex-col max-w-32">
                           <span className="font-medium">{hotel.name}</span>

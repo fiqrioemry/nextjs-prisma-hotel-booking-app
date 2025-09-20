@@ -1,15 +1,15 @@
 // fields/SelectField.tsx
 "use client";
 
-import { Controller, useFormContext } from "react-hook-form";
-import { FieldWrapper } from "@/components/form-fields/field-wrapper";
 import {
   Select,
-  SelectContent,
   SelectItem,
-  SelectTrigger,
   SelectValue,
+  SelectTrigger,
+  SelectContent,
 } from "@/components/ui/select";
+import { Controller, useFormContext } from "react-hook-form";
+import { FieldWrapper } from "@/components/form-fields/field-wrapper";
 
 export function SelectField({
   name,
@@ -50,7 +50,7 @@ export function SelectField({
               <SelectValue placeholder={placeholder} />
             </SelectTrigger>
             <SelectContent>
-              {options.map((o: any) => (
+              {options.map((o) => (
                 <SelectItem key={o.value} value={o.value}>
                   {o.label}
                 </SelectItem>

@@ -11,7 +11,8 @@ import React from "react";
 import { cn, formatRupiah } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import type { MetaPagination } from "@/lib/types/hotels";
+import { useMyPayments } from "@/hooks/use-my";
+import UserPaymentsLoading from "./user-payments-loading";
 import { Receipt, Calendar, CreditCard } from "lucide-react";
 import { PaginationTable } from "@/components/shared/pagination-table";
 
@@ -26,13 +27,16 @@ type payments = {
   updatedAt: Date;
 };
 
-export const UserPaymentsLists = ({
-  payments,
-  pagination,
-}: {
-  payments: payments[];
-  pagination: MetaPagination;
-}) => {
+export const UserPaymentsLists = () => {
+  const { data, isFetching } = useMyPayments();
+
+  if (isFetching) {
+    return <UserPaymentsLoading />;
+  }
+
+  const payments = data?.data || [];
+  const pagination = data?.pagination;
+
   return (
     <Card className="p-0">
       <CardHeader className="pt-4">

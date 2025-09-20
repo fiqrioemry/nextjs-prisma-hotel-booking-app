@@ -1,6 +1,6 @@
 "use client";
 
-import z from "zod";
+import { z } from "zod";
 
 import {
   Dialog,
@@ -53,7 +53,7 @@ export const SelectDateForm = ({
 
   return (
     <Dialog open={open} onOpenChange={() => onOpenChange(defaultState)}>
-      <DialogContent className="sm:max-w-2xl w-full rounded-3xl border-0 shadow-2xl bg-white/95 backdrop-blur-md">
+      <DialogContent className="sm:max-w-2xl w-full rounded-3xl border-0 shadow-2xl bg-card backdrop-blur-md">
         {/* Enhanced Dialog Header */}
         <DialogHeader className="space-y-6 pb-6">
           {/* Icon and badge */}
@@ -64,7 +64,7 @@ export const SelectDateForm = ({
           </div>
 
           {/* Title with enhanced styling */}
-          <DialogTitle className="text-3xl font-bold text-center text-transparent bg-clip-text bg-gradient-to-r from-slate-800 to-slate-600">
+          <DialogTitle className="text-3xl font-bold text-center ">
             Pilih Tanggal Menginap {/* Select Your Stay Dates */}
           </DialogTitle>
 
@@ -97,7 +97,7 @@ export const SelectDateForm = ({
                     <div className="w-6 h-6 bg-blue-100 rounded-lg flex items-center justify-center">
                       <span className="text-xs">📅</span>
                     </div>
-                    <span className="text-sm font-medium text-slate-700">
+                    <span className="text-sm font-medium text-muted-foreground">
                       Tanggal Check-in {/* Check-in Date */}
                     </span>
                   </div>
@@ -113,7 +113,7 @@ export const SelectDateForm = ({
                     <div className="w-6 h-6 bg-emerald-100 rounded-lg flex items-center justify-center">
                       <span className="text-xs">📅</span>
                     </div>
-                    <span className="text-sm font-medium text-slate-700">
+                    <span className="text-sm font-medium text-muted-foreground">
                       Tanggal Check-out {/* Check-out Date */}
                     </span>
                   </div>

@@ -13,9 +13,9 @@ import Image from "next/image";
 import { Eye } from "lucide-react";
 import { formatRupiah } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
-import type { Room } from "@/lib/types/rooms";
+import type { RoomDetail } from "@/lib/types/rooms";
 
-export function BookedRoomDetail({ room }: { room: Room }) {
+export function BookedRoomDetail({ room }: { room: RoomDetail }) {
   return (
     <Dialog>
       <DialogTrigger asChild>
@@ -46,8 +46,7 @@ export function BookedRoomDetail({ room }: { room: Room }) {
           </div>
           <p className="text-sm text-muted-foreground">{room.description}</p>
           <p className="font-bold text-lg">
-            {formatRupiah(room.price)} / malam
-            {/* night */}
+            {formatRupiah(room.price)} / night
           </p>
         </div>
       </DialogContent>

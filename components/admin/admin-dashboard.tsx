@@ -43,10 +43,12 @@ import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
+import { useDashboard } from "@/hooks/use-dashboard";
+import { formatDate, formatRupiah } from "@/lib/utils";
 import { DashboardStatistics } from "@/lib/actions/admin";
+import { AdminDashboardLoading } from "./admin-dashboard-loading";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { formatDate, formatRupiah } from "@/lib/utils";
 
 // Color schemes for charts
 const CHART_COLORS = {
@@ -64,33 +66,35 @@ const STATUS_COLORS = {
   COMPLETED: "#3b82f6",
 };
 
-export const AdminDashboard = ({
-  dashboardData,
-}: {
-  dashboardData: DashboardStatistics;
-}) => {
-  const data = dashboardData;
+// Format growth percentage
+const formatGrowth = (growth: number) => {
+  const isPositive = growth >= 0;
+  return (
+    <div
+      className={`flex items-center space-x-1 ${
+        isPositive ? "text-green-600" : "text-red-600"
+      }`}
+    >
+      {isPositive ? (
+        <TrendingUp className="h-4 w-4" />
+      ) : (
+        <TrendingDown className="h-4 w-4" />
+      )}
+      <span className="text-sm font-medium">
+        {Math.abs(growth).toFixed(1)}%
+      </span>
+    </div>
+  );
+};
 
-  // Format growth percentage
-  const formatGrowth = (growth: number) => {
-    const isPositive = growth >= 0;
-    return (
-      <div
-        className={`flex items-center space-x-1 ${
-          isPositive ? "text-green-600" : "text-red-600"
-        }`}
-      >
-        {isPositive ? (
-          <TrendingUp className="h-4 w-4" />
-        ) : (
-          <TrendingDown className="h-4 w-4" />
-        )}
-        <span className="text-sm font-medium">
-          {Math.abs(growth).toFixed(1)}%
-        </span>
-      </div>
-    );
-  };
+export const AdminDashboard = () => {
+  const { data: dashboardData, isFetching } = useDashboard();
+
+  if (isFetching || !dashboardData) {
+    return <AdminDashboardLoading />;
+  }
+
+  const data = dashboardData as DashboardStatistics;
 
   return (
     <div className="space-y-6 pb-12 ">
@@ -443,7 +447,7 @@ export const AdminDashboard = ({
             </CardHeader>
             <CardContent>
               <div className="grid gap-4 md:grid-cols-3">
-                {data.paymentMethodStats.map((method, index) => (
+                {data.paymentMethodStats.map((method) => (
                   <div key={method.method} className="space-y-2">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center space-x-2">

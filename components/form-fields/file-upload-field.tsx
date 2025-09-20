@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { FileText, X, Upload } from "lucide-react";
 import React, { useState, useCallback } from "react";
 import { Controller, useFormContext } from "react-hook-form";
+import Image from "next/image";
 
 type FileType = "image" | "video" | "documents";
 
@@ -177,11 +178,12 @@ export function FileUploadField({
                 {fileType === "image" && (
                   <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
                     {files.map((f, i) => (
-                      <div key={i} className="relative group">
-                        <img
+                      <div key={i} className="relative group w-full h-32">
+                        <Image
                           src={f.preview || f.url!}
-                          alt={f.name}
-                          className="w-full h-32 object-cover rounded"
+                          alt={f.name!}
+                          fill
+                          className="object-cover rounded"
                         />
                         <Button
                           type="button"
@@ -196,7 +198,6 @@ export function FileUploadField({
                     ))}
                   </div>
                 )}
-
                 {fileType === "video" && (
                   <div className="relative">
                     <video

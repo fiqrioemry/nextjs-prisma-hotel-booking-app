@@ -5,6 +5,16 @@ import { Slider } from "@/components/ui/slider";
 import { Controller, useFormContext } from "react-hook-form";
 import { FieldWrapper } from "@/components/form-fields/field-wrapper";
 
+type SliderFieldProps = {
+  name: string;
+  label?: string;
+  helperText?: string;
+  min?: number;
+  max?: number;
+  step?: number;
+  className?: string;
+};
+
 export function SliderField({
   name,
   label,
@@ -13,7 +23,7 @@ export function SliderField({
   max = 100,
   step = 1,
   className,
-}: any) {
+}: SliderFieldProps) {
   const { control, formState } = useFormContext();
   return (
     <Controller

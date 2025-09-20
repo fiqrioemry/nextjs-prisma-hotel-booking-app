@@ -16,7 +16,7 @@ import React, { useState } from "react";
 import { FormProvider } from "react-hook-form";
 import { useFormSchema } from "@/hooks/use-form-schema";
 
-import z from "zod";
+import { z } from "zod";
 import { toast } from "sonner";
 
 import Link from "next/link";
