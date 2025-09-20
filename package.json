@@ -6,10 +6,7 @@
     "dev": "next dev --turbopack",
     "build": "next build --turbopack",
     "start": "next start",
-    "lint": "eslint",
-    "prisma:seed": "node dist/prisma/seed.js",
-    "dev:reset": "dotenv -e .env.development -- npx prisma generate && dotenv -e .env.development -- npx prisma migrate reset --force && dotenv -e .env.development -- npx prisma migrate dev --name init && dotenv -e .env.development -- npx prisma db seed && npm run dev",
-    "db:setup": "dotenv -e .env.development -- npx prisma generate && dotenv -e .env.development -- npx prisma migrate reset --force && dotenv -e .env.development -- npx prisma migrate dev --name init && dotenv -e .env.development -- npx prisma db seed"
+    "lint": "eslint"
   },
   "dependencies": {
     "@edgestore/react": "^0.5.3",
@@ -71,15 +68,17 @@
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",
-    "@tailwindcss/postcss": "^4",
+    "@tailwindcss/postcss": "^4.1.13",
     "@types/node": "^20.19.13",
     "@types/nodemailer": "^7.0.1",
     "@types/qs": "^6.14.0",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "autoprefixer": "^10.4.21",
     "eslint": "^9",
     "eslint-config-next": "15.5.2",
-    "tailwindcss": "^4",
+    "postcss": "^8.5.6",
+    "tailwindcss": "^4.1.13",
     "ts-node": "^10.9.2",
     "tsx": "^4.20.5",
     "tw-animate-css": "^1.3.7",
