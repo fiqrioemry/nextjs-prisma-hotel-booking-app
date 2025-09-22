@@ -1,5 +1,3 @@
-export const dynamic = "force-dynamic";
-
 import React from "react";
 import { Metadata } from "next";
 import { getMyProfile } from "@/lib/actions/my";
@@ -10,12 +8,15 @@ export const metadata: Metadata = {
   description: "Lihat dan kelola informasi profil Anda.",
 };
 
+export const dynamic = "force-dynamic";
+export const revalidate = 600;
+
 export default async function Page() {
-  const res = await getMyProfile();
+  const profile = await getMyProfile();
 
   return (
     <div className="max-w-5xl mx-auto w-full space-y-8 h-full">
-      <UserProfileForm profile={res} />
+      <UserProfileForm profile={profile} />
     </div>
   );
 }

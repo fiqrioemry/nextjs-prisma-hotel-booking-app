@@ -1,6 +1,5 @@
 import { Metadata } from "next";
 import { getHotelById } from "@/lib/actions/hotels";
-import { HotelDetailParams } from "@/lib/types/hotels";
 import { HotelNotFound } from "@/components/hotel-detail/hotel-not-found";
 import { HotelDetailPreview } from "@/components/hotel-detail/hotel-detail-preview";
 
@@ -13,13 +12,16 @@ export default async function Page({
   params,
   searchParams,
 }: {
-  params: { hotelId: string };
-  searchParams: Omit<HotelDetailParams, "id">;
+  params: Promise<{ hotelId: string }>;
+  searchParams?: Promise<{ startDate?: string; endDate?: string }>;
 }) {
+  const resolvedParams = await params;
+  const resolvedSearchParams = await searchParams;
+
   const hotel = await getHotelById({
-    hotelId: params.hotelId,
-    startDate: searchParams.startDate,
-    endDate: searchParams.endDate,
+    hotelId: resolvedParams.hotelId,
+    startDate: resolvedSearchParams?.startDate,
+    endDate: resolvedSearchParams?.endDate,
   });
 
   if (!hotel) {

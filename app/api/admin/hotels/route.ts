@@ -38,6 +38,6 @@ export async function GET(req: Request) {
     const data = await getHotels(query);
     return NextResponse.json(data);
   } catch (err: any) {
-    return NextResponse.json({ error: err.message }, { status: 400 });
+    return NextResponse.json({ error: err.message }, { status: 500 });
   }
 }

@@ -19,6 +19,9 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "PesanHotel- Cara mudah pesan hotel impian Anda",
   description: "Pesan hotel impian Anda dengan mudah dan cepat.",
+  icons: {
+    icon: "/pesan.svg",
+  },
 };
 
 export default function RootLayout({

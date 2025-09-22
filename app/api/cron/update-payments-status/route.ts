@@ -33,7 +33,7 @@ export async function GET(request: NextRequest) {
       // Update semua payment → FAILED
       const updatedPayments = await tx.payment.updateMany({
         where: {
-          id: { in: expiredPayments.map((p: { id: any }) => p.id) },
+          id: { in: expiredPayments.map((p) => p.id) },
         },
         data: {
           status: "FAILED",
@@ -46,8 +46,8 @@ export async function GET(request: NextRequest) {
         where: {
           id: {
             in: expiredPayments
-              .map((p: { bookingId: any }) => p.bookingId)
-              .filter((id: any): id is string => !!id),
+              .map((p) => p.bookingId)
+              .filter((id): id is string => !!id),
           },
           status: "PENDING",
         },
